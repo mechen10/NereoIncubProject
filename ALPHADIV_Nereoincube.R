@@ -18,8 +18,8 @@ alphaNames <- unlist(strsplit(alphaNamesTMP, split = ","))
 
 
 #####FORTESTING ########
-# setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_NEREOINCUBE/ANALYSIS_ALPHABETA/R")
-# MFPWD = "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_NEREOINCUBE/ANALYSIS_ALPHABETA/OTU_Tables_and_MP/MF_withalpha.txt"
+# setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis")
+# MFPWD = "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 # alphaNames = c("chao1","PD_whole_tree","observed_otus")
 
 
@@ -70,7 +70,7 @@ for (i in alphaNames) {
                               ,paste0("With Both (",ncounts[4],")")
                               )
   
-  jpeg(paste0("ALPHAPLOTS/Alpha_div_meristemswabs_",i,".jpeg"))
+  pdf(paste0("ALPHAPLOTS/Alpha_div_meristemswabs_",i,".pdf"))
   par(mar = c(10,4,4,4))
   boxplot(t(MF.ExN.Alpha)
           , las = 2
@@ -112,7 +112,7 @@ for (i in alphaNames) {
                                    ,paste0("With Both (",ncounts[5],")")
   )
   
-  jpeg(paste0("ALPHAPLOTS/Alpha_div_watersamples_",i,".jpeg"))
+  pdf(paste0("ALPHAPLOTS/Alpha_div_watersamples_",i,".pdf"))
   par(mar = c(10,4,4,4))
   boxplot(t(MF.ExNWater.Alpha)
           , las = 2
@@ -153,7 +153,7 @@ for (i in alphaNames) {
                                    ,paste0("Mast Water (",ncounts[4],")")
   )
   
-  jpeg(paste0("ALPHAPLOTS/Alpha_div_loneincube_",i,".jpeg"))
+  pdf(paste0("ALPHAPLOTS/Alpha_div_loneincube_",i,".pdf"))
   par(mar = c(10,4,4,4))
   boxplot(t(MF.LoneIncube.Alpha)
           , las = 2

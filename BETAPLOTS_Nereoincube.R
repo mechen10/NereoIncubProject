@@ -24,11 +24,11 @@ MFPWD = opt$mappingfile
 ###########################
 # FOR TESTING
 # 
-# setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_NEREOINCUBE/ANALYSIS_ALPHABETA/R")
-# BCPWD<- "../beta_div/bray_curtis_dm.txt"
-# WUFPWD <- "../beta_div/weighted_unifrac_dm.txt"
-# UWUFPWD <- "../beta_div/unweighted_unifrac_dm.txt"
-# MFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/z_NEREOINCUBE/NEG_CON_ANALYSIS/OTU_MP_output/MF_nochlpmito_m1000.txt"
+setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis")
+BCPWD<- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/beta_div/bray_curtis_dm.txt"
+WUFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt"
+UWUFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/beta_div/unweighted_unifrac_dm.txt"
+MFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
 ###########################
 
 # MAKE BETA PLOTS
@@ -326,7 +326,7 @@ NMDS.UWUF.ExN.NereoMast <- NMDS.UWUF.ExN$points[grep(".NereoMast.", rownames(NMD
 NMDS.UWUF.ExN.NereoMast.chull <- chull(NMDS.UWUF.ExN.NereoMast)
 NMDS.UWUF.ExN.NereoMast.chull <- c(NMDS.UWUF.ExN.NereoMast.chull, NMDS.UWUF.ExN.NereoMast.chull[1])
 
-jpeg("./BETAPLOTS/UWUF/NMDS_UWUF_ExN.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/UWUF/NMDS_UWUF_ExN.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.UWUF.ExN$points
      , main = "NMDS of Nereo Meristem Swabs"
@@ -356,7 +356,7 @@ legend("center"
        , pch = 19
        , legend = c("Alone","With Nereocystis","With Mastocarpus","With Both")#levels(MF.ExN$ColRep)
        , col = ExNColours
-       , cex = 1.5)
+       , cex = 1)
 dev.off()
 
 
@@ -387,7 +387,7 @@ NMDS.UWUF.ExNWater.NereoMast.chull <- chull(NMDS.UWUF.ExNWater.NereoMast)
 NMDS.UWUF.ExNWater.NereoMast.chull <- c(NMDS.UWUF.ExNWater.NereoMast.chull, NMDS.UWUF.ExNWater.NereoMast.chull[1])
 
 
-jpeg("./BETAPLOTS/UWUF/NMDS_UWUF_ExNWater.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/UWUF/NMDS_UWUF_ExNWater.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.UWUF.ExNWater$points
      , main = "NMDS of water samples"
@@ -443,7 +443,7 @@ NMDS.UWUF.LoneIncube.Mast.chull <- chull(NMDS.UWUF.LoneIncube.Mast)
 NMDS.UWUF.LoneIncube.Mast.chull <- c(NMDS.UWUF.LoneIncube.Mast.chull, NMDS.UWUF.LoneIncube.Mast.chull[1])
 
 
-jpeg("./BETAPLOTS/UWUF/NMDS_UWUF_LoneIncube.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/UWUF/NMDS_UWUF_LoneIncube.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.UWUF.LoneIncube$points
      , main = "NMDS of Incubation Experiment"
@@ -463,7 +463,7 @@ lines(NMDS.UWUF.LoneIncube.Mast[NMDS.UWUF.LoneIncube.Mast.chull,]
       , col = "red")
 par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
 plot(0,0
-     , pch = 0
+     , pch = ''
      , xaxt = 'n'
      , yaxt = 'n'
      , xlab = ''
@@ -473,7 +473,7 @@ legend("center"
        , pch = 19
        , legend = c("Water-Nereocystis","Nereocystis","Water-Mastocarpus","Mastocarpus")#levels(MF.LoneIncube$ColRep)
        , col = LoneIncubeColours
-       , cex = 1.5)
+       , cex = 1)
 dev.off()
 
 
@@ -712,7 +712,7 @@ NMDS.WUF.ExN.NereoMast <- NMDS.WUF.ExN$points[grep(".NereoMast.", rownames(NMDS.
 NMDS.WUF.ExN.NereoMast.chull <- chull(NMDS.WUF.ExN.NereoMast)
 NMDS.WUF.ExN.NereoMast.chull <- c(NMDS.WUF.ExN.NereoMast.chull, NMDS.WUF.ExN.NereoMast.chull[1])
 
-jpeg("./BETAPLOTS/WUF/NMDS_WUF_ExN.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/WUF/NMDS_WUF_ExN.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.WUF.ExN$points
      , main = "NMDS of Nereo Meristem Swabs"
@@ -742,7 +742,7 @@ legend("center"
        , pch = 19
        , legend = c("Alone","With Nereocystis","With Mastocarpus","With Both")#levels(MF.ExN$ColRep)
        , col = ExNColours
-       , cex = 1.5)
+       , cex = 1)
 dev.off()
 
 
@@ -773,7 +773,7 @@ NMDS.WUF.ExNWater.NereoMast.chull <- chull(NMDS.WUF.ExNWater.NereoMast)
 NMDS.WUF.ExNWater.NereoMast.chull <- c(NMDS.WUF.ExNWater.NereoMast.chull, NMDS.WUF.ExNWater.NereoMast.chull[1])
 
 
-jpeg("./BETAPLOTS/WUF/NMDS_WUF_ExNWater.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/WUF/NMDS_WUF_ExNWater.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.WUF.ExNWater$points
      , main = "NMDS of water samples"
@@ -829,7 +829,7 @@ NMDS.WUF.LoneIncube.Mast.chull <- chull(NMDS.WUF.LoneIncube.Mast)
 NMDS.WUF.LoneIncube.Mast.chull <- c(NMDS.WUF.LoneIncube.Mast.chull, NMDS.WUF.LoneIncube.Mast.chull[1])
 
 
-jpeg("./BETAPLOTS/WUF/NMDS_WUF_LoneIncube.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/WUF/NMDS_WUF_LoneIncube.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.WUF.LoneIncube$points
      , main = "NMDS of Incubation Experiment"
@@ -849,7 +849,7 @@ lines(NMDS.WUF.LoneIncube.Mast[NMDS.WUF.LoneIncube.Mast.chull,]
       , col = "red")
 par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
 plot(0,0
-     , pch = 0
+     , pch = ''
      , xaxt = 'n'
      , yaxt = 'n'
      , xlab = ''
@@ -859,7 +859,7 @@ legend("center"
        , pch = 19
        , legend = c("Water-Nereocystis","Nereocystis","Water-Mastocarpus","Mastocarpus")#levels(MF.LoneIncube$ColRep)
        , col = LoneIncubeColours
-       , cex = 1.5)
+       , cex = 1)
 dev.off()
 
 
@@ -1100,7 +1100,7 @@ NMDS.BC.ExN.NereoMast <- NMDS.BC.ExN$points[grep(".NereoMast.", rownames(NMDS.BC
 NMDS.BC.ExN.NereoMast.chull <- chull(NMDS.BC.ExN.NereoMast)
 NMDS.BC.ExN.NereoMast.chull <- c(NMDS.BC.ExN.NereoMast.chull, NMDS.BC.ExN.NereoMast.chull[1])
 
-jpeg("./BETAPLOTS/BC/NMDS_BC_ExN.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/BC/NMDS_BC_ExN.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.BC.ExN$points
      , main = "NMDS of Nereo Meristem Swabs"
@@ -1130,7 +1130,7 @@ legend("center"
        , pch = 19
        , legend = c("Alone","With Nereocystis","With Mastocarpus","With Both")#levels(MF.ExN$ColRep)
        , col = ExNColours
-       , cex = 1.5)
+       , cex = 1)
 dev.off()
 
 
@@ -1161,7 +1161,7 @@ NMDS.BC.ExNWater.NereoMast.chull <- chull(NMDS.BC.ExNWater.NereoMast)
 NMDS.BC.ExNWater.NereoMast.chull <- c(NMDS.BC.ExNWater.NereoMast.chull, NMDS.BC.ExNWater.NereoMast.chull[1])
 
 
-jpeg("./BETAPLOTS/BC/NMDS_BC_ExNWater.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/BC/NMDS_BC_ExNWater.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.BC.ExNWater$points
      , main = "NMDS of water samples"
@@ -1217,7 +1217,7 @@ NMDS.BC.LoneIncube.Mast.chull <- chull(NMDS.BC.LoneIncube.Mast)
 NMDS.BC.LoneIncube.Mast.chull <- c(NMDS.BC.LoneIncube.Mast.chull, NMDS.BC.LoneIncube.Mast.chull[1])
 
 
-jpeg("./BETAPLOTS/BC/NMDS_BC_LoneIncube.jpeg", width = 1500, height = 1000, pointsize = 24)
+pdf("./BETAPLOTS/BC/NMDS_BC_LoneIncube.pdf", width = 10, height = 7, pointsize = 14)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.BC.LoneIncube$points
      , main = "NMDS of Incubation Experiment"
@@ -1237,7 +1237,7 @@ lines(NMDS.BC.LoneIncube.Mast[NMDS.BC.LoneIncube.Mast.chull,]
       , col = "red")
 par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
 plot(0,0
-     , pch = 0
+     , pch = ''
      , xaxt = 'n'
      , yaxt = 'n'
      , xlab = ''
@@ -1247,7 +1247,7 @@ legend("center"
        , pch = 19
        , legend = c("Water-Nereocystis","Nereocystis","Water-Mastocarpus","Mastocarpus")#levels(MF.LoneIncube$ColRep)
        , col = LoneIncubeColours
-       , cex = 1.5)
+       , cex = 1)
 dev.off()
 
 
