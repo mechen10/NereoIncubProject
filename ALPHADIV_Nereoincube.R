@@ -1,5 +1,7 @@
 #!/bin/Rscript
 library(optparse)
+library(car)
+################ OPT PARSE ####################
 
 option_list = list(
   make_option(c("-m", "--mappingfile"), type="character",
@@ -19,10 +21,15 @@ alphaNames <- unlist(strsplit(alphaNamesTMP, split = ","))
 
 #####FORTESTING ########
 # setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis")
-# MFPWD = "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
-# alphaNames = c("chao1","PD_whole_tree","observed_otus")
+# MFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+# alphaNames <- c("chao1","PD_whole_tree","observed_otus")
 
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
+MFPWD <-  
+alphaNames <-  'chao1_even_4000_normalized_alpha,PD_whole_tree_even_4000_normalized_alpha,observed_otus_even_4000_normalized_alpha'
+alphaList <- unlist(strsplit(alphaNames, ","))
 
+############## LOAD DATA ########
 
 # Alpha div script
 
@@ -41,11 +48,16 @@ MF.ExN <- MF.filtered[grep("ExN.Nereotest.", rownames(MF.filtered)),]
 MF.ExNWater <- MF.filtered[grep("Water.Nereotest.", rownames(MF.filtered)),]
 MF.LoneIncube <- MF.filtered[grep("Loneincube", rownames(MF.filtered)),]
 
+
 ####### PLOT ##########
 
 # For MF.ExN
-for (i in alphaNames) {
-  MF.ExN.temp <- MF.ExN[,c(paste0(i,"_even_3500_alpha"), "ColRep","Replicate")]
+for (i in alphaList) {
+  
+  ExN.lm <- lm(MF.ExN[,paste0(i)] ~ ColRep)
+  anova.ExN.lm <- Anova(ExN.lm, type = 'III') # TO BE FINISHED
+  
+  MF.ExN.temp <- MF.ExN[,c(paste0(i), "ColRep","Replicate")]
   MF.ExN.Alpha <- reshape(MF.ExN.temp, idvar = "ColRep", timevar = "Replicate", direction = "wide")
   MF.ExN.Alpha <- data.frame(MF.ExN.Alpha
                              , row.names = 1
