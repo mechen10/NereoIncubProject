@@ -118,7 +118,8 @@ for (i in Exp.Files2) {
 
 # Filter OTU table based on all core OTUs
 allOTUsCombo <- unique(c(allOTUs, allOTUs2))
-OTUTable.filt <- OTUTable.RelAbund[allOTUsCombo,c(allSamples,allSamples2)]
+# OTUTable.filt <- OTUTable.RelAbund[allOTUsCombo,c(allSamples,allSamples2)]
+OTUTable.filt <- OTUTable.RelAbund
 
 # Collapse OTU Table by sample 
 MF.filt <- MF[sapply(colnames(OTUTable.filt), function(x) grep(x,rownames(MF))),]
@@ -140,30 +141,61 @@ FoldChangeTable1 <- log(OTUTable.filt.col.treatonly[,grep("Water", colnames(OTUT
 FoldChangeTable2 <- log(OTUTable.filt.col.treatonly[,-grep("Water", colnames(OTUTable.filt.col.treatonly))]/ExNExN.filt.col,2)
 FoldChangeTable <- cbind(FoldChangeTable1, FoldChangeTable2)
 
-# Get rid of NA's and Inf's
+# Get rid of NA's and Inf's TEMP COMMENT OUT
+# todelete <- c()
+# for (i in 1:nrow(FoldChangeTable)) {
+#   if (all(is.na(FoldChangeTable[i,]))) {
+#     todelete <- c(todelete, i)
+#   } else {
+#     for (j in 1:ncol(FoldChangeTable)) {
+#       if (is.na(FoldChangeTable[i,j])) {
+#         FoldChangeTable[i,j] <- -10
+#       } else if (FoldChangeTable[i,j] == Inf) {
+#         FoldChangeTable[i,j] <- 10
+#       } else if (FoldChangeTable[i,j] == -Inf){
+#         FoldChangeTable[i,j] <- -10
+#       } #else if (FoldChangeTable[i,j] >= 10) {
+#       # FoldChangeTable[i,j] <- 10
+#       #}
+#     }
+#   if (all(FoldChangeTable[i,] == 10)) {
+#     todelete <- c(todelete, i)
+#   } else if (all(FoldChangeTable[i,] == -10)) {
+#     todelete <- c(todelete,i)
+#   }
+#   
+#   }
+# }
+# if (length(todelete) >0) {
+#   FoldChangeTable <- FoldChangeTable[-todelete,]
+# }
+
+# Get rid of NA's and Inf's by deleting
+todelete <- c()
 for (i in 1:nrow(FoldChangeTable)) {
-  for (j in 1:ncol(FoldChangeTable)) {
-    if (is.na(FoldChangeTable[i,j])) {
-      FoldChangeTable[i,j] <- -10
-    } else if (FoldChangeTable[i,j] == Inf) {
-      FoldChangeTable[i,j] <- 10
-    } else if (FoldChangeTable[i,j] == -Inf){
-      FoldChangeTable[i,j] <- -10
-    } #else if (FoldChangeTable[i,j] >= 10) {
-      # FoldChangeTable[i,j] <- 10
-    #}
+  if (any(is.na(FoldChangeTable[i,]))) {
+    todelete <- c(todelete, i)
+  } else if (any(FoldChangeTable[i,] == Inf)) {
+    todelete <- c(todelete, i)
+  } else if (any(FoldChangeTable[i,] == -Inf)) {
+    todelete <- c(todelete, i)
   }
+}
+if (length(todelete) >0) {
+  FoldChangeTable <- FoldChangeTable[-todelete,]
+
 }
 
 # Reorder Samples
 orderedSamples <- c("NereotestNereoWater"
-                    , "NereotestNereoExN"
-                    
                     , "NereotestMastWater"
-                    , "NereotestMastExN"
-                    
                     , "NereotestNereoMastWater"
+                    
+                    , "NereotestNereoExN"
+                    , "NereotestMastExN"
                     , "NereotestNereoMastExN")
+
+                    
 
 
 FoldChangeTable <- FoldChangeTable[,sapply(orderedSamples, function(x) grep(x,colnames(FoldChangeTable)))]
@@ -171,7 +203,7 @@ FoldChangeTable <- FoldChangeTable[,sapply(orderedSamples, function(x) grep(x,co
 # Now, filter out fold changes that are less than 5
 todelete <- c()
 for (i in 1:nrow(FoldChangeTable)) {
-  if (max(abs(FoldChangeTable[i,])) < 2) {
+  if (max(abs(FoldChangeTable[i,])) < 5) {
     todelete <- c(todelete, i)
   }
 }
@@ -231,8 +263,8 @@ rownames(OTUTable.core.filt.col) <- gsub("X","",rownames(OTUTable.core.filt.col)
 # Reorder Samples and filter to match above
 
 
-OTUTable.core.filt.col <- OTUTable.core.filt.col[sapply(paste0("^",rownames(FoldChangeTable.filt),"$"), function(x) grep(x, rownames(OTUTable.core.filt.col)))
-                                                 ,sapply(paste0("^",colnames(FoldChangeTable.filt),"$"), function(x) grep(x, colnames(OTUTable.core.filt.col)))]
+OTUTable.core.filt.col <- OTUTable.core.filt.col[unlist(sapply(paste0("^",rownames(FoldChangeTable.filt),"$"), function(x) grep(x, rownames(OTUTable.core.filt.col))))
+                                                 ,unlist(sapply(paste0("^",colnames(FoldChangeTable.filt),"$"), function(x) grep(x, colnames(OTUTable.core.filt.col))))]
 
 for (i in 1:nrow(OTUTable.core.filt.col)) {
   for (j in 1:ncol(OTUTable.core.filt.col)) {
@@ -250,12 +282,12 @@ for (i in 1:nrow(OTUTable.core.filt.col)) {
 ###### PLOT #######
 pdf("OTUHEATMAP/Heatmap.pdf", pointsize = 14, height = 14, width = 7)
 heatmap.2(as.matrix(FoldChangeTable.filt)
-        , Rowv = hc
-        , labCol= c("WATER", "NMF","WATER","NMF","WATER","NMF")
+        , Rowv = as.dendrogram(hc)
+        , labCol= c("WATER", "WATER","WATER","NMF","NMF","NMF")
         , labRow = taxonomyLabels.filt
         , Colv = NA
         , cexCol = 1
-        , ColSideColors = c("green","green","red","red","brown","brown")
+        , ColSideColors = c("green","red","brown","green","red","brown")
         , cexRow = 0.5
         , scale = "none"
         
@@ -264,9 +296,9 @@ heatmap.2(as.matrix(FoldChangeTable.filt)
         , col = redgreenRamp(17)
         , breaks = c(-10,-9,-8,-7,-6,-5,-4,-3,-2,2,3,4,5,6,7,8,9,10)
         
-        , cellnote = as.matrix(OTUTable.core.filt.col[hc$order,])
+        # , cellnote = as.matrix(OTUTable.core.filt.col[hc$order,])
         , notecol = "black"
-        , colsep = c(2,4)
+        , colsep = c(3)
         , dendrogram = "none"
         , trace = "none"
         , density.info = "none"
@@ -291,4 +323,28 @@ dev.off()
 #         , dendrogram = "none"
 #         , ColSideColors = c("green","green","red","red","brown","brown")
 #         )
+############## TESTING ABUNDANCE #############
 
+colnames(OTUTable.filt)
+
+lessthanfive <- c()
+for (i in 1:nrow(OTUTable.filt)) {
+  if (max(OTUTable.filt[i,]) < 0.05) {
+    lessthanfive <- c(lessthanfive, i)
+  }
+}
+
+OTUTable.filt.lessfive <- OTUTable.filt[-lessthanfive,]
+colnames(OTUTable.filt.lessfive)
+hc.abund <- hclust(as.dist(1-cor(t(OTUTable.filt.lessfive))))
+hc.abund.v <- hclust(as.dist(1-cor(OTUTable.filt.lessfive)))
+quartz()
+heatmap.2(as.matrix(OTUTable.filt.lessfive)
+          , Colv = as.dendrogram(hc.abund.v)
+          , Rowv = as.dendrogram(hc.abund)
+          , dendrogram = "none"
+          , trace = "none"
+          , density.info = "none"
+          , scale = "row"
+          , ColSideColors = c(rep("gray",5), rep("brown",5), rep("green", 5), rep("red",5), rep("darkred",3), rep("darkgreen",5), rep("gray",5))
+          )
