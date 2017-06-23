@@ -80,18 +80,35 @@ for (i in alphaList) {
                  , "TTEST.ExN.Mast.NereoMast")
   allPvalues.ExN <- c()
   for (test in INDIVTtest) {
-    allPvalues.ExN <- rbind(allPvalues.ExN, c(get(test)$p.value, get(test)$statistic, get(test)$parameter))
+    ptemp <- get(test)$p.value
+    ttemp <- round(get(test)$statistic,2)
+    dftemp <- round(get(test)$parameter, 2)
+    toPaste <- paste0("(t=",ttemp,", df=",dftemp,")")
+    allPvalues.ExN <- rbind(allPvalues.ExN, c(ptemp, toPaste))
   }
-  allPvalues.ExN <- cbind(allPvalues.ExN, p.adjust(allPvalues.ExN[,1], method = "fdr", n = 6))
-  colnames(allPvalues.ExN) <- c("P","t","df","fdr_adj")
-  rownames(allPvalues.ExN) <- c("NMFNereo"
-                                , "NMFMast"
-                                , "NMFNereoMast"
-                                , "NereoMast"
-                                , "NereoNereoMast"
-                                , "MastNereoMast")
-  capture.output(xtable(allPvalues.ExN, digits = 3), file = paste0("ALPHAPLOTS/allPvalues.ExN.",tempI,".txt"))
+  allPvalues.ExN <- cbind(signif(as.numeric(allPvalues.ExN[,1]),3), allPvalues.ExN[,2], c(signif(p.adjust(allPvalues.ExN[1:3,1], method = "fdr", n = 3),3),signif(p.adjust(allPvalues.ExN[4:6,1], method = "fdr", n = 3),3) ))
+  allPvalues.ExN <- cbind(c("\\NMF NMF"
+                            ,"\\NMF NMF"
+                            ,"\\NMF NMF"
+                            , "\\Nereo Nereo"
+                            , "\\Nereo Nereo"
+                            , "\\Mast Mast")
+                          , c("\\Nereo Nereo"
+                              , "\\Mast Mast"
+                              , "\\NereoMast Nereo + Mast"
+                              , "\\Mast Mast"
+                              , "\\NereoMast Nereo + Mast"
+                              , "\\NereoMast Nereo + Mast")
+                          , allPvalues.ExN)
+  colnames(allPvalues.ExN) <- c("Group 1","Group 2","p","  ","FDR adj. p")
   
+  capture.output(print(xtable(allPvalues.ExN, digits = 3), include.rownames = FALSE), file = paste0("ALPHAPLOTS/allPvalues.ExN.",tempI,".txt"))
+  
+  # Now, the ExN vs everything else 
+  ttest.ExNvsEverythingelse <- t.test(MF.ExN.ExNExN[,paste0(i)], c(MF.ExN.ExNNereo[,paste0(i)],MF.ExN.ExNMast[,paste0(i)],MF.ExN.ExNNereoMast[,paste0(i)]))
+  capture.output(ttest.ExNvsEverythingelse, file = paste0("ALPHAPLOTS/ttest.ExNvsEverythingelse",tempI, ".txt"))
+  
+  capture.output(table(MF.ExN$ColRep), file = "ALPHAPLOTS/exn_reps.txt")
   
   ######## PLOTTING########
   MF.ExN.temp <- MF.ExN[,c(paste0(i), "ColRep","Replicate")]
@@ -113,7 +130,7 @@ for (i in alphaList) {
   }
   
   
-  rownames(MF.ExN.Alpha) <- c(paste0("Meristem alone (",ncounts[1],")")
+  rownames(MF.ExN.Alpha) <- c(paste0("NMF alone (",ncounts[1],")")
                               ,paste0("With Nereo (",ncounts[2],")")
                               ,paste0("With Mast (",ncounts[3],")")
                               ,paste0("With Both (",ncounts[4],")")
@@ -123,7 +140,7 @@ for (i in alphaList) {
   par(mar = c(10,4,4,4))
   boxplot(t(MF.ExN.Alpha)
           , las = 2
-          , col = c("gray","green","red","brown")
+          , col = c("gray","green","purple","brown")
           , ylab = paste0("Alpha Diversity (", tempI,")")
           , main = "Alpha diversity across meristem swabs"
           )
@@ -141,7 +158,7 @@ for (i in alphaList) {
   ######## STATS ########
   ExNWater.lm <- lm(MF.ExNWater[,paste0(i)] ~ MF.ExNWater$ColRep)
   anova.ExNWater.lm <- Anova(ExNWater.lm, type = 'III') # OVERALL
-  
+
   # Separate by Experiment
   MF.ExNWater.H2O <- MF.ExNWater[grep("H2O", MF.ExNWater$ColRep),]
   MF.ExNWater.ExNWater <- MF.ExNWater[grep("ExNWater", MF.ExNWater$ColRep),]
@@ -171,22 +188,48 @@ for (i in alphaList) {
                   , "TTEST.ExNWater.Mast.NereoMast")
   allPvalues.ExNWater <- c()
   for (test in INDIVTtest) {
-    allPvalues.ExNWater <- rbind(allPvalues.ExNWater, c(get(test)$p.value, get(test)$statistic, get(test)$parameter))
+    ptemp <- get(test)$p.value
+    ttemp <- round(get(test)$statistic,2)
+    dftemp <- round(get(test)$parameter,2)
+    toPaste <- paste0("(t=",ttemp,", df=",dftemp,")")
+    allPvalues.ExNWater <- rbind(allPvalues.ExNWater, c(ptemp, toPaste))
   }
-  allPvalues.ExNWater <- cbind(allPvalues.ExNWater, p.adjust(allPvalues.ExNWater[,1], method = "fdr", n = 10))
-  colnames(allPvalues.ExNWater) <- c("P","t","df","fdr_adj")
-  rownames(allPvalues.ExNWater) <- c("WaterNMF"
-                                     , "NMFNereo"
-                                     , "NMFMast"
-                                     , "NMFNereoMast"
-                                , "WaterNereo"
-                                , "WaterMast"
-                                , "WaterNereoMast"
-                                , "NereoMast"
-                                , "NereoNereoMast"
-                                , "MastNereoMast")
-  capture.output(xtable(allPvalues.ExNWater, digits = 3), file = paste0("ALPHAPLOTS/allPvalues.ExNWater.",tempI,".txt"))
+  allPvalues.ExNWater <- cbind(signif(as.numeric(allPvalues.ExNWater[,1]),3), allPvalues.ExNWater[,2]
+                               , c( allPvalues.ExNWater[1,1]
+                                 , signif(p.adjust(allPvalues.ExNWater[2:4,1], method = "fdr", n = 3),3)
+                                   , signif(p.adjust(allPvalues.ExNWater[5:7,1], method = "fdr", n = 3),3)
+                                   , signif(p.adjust(allPvalues.ExNWater[8:10,1], method = "fdr", n = 3),3))
+                               )
+  allPvalues.ExNWater <- cbind(c("\\NMF NMF"
+                                 ,"\\NMF NMF"
+                                 ,"\\NMF NMF"
+                                 ,"\\NMF NMF"
+                                 ,"\\wateronly Water only"
+                                 ,"\\wateronly Water only"
+                                 ,"\\wateronly Water only"
+                                 ,"\\Nereo Nereo"
+                                 ,"\\Nereo Nereo"
+                                 ,"\\Mast Mast")
+                               , c("\\wateronly Water only"
+                                   , "\\Nereo Nereo"
+                                   ,"\\Mast Mast"
+                                   ,"\\NereoMast Nereo + Mast"
+                                   , "\\Nereo Nereo"
+                                   , "\\Mast Mast"
+                                   , "\\NereoMast Nereo + Mast"
+                                   , "\\Mast Mast"
+                                   , "\\NereoMast Nereo + Mast"
+                                   , "\\NereoMast Nereo + Mast")
+                               , allPvalues.ExNWater)
   
+  colnames(allPvalues.ExNWater) <- c("Group 1","Group 2","p","  ","FDR adj. p")
+
+  capture.output(print(xtable(allPvalues.ExNWater, digits = 3), include.rownames = FALSE), file = paste0("ALPHAPLOTS/allPvalues.ExNWater.",tempI,".txt"))
+  
+  ttest.ExNWatervsEverythingelse <- t.test(MF.ExNWater.ExNWater[,paste0(i)], c(MF.ExNWater.NereoWater[,paste0(i)],MF.ExNWater.MastWater[,paste0(i)],MF.ExNWater.NereoMastWater[,paste0(i)]))
+  capture.output(ttest.ExNWatervsEverythingelse, file = paste0("ALPHAPLOTS/ttest.ExNWatervsEverythingelse",tempI, ".txt"))
+  
+  capture.output(table(MF.ExNWater$ColRep), file = "ALPHAPLOTS/water_reps.txt")
   ######### PLOTTING ########
   
   MF.ExNWater.temp <- MF.ExNWater[,c(paste0(i), "ColRep","Replicate")]
@@ -209,8 +252,8 @@ for (i in alphaList) {
   }
   
   
-  rownames(MF.ExNWater.Alpha) <- c(paste0("Water Alone (",ncounts[1],")")
-                                   ,paste0("With Meristem (",ncounts[2],")")
+  rownames(MF.ExNWater.Alpha) <- c(paste0("Water only (",ncounts[1],")")
+                                   ,paste0("NMF Alone (",ncounts[2],")")
                                    ,paste0("With Nereo (",ncounts[3],")")
                                    ,paste0("With Mast (",ncounts[4],")")
                                    ,paste0("With Both (",ncounts[5],")")
@@ -220,7 +263,7 @@ for (i in alphaList) {
   par(mar = c(10,4,4,4))
   boxplot(t(MF.ExNWater.Alpha)
           , las = 2
-          , col = c("blue","gray","green","red","brown")
+          , col = c("blue","gray","green","purple","brown")
           , ylab = paste0("Alpha Diversity (", tempI,")")
           , main = "Alpha diversity across water samples"
   )
@@ -259,28 +302,42 @@ for (i in alphaList) {
                   , "TTEST.LoneIncube.Nwater.Mwater")
   allPvalues.LoneIncube <- c()
   for (test in INDIVTtest) {
-    allPvalues.LoneIncube <- rbind(allPvalues.LoneIncube, c(get(test)$p.value, get(test)$statistic, get(test)$parameter))
+    ptemp <- get(test)$p.value
+    ttemp <- round(get(test)$statistic,2)
+    dftemp <- round(get(test)$parameter,2)
+    toPaste <- paste0("(t=",ttemp,", df=",dftemp,")")
+    allPvalues.LoneIncube <- rbind(allPvalues.LoneIncube, c(ptemp, toPaste))
   }
-  allPvalues.LoneIncube <- cbind(allPvalues.LoneIncube, p.adjust(allPvalues.LoneIncube[,1], method = "fdr", n = 6))
-  colnames(allPvalues.LoneIncube) <- c("P","t","df","fdr_adj")
-  rownames(allPvalues.LoneIncube) <- c("NereoMast"
-                                , "NereoNereoWater"
-                                , "NereoMastWater"
-                                , "MastNereoWater"
-                                , "MastMastWater"
-                                , "NereoWaterMastWater")
-  capture.output(xtable(allPvalues.LoneIncube, digits = 3), file = paste0("ALPHAPLOTS/allPvalues.LoneIncube.",tempI,".txt"))
+  allPvalues.LoneIncube <- cbind(signif(as.numeric(allPvalues.LoneIncube[,1]),3), allPvalues.LoneIncube[,2], signif(p.adjust(allPvalues.LoneIncube[,1], method = "fdr", n = 6),3))
+  allPvalues.LoneIncube <- cbind(c("\\Nereo Nereo"
+                                   , "\\Nereo Nereo"
+                                   , "\\Nereo Nereo"
+                                   , "\\Mast Mast"
+                                   , "\\Mast Mast"
+                                   , "\\Nereowater Nereo Water")
+                                 , c("\\Mast Mast"
+                                     , "\\Nereowater Nereo Water"
+                                     , "\\Mastwater Mast Water"
+                                     , "\\Nereowater Nereo Water"
+                                     , "\\Mastwater Mast Water"
+                                     , "\\Mastwater Mast Water")
+                                 , allPvalues.LoneIncube)
   
+  colnames(allPvalues.LoneIncube) <- c("Group 1","Group 2","p","  ","FDR adj. p")
+  
+  capture.output(print(xtable(allPvalues.LoneIncube, digits = 3), include.rownames = FALSE), file = paste0("ALPHAPLOTS/allPvalues.LoneIncube.",tempI,".txt"))
+  
+  capture.output(table(MF.LoneIncube$ColRep), file = "ALPHAPLOTS/loneincube_reps.txt")
   ###### PLOTTING #########
   MF.LoneIncube.temp <- MF.LoneIncube[,c(paste0(i), "ColRep","Replicate")]
   MF.LoneIncube.Alpha <- reshape(MF.LoneIncube.temp, idvar = "ColRep", timevar = "Replicate", direction = "wide")
   MF.LoneIncube.Alpha <- data.frame(MF.LoneIncube.Alpha
                                   , row.names = 1
   )
-  MF.LoneIncube.Alpha <- MF.LoneIncube.Alpha[sapply(c("LoneincubeNereoNereo"
-                                                  ,"LoneincubeMastMast"
-                                                  ,"LoneincubeNereowater"
-                                                  ,"LoneincubeMastwater"), function(x) {
+  MF.LoneIncube.Alpha <- MF.LoneIncube.Alpha[sapply(c("Nereo"
+                                                  ,"Mast"
+                                                  ,"Nereo-Water"
+                                                  ,"Mast-Water"), function(x) {
                                                     grep(x, rownames(MF.LoneIncube.Alpha))
                                                   }),]
   
@@ -301,7 +358,7 @@ for (i in alphaList) {
   par(mar = c(10,4,4,4))
   boxplot(t(MF.LoneIncube.Alpha)
           , las = 2
-          , col = c("green","red","blue","purple")
+          , col = c("green","purple","lightseagreen","lightslateblue")
           , ylab = paste0("Alpha Diversity (", i,")")
           , main = "Alpha diversity"
   )
@@ -312,91 +369,135 @@ for (i in alphaList) {
 }
 
 ######### **NMF vs Nereo and Mast** ###########
+levels(factor(MF.algae$ColRep))
+MF.algae <- MF[-grep("Starfish", MF$ColRep),]
 
-MF.algae <- MF[grep("ExNExN|MastMast|NereoNereo|BrocktonMast|BrocktonOldNereo", MF$ColRep),]
 sortedGroups <- c("NereotestExNExN"
+                  , "NereotestNereoExN"
+                  , "NereotestMastExN"
+                  , "NereotestNereoMastExN"
+                  , "EnvironmentalBrocktonYoungNereo"
                   , "LoneincubeNereoNereo"
-                  , "LoneincubeMastMast"
                   , "EnvironmentalBrocktonOldNereo"
+                  , "LoneincubeMastMast"
                   , "EnvironmentalBrocktonMast"
+                  , "NereotestH2OWater"
+                  , "NereotestExNWater"
+                  , "NereotestNereoWater"
+                  , "NereotestMastWater"
+                  , "NereotestNereoMastWater"
+                  , "LoneincubeNereowater"
+                  , "LoneincubeMastwater"
                   )
+newFactor <- c("Nereo"
+                , "Nereo"
+                , "Nereo"
+                , "Nereo"
+                , "Nereo"
+                , "Nereo"
+                , "Nereo"
+                , "Mast"
+                , "Mast"
+                , "Water"
+                , "Water"
+                , "Water"
+                , "Water"
+                , "Water"
+                , "Water"
+                , "Water"
+)
 orderList <- c()
 for (group in sortedGroups) {
   orderList <- c(orderList, grep(paste0(group), MF.algae$ColRep))
 }
 MF.algae <- MF.algae[orderList,]
 MF.algae$ColRep <- factor(MF.algae$ColRep, levels = sortedGroups)
+MF.algae$newFactor <- newFactor[factor(MF.algae$ColRep)]
+capture.output(table(MF.algae$newFactor), file = "ALPHAPLOTS/algaecompare.reps.txt")
+
 for (i in alphaList) {
   tempI <- gsub("_even_1000_alpha", "", i)
-  MF.algae.filt <- MF.algae[,c(i, "ColRep")]
+  MF.algae.filt <- MF.algae[,c(i, "ColRep", "newFactor")]
   
   ########### STATS ###########
   MFnames <- c()
-  for (group in sortedGroups) {
-    assign(paste0("MF.algae.",group), MF.algae[grep(group, MF.algae$ColRep),])
+  for (group in levels(factor(newFactor))) {
+    assign(paste0("MF.algae.",group), MF.algae[grep(group, MF.algae$newFactor),])
     MFnames <- c(MFnames, paste0("MF.algae.",group))
   }
   
-  TTEST.ExN.Nereo <- t.test(get(MFnames[1])[,i],get(MFnames[2])[,i] )
-  TTEST.ExN.Mast <- t.test(get(MFnames[1])[,i],get(MFnames[3])[,i] )
-  TTEST.ExN.ENereo <- t.test(get(MFnames[1])[,i],get(MFnames[4])[,i] )
-  TTEST.ExN.EMast <- t.test(get(MFnames[1])[,i],get(MFnames[5])[,i] )
-  TTEST.Nereo.Mast <- t.test(get(MFnames[2])[,i],get(MFnames[3])[,i] )
-  TTEST.Nereo.ENereo <- t.test(get(MFnames[2])[,i],get(MFnames[4])[,i] )
-  TTEST.Nereo.EMast <- t.test(get(MFnames[2])[,i],get(MFnames[5])[,i] )
-  TTEST.Mast.ENereo <- t.test(get(MFnames[3])[,i],get(MFnames[4])[,i] )
-  TTEST.Mast.EMast <- t.test(get(MFnames[3])[,i],get(MFnames[5])[,i] )
-  TTEST.ENereo.EMast <- t.test(get(MFnames[4])[,i],get(MFnames[5])[,i] )
+  TTEST.Nereo.Mast <- t.test(get(MFnames[1])[,i],get(MFnames[2])[,i] )
+  TTEST.Nereo.Water <- t.test(get(MFnames[1])[,i],get(MFnames[3])[,i] )
+  TTEST.Mast.Water <- t.test(get(MFnames[2])[,i],get(MFnames[3])[,i] )
+
   
-  allTEST <- c("TTEST.ExN.Nereo"
-  , "TTEST.ExN.Mast"
-  , "TTEST.ExN.ENereo"
-  , "TTEST.ExN.EMast"
-  , "TTEST.Nereo.Mast"
-  , "TTEST.Nereo.ENereo"
-  , "TTEST.Nereo.EMast"
-  , "TTEST.Mast.ENereo"
-  , "TTEST.Mast.EMast"
-  , "TTEST.ENereo.EMast")
+  allTEST <- c("TTEST.Nereo.Mast"
+  , "TTEST.Nereo.Water"
+  , "TTEST.Mast.Water")
   
   allPvalues.algae <- c()
   for (test in allTEST) {
-    allPvalues.algae <- rbind(allPvalues.algae, c(get(test)$p.value, get(test)$statistic, get(test)$parameter))
+    ptemp <- get(test)$p.value
+    ttemp <- round(get(test)$statistic,2)
+    dftemp <- round(get(test)$parameter,2)
+    toPaste <- paste0("(t=",ttemp,", df=",dftemp,")")
+      
+    allPvalues.algae <- rbind(allPvalues.algae, c(ptemp, toPaste))
   }
-  allPvalues.algae <- cbind(allPvalues.algae, p.adjust(allPvalues.algae[,1], method = "fdr", n = 10))
-  colnames(allPvalues.algae) <- c("P","t","df","fdr_adj")
+  allPvalues.algae <- cbind(signif(as.numeric(allPvalues.algae[,1]),3), allPvalues.algae[,2], signif(p.adjust(allPvalues.algae[,1], method = "fdr", n = 3),3))
+  allPvalues.algae <- cbind(c("Nereo"
+                              , "Nereo"
+                              , "Mast")
+                            , c("Mast"
+                                , "Water"
+                                , "Water")
+                            , allPvalues.algae)
+  colnames(allPvalues.algae) <- c("Group 1","Group 2","p","  ","FDR adj. p")
   
-  newRowNames <- c("NMFNereo"
-                   , "NMFMast"
-                   , "NMFEnvironNereo"
-                   , "NMFEnvironMast"
-                   , "NereoMast"
-                   , "NereoEnvironNereo"
-                   , "NereoEnvironMast"
-                   , "MastEnvironNereo"
-                   , "MastEnvironMast"
-                   , "EnvironNereoEnvironMast")
-  rownames(allPvalues.algae) <- newRowNames
-  capture.output(xtable(allPvalues.algae, digits = 3), file = paste0("ALPHAPLOTS/allPvalues.algae.",tempI,".txt"))
+  capture.output(print(xtable(allPvalues.algae, digits = 3), include.rownames = FALSE), file = paste0("ALPHAPLOTS/allPvalues.algae.",tempI,".txt"))
    
   
   ########### PLOT ############
-
   pdf(paste0("ALPHAPLOTS/Alpha_algaecompare",tempI, ".pdf"), pointsize = 14)
   par(mar = c(8,5,4,4))
   plot(MF.algae.filt[,paste0(i)]~ factor(MF.algae.filt[,"ColRep"])
        , ylab = paste0("Alpha Diversity (",tempI,")")
        , xlab = NA
-       , col = c("gray","green","red","darkgreen","darkred")
+       , col = c(rep("green", 4),"yellowgreen","darkgreen","darkolivegreen4","purple","magenta","lightblue",rep("blue",4), rep("dodgerblue",2))
        , las = 2 
-       , xaxt = "n")
+       , xaxt = "n"
+       , at = c(1,2,3,4,5,6,7,11,12,16,17,18,19,20,21,22))
   axis(side = 1
-       , labels = c("NMF", "Lab Nereo","Lab Mast",expression(italic(In~situ)~Nereo), expression(italic(In~situ)~Mast))
-       , at = c(1,2,3,4,5)
-       , las = 2
+       , labels = c(expression("Nereo"),expression("Mast"), "Water")
+       , at = c(4,11,19)
+       , las = 1
+       , tick = FALSE
   )
-  title(xlab = "Seaweed Type"
+  title(xlab = "Sample Type"
         , line = 6)
   dev.off()
 }
+
+######### **Mast vs Nereo incubated stuff** ###########
+
+Mast.only <- MF.ExNWater[grep("Mast", MF.ExNWater$ColRep),]
+notMast <- MF.ExNWater[-grep("Mast", MF.ExNWater$ColRep),]
+
+MastorNotMast <- matrix(nrow = 3, ncol = 1)
+colnames(MastorNotMast) <- c("Welch's t-Test: Mast or no Mast")
+rownames(MastorNotMast) <- c("1","2","3")
+for (i in 1:length(alphaList)) {
+  tempI <- gsub("_even_1000_alpha","",alphaList[i])
+  tempttest <- t.test(Mast.only[,alphaList[i]], notMast[,alphaList[i]])
+  ptemp <- signif(tempttest$p.value,3)
+  ttemp <- round(tempttest$statistic,3)
+  dftemp <- round(tempttest$parameter,3)
+  toPaste <- paste0(ptemp," (t=",ttemp,", df=",dftemp,")")
+  
+  rownames(MastorNotMast)[i] <- tempI
+  MastorNotMast[paste0(tempI),1] <- toPaste
+}
+capture.output(xtable(MastorNotMast), file = "ALPHAPLOTS/MastorNotMast_allmetrics.txt")
+
+
 

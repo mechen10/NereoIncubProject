@@ -51,6 +51,8 @@ depth = opt$depth
 library("DESeq2")
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
 OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/rarefied_OTU_Table_sorted_L6.txt"
+# OTUTableBiomFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/rarefied_OTU_Table_sorted_L6.biom"
+
 # OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/OTU_Table_text.txt"
 MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 minthreshold <- 10
@@ -74,6 +76,11 @@ OTUTable <- read.delim(paste0(OTUTableFP)
                       , skip = 1
                       , row.names = 1
                       , stringsAsFactors = FALSE)
+# otu_tax_table <- import_biom(OTUTableBiomFP, )
+# ?import_biom
+# mappingfile <- import_qiime_sample_data(MFFP)
+
+# class(otu_tax_table)
 
 ############################ ******DESEQ***** ##########################
 system("mkdir DESEQ")
@@ -128,7 +135,7 @@ system(paste0("echo 'New filtered OTU table dimensions: "
 # Now, create a new DESeq count dataset with replicates labelled
 
 # Add 1 to every OTU
-OTUTable.deseq <- OTUTable.deseq + 1
+# OTUTable.deseq <- OTUTable.deseq + 1
 
 # For our data, we need to collapse by ColRep
 categoryList = MF[unlist(lapply(colnames(OTUTable.deseq), function(x) grep(x, rownames(MF)))), paste0(category)]
@@ -137,6 +144,16 @@ system("mkdir ./DESEQ/RAW")
 system("mkdir ./DESEQ/FILT")
 for (groupOne in 1:(length(groups)-1)) {
   for (groupTwo in (groupOne+1):length(groups)) {
+
+    # OTUTable.filt <- OTUTable.deseq[,grep(paste0(groups[groupOne],"|",groups[groupTwo]), categoryList)]
+    # MF.filt = MF[unlist(lapply(colnames(OTUTable.filt), function(x) grep(x, rownames(MF)))), ]
+    # dim(OTUTable.filt)
+    # table_merge <- merge_phyloseq(as.data.frame(OTUTable.filt), as.data.frame(MF.filt))
+    # ?merge_phyloseq
+    # dds <- phyloseq_to_deseq2(merge_table, design = ~ ColRep)
+    # 
+    # 
+    
     # What am I comparing?
     currentCompare <- paste0(groups[groupOne],"vs",groups[groupTwo])
     # make colData for comparisonand filter OTU table by it
@@ -153,18 +170,19 @@ for (groupOne in 1:(length(groups)-1)) {
                                   , design = ~condition
     )
     
-    dds <- DESeq(dds)
-    res <- results(dds)
+    dds <- DESeq(dds, test = "Wald")
+    res <- results(dds, cooksCutoff = FALSE)
     res$taxonomy <- rownames(OTUTable.filt)
+
     res <- res[order(res$padj, na.last = TRUE),]
     
     write.table(res, col.names = NA, row.names = T
-                , file = paste0("./DESEQ/RAW/",currentCompare, ".txt"), sep = "\t")
+                , file = paste0("./DESEQ/RAW/",currentCompare, ".txt"), sep = "\t", quote = FALSE)
 
         # FILTER OUT MEANINGFUL ONES
     filt.res <- res[which(res$padj <= 0.05),]
     write.table(filt.res, col.names = NA, row.names = T
-                , file = paste0("./DESEQ/FILT/",currentCompare, ".txt"), sep = "\t")
+                , file = paste0("./DESEQ/FILT/",currentCompare, ".txt"), sep = "\t", quote = FALSE)
     
     
   }
@@ -188,18 +206,18 @@ for (groupOne in 1:(length(groups2)-1)) {
                                   , design = ~condition
     )
     
-    dds <- DESeq(dds)
-    res <- results(dds)
+    dds <- DESeq(dds, test = "Wald")
+    res <- results(dds, cooksCutoff = FALSE)
     res$taxonomy <- rownames(OTUTable.filt)
     res <- res[order(res$padj, na.last = TRUE),]
     
     write.table(res, col.names = NA, row.names = T
-                , file = paste0("./DESEQ/RAW/",currentCompare, ".txt"), sep = "\t")
+                , file = paste0("./DESEQ/RAW/",currentCompare, ".txt"), sep = "\t", quote = FALSE)
     
     # FILTER OUT MEANINGFUL ONES
     filt.res <- res[which(res$padj <= 0.05),]
     write.table(filt.res, col.names = NA, row.names = T
-                , file = paste0("./DESEQ/FILT/",currentCompare, ".txt"), sep = "\t")
+                , file = paste0("./DESEQ/FILT/",currentCompare, ".txt"), sep = "\t", quote = FALSE)
     
     
   }

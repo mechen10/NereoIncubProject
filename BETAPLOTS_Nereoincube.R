@@ -29,11 +29,11 @@ MFPWD = opt$mappingfile
 # UWUFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/beta_div/unweighted_unifrac_dm.txt"
 # MFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
 
-# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
-# BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div_2/bray_curtis_dm.txt"
-# WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/unweighted_unifrac_dm.txt"
-# UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/weighted_unifrac_dm.txt"
-# MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
+BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div_2/bray_curtis_dm.txt"
+WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/unweighted_unifrac_dm.txt"
+UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/weighted_unifrac_dm.txt"
+MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
 
 
 ###########################
@@ -43,7 +43,7 @@ set.seed(3)
 library("MASS")
 library("vegan")
 library("stats")
-library("multcomp")
+# library("multcomp")
 library("xtable")
 
 dm.UWUF <- read.delim(paste0(UWUFPWD)
@@ -125,6 +125,8 @@ NMDS.UWUF.LoneIncube <- isoMDS(as.matrix(dm.UWUF.LoneIncube), y = cmdscale(as.ma
 ###### STATS ##########
 # ExN
 ANOVA.UWUF.ExN <- adonis(dm.UWUF.ExN ~ ColRep, data = MF.ExN)
+betadisp.UWUF.ExN <- betadisper(dist(dm.UWUF.ExN), group = MF.ExN$ColRep)
+anova.betadisp.UWUF.ExN <- anova(betadisp.UWUF.ExN)
 # ANOSIM.UWUF.ExN <- anosim(dm.UWUF.ExN, grouping = MF.ExN$ColRep)
 
 # ExN to others
@@ -140,6 +142,8 @@ for (i in 1:length(MF.ExN.ExNvsEverything$ColRep)) {
 }
 MF.ExN.ExNvsEverything
 ANOVA.UWUF.ExN.ExNvsEverything <- adonis(dm.UWUF.ExN.ExNvsEverything ~ EXNCOMPARE, data = MF.ExN.ExNvsEverything)
+betadisp.UWUF.ExN.ExNvsEverything <- betadisper(dist(dm.UWUF.ExN.ExNvsEverything), group = MF.ExN.ExNvsEverything$EXNCOMPARE)
+anova.betadisp.UWUF.ExN.ExNvsEverything <- anova(betadisp.UWUF.ExN.ExNvsEverything)
 
 # ExN Split
 dm.UWUF.ExN.ExNvsNereo <- dm.UWUF.ExN[grep("([.]ExN[.])|([.]Nereo[.])", rownames(dm.UWUF.ExN)), grep("([.]ExN[.])|([.]Nereo[.])", colnames(dm.UWUF.ExN))]
@@ -187,23 +191,56 @@ allPValues.ExN[4,1] <- ANOVA.UWUF.ExN.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExN[5,1] <- ANOVA.UWUF.ExN.NereovsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExN[6,1] <- ANOVA.UWUF.ExN.MastvsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.ExN[1,2] <- ANOVA.UWUF.ExN.ExNvsNereo$aov.tab[5]$R2[1]
-allPValues.ExN[2,2] <- ANOVA.UWUF.ExN.ExNvsMast$aov.tab[5]$R2[1]
-allPValues.ExN[3,2] <- ANOVA.UWUF.ExN.ExNvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExN[4,2] <- ANOVA.UWUF.ExN.NereovsMast$aov.tab[5]$R2[1]
-allPValues.ExN[5,2] <- ANOVA.UWUF.ExN.NereovsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExN[6,2] <- ANOVA.UWUF.ExN.MastvsNereoMast$aov.tab[5]$R2[1]
+allPValues.ExN[1,2] <- paste0("(R=",ANOVA.UWUF.ExN.ExNvsNereo$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.UWUF.ExN.ExNvsNereo$aov.tab$Df[1],","
+                              ,ANOVA.UWUF.ExN.ExNvsNereo$aov.tab$Df[3],")")
+allPValues.ExN[2,2] <- paste0("(R=",ANOVA.UWUF.ExN.ExNvsMast$aov.tab$R2[1],",df="
+                              ,ANOVA.UWUF.ExN.ExNvsMast$aov.tab$Df[1],","
+                              ,ANOVA.UWUF.ExN.ExNvsMast$aov.tab$Df[3],")")
+allPValues.ExN[3,2] <- paste0("(R=",ANOVA.UWUF.ExN.ExNvsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.UWUF.ExN.ExNvsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.UWUF.ExN.ExNvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExN[4,2] <- paste0("(R=",ANOVA.UWUF.ExN.NereovsMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.UWUF.ExN.NereovsMast$aov.tab$Df[1],","
+                              ,ANOVA.UWUF.ExN.NereovsMast$aov.tab$Df[3],")")
+allPValues.ExN[5,2] <- paste0("(R=",ANOVA.UWUF.ExN.NereovsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.UWUF.ExN.NereovsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.UWUF.ExN.NereovsNereoMast$aov.tab$Df[3],")")
+allPValues.ExN[6,2] <- paste0("(R=",ANOVA.UWUF.ExN.MastvsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.UWUF.ExN.MastvsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.UWUF.ExN.MastvsNereoMast$aov.tab$Df[3],")")
 
-
-allPValues.ExN <- cbind(allPValues.ExN, p.adjust(allPValues.ExN[,1],method = "fdr", n = 6))
-colnames(allPValues.ExN) <- c("P","R^2","fdr_adj")
+allPValues.ExN <- cbind(allPValues.ExN
+                        , c(p.adjust(allPValues.ExN[1:3,1],method = "fdr", n = 3)
+                            , p.adjust(allPValues.ExN[4:6,1],method = "fdr", n = 3)))
+colnames(allPValues.ExN) <- c("p"," ","fdr_adj")
 
 
 # ExN Water
 ANOVA.UWUF.ExNWater <- adonis(dm.UWUF.ExNWater ~ ColRep, data = MF.ExNWater)
+betadisp.UWUF.ExNWater <- betadisper(dist(dm.UWUF.ExNWater), group = MF.ExNWater$ColRep)
+anova.betadisp.UWUF.ExNWater.anova <- anova(betadisp.UWUF.ExNWater)
 # ANOSIM.UWUF.ExNWater <- anosim(dm.UWUF.ExNWater, grouping = MF.ExNWater$ColRep) # NOT WORKING
 # pairwaiseAdonis.UWUF.ExNWater <- pairwise.adonis(dm.UWUF.ExNWater, factors = MF.ExNWater$ColRep)
 
+
+# ExN Water to others
+dm.UWUF.ExNWater.ExNvsEverything <- dm.UWUF.ExNWater[-grep("H2O", rownames(dm.UWUF.ExNWater)),
+                                                 -grep("H2O", colnames(dm.UWUF.ExNWater))]
+MF.ExNWater.ExNvsEverything <- MF.ExNWater[-grep("H2O", rownames(MF.ExNWater)),]
+# Filter out H2O
+MF.ExNWater.ExNvsEverything$EXNCOMPARE <- ""
+for (i in 1:length(MF.ExNWater.ExNvsEverything$ColRep)) {
+  if (MF.ExNWater.ExNvsEverything[i,"ColRep"] != "NereotestExNWater") {
+    MF.ExNWater.ExNvsEverything[i,"EXNCOMPARE"] <- "OTHER"
+  } else {
+    MF.ExNWater.ExNvsEverything[i,"EXNCOMPARE"] <- "ExN"
+  }
+}
+
+ANOVA.UWUF.ExNWater.ExNvsEverything <- adonis(dm.UWUF.ExNWater.ExNvsEverything ~ EXNCOMPARE, data = MF.ExNWater.ExNvsEverything)
+betadisp.UWUF.ExNWater.ExNvsEverything <- betadisper(dist(dm.UWUF.ExNWater.ExNvsEverything), group = MF.ExNWater.ExNvsEverything$EXNCOMPARE)
+anova.betadisp.UWUF.ExNWater.ExNvsEverything <- anova(betadisp.UWUF.ExNWater.ExNvsEverything)
 
 # ExN Water split
 dm.UWUF.ExNWater.ExNvsH2O <- dm.UWUF.ExNWater[grep("([.]ExN[.])|([.]H2O[.])", rownames(dm.UWUF.ExNWater)), grep("([.]ExN[.])|([.]H2O[.])", colnames(dm.UWUF.ExNWater))]
@@ -280,20 +317,42 @@ allPValues.ExNWater[8,1] <- ANOVA.UWUF.ExNWater.NereovsMast$aov.tab[6]$`Pr(>F)`[
 allPValues.ExNWater[9,1] <- ANOVA.UWUF.ExNWater.NereovsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExNWater[10,1] <- ANOVA.UWUF.ExNWater.MastvsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.ExNWater[1,2] <- ANOVA.UWUF.ExNWater.ExNvsH2O$aov.tab[5]$R2[1]
-allPValues.ExNWater[2,2] <- ANOVA.UWUF.ExNWater.ExNvsNereo$aov.tab[5]$R2[1]
-allPValues.ExNWater[3,2] <- ANOVA.UWUF.ExNWater.ExNvsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[4,2] <- ANOVA.UWUF.ExNWater.ExNvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[5,2] <- ANOVA.UWUF.ExNWater.H2OvsNereo$aov.tab[5]$R2[1]
-allPValues.ExNWater[6,2] <- ANOVA.UWUF.ExNWater.H2OvsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[7,2] <- ANOVA.UWUF.ExNWater.H2OvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[8,2] <- ANOVA.UWUF.ExNWater.NereovsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[9,2] <- ANOVA.UWUF.ExNWater.NereovsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[10,2] <- ANOVA.UWUF.ExNWater.MastvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater <- cbind(allPValues.ExNWater, p.adjust(allPValues.ExNWater[,1],method = "fdr", n = 10))
-colnames(allPValues.ExNWater) <- c("P","R^2","fdr_adj")
+allPValues.ExNWater[1,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.ExNvsH2O$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.ExNvsH2O$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.ExNvsH2O$aov.tab$Df[3],")")
+allPValues.ExNWater[2,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.ExNvsNereo$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.ExNvsNereo$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.ExNvsNereo$aov.tab$Df[3],")")
+allPValues.ExNWater[3,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.ExNvsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.ExNvsMast$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.ExNvsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[4,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.ExNvsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.ExNvsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.ExNvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[5,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.H2OvsNereo$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.H2OvsNereo$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.H2OvsNereo$aov.tab$Df[3],")")
+allPValues.ExNWater[6,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.H2OvsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.H2OvsMast$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.H2OvsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[7,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.H2OvsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.H2OvsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.H2OvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[8,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.NereovsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.NereovsMast$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.NereovsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[9,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.NereovsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.UWUF.ExNWater.NereovsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.UWUF.ExNWater.NereovsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[10,2] <- paste0("(R=",ANOVA.UWUF.ExNWater.MastvsNereoMast$aov.tab[5]$R2[1],",df="
+                                    ,ANOVA.UWUF.ExNWater.MastvsNereoMast$aov.tab$Df[1],","
+                                    ,ANOVA.UWUF.ExNWater.MastvsNereoMast$aov.tab$Df[3],")")
 
-
+allPValues.ExNWater <- cbind(allPValues.ExNWater
+                             , c(allPValues.ExNWater[1,1],p.adjust(allPValues.ExNWater[2:4,1],method = "fdr", n = 3)
+                                 , p.adjust(allPValues.ExNWater[5:7,1],method = "fdr", n = 3)
+                                 , p.adjust(allPValues.ExNWater[8:10,1],method = "fdr", n = 3)))
+colnames(allPValues.ExNWater) <- c("p"," ","fdr_adj")
 
 # Lone Incube
 # Add another column
@@ -301,8 +360,11 @@ MF.LoneIncube$WorS <- MF.LoneIncube$Substrate
 MF.LoneIncube$WorS <- gsub("(Nereo)|(Mast)", "Seaweed", MF.LoneIncube[,'WorS'])
 
 ANOVA.UWUF.LoneIncube <- adonis(dm.UWUF.LoneIncube ~ WorS*Treatment, data = MF.LoneIncube)
+betadisp.UWUF.LoneIncube <- betadisper(dist(dm.UWUF.LoneIncube), group = MF.LoneIncube$ColRep)
+anova.betadisp.UWUF.LoneIncube <- anova(betadisp.UWUF.LoneIncube)
 # ANOSIM.UWUF.LoneIncube <- anosim(dm.UWUF.LoneIncube, grouping = MF.LoneIncube$ColRep) # NOT WORKING
 # pairwaiseAdonis.UWUF.LoneIncube <- pairwise.adonis(dm.UWUF.LoneIncube, factors = MF.LoneIncube$ColRep)
+
 
 # Lone Incube split
 dm.UWUF.LoneIncube.NereovsMast <- dm.UWUF.LoneIncube[grep("(^Nereo[.])|(^Mast[.])", rownames(dm.UWUF.LoneIncube)), grep("(^Nereo[.])|(^Mast[.])", colnames(dm.UWUF.LoneIncube))]
@@ -338,56 +400,90 @@ ANOVA.UWUF.LoneIncube.MastvsNwater <- adonis(dm.UWUF.LoneIncube.MastvsNwater ~ C
 # 4 comparisons; 0.05/4 = 0.00625
 allPValues.LoneIncube <- matrix(nrow= 6, ncol = 2)
 rownames(allPValues.LoneIncube) <- c("NereovsMast"
-                                   ,"waters"
-                                   ,"Nereovswater"
-                                   ,"Mastvswater"
-                                   ,"NereovsMwater"
-                                   ,"MastvsNwater"
-                                   )
+                                     ,"NereovsNwater"
+                                     ,"NereovsMwater"
+                                     ,"MastvsNwater"
+                                     ,"MastvsMwater"
+                                     ,"NwatervsMwater"
+)
 allPValues.LoneIncube[1,1] <- ANOVA.UWUF.LoneIncube.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[2,1] <- ANOVA.UWUF.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[3,1] <- ANOVA.UWUF.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[4,1] <- ANOVA.UWUF.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[5,1] <- ANOVA.UWUF.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[6,1] <- ANOVA.UWUF.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[2,1] <- ANOVA.UWUF.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[3,1] <- ANOVA.UWUF.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[4,1] <- ANOVA.UWUF.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[5,1] <- ANOVA.UWUF.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[6,1] <- ANOVA.UWUF.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.LoneIncube[1,2] <- ANOVA.UWUF.LoneIncube.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[2,2] <- ANOVA.UWUF.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[3,2] <- ANOVA.UWUF.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[4,2] <- ANOVA.UWUF.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[5,2] <- ANOVA.UWUF.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[6,2] <- ANOVA.UWUF.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[1,2] <- paste0("(R=",ANOVA.UWUF.LoneIncube.NereovsMast$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.UWUF.LoneIncube.NereovsMast$aov.tab$Df[1],","
+                                     , ANOVA.UWUF.LoneIncube.NereovsMast$aov.tab$Df[3],")")
+allPValues.LoneIncube[2,2] <- paste0("(R=",ANOVA.UWUF.LoneIncube.Nereovswater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.UWUF.LoneIncube.Nereovswater$aov.tab$Df[1],","
+                                     , ANOVA.UWUF.LoneIncube.Nereovswater$aov.tab$Df[3],")")
+allPValues.LoneIncube[3,2] <- paste0("(R=",ANOVA.UWUF.LoneIncube.NereovsMwater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.UWUF.LoneIncube.NereovsMwater$aov.tab$Df[1],","
+                                     , ANOVA.UWUF.LoneIncube.NereovsMwater$aov.tab$Df[3],")")
+allPValues.LoneIncube[4,2] <- paste0("(R=",ANOVA.UWUF.LoneIncube.MastvsNwater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.UWUF.LoneIncube.MastvsNwater$aov.tab$Df[1],","
+                                     , ANOVA.UWUF.LoneIncube.MastvsNwater$aov.tab$Df[3],")")
+allPValues.LoneIncube[5,2] <- paste0("(R=",ANOVA.UWUF.LoneIncube.Mastvswater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.UWUF.LoneIncube.Mastvswater$aov.tab$Df[1],","
+                                     , ANOVA.UWUF.LoneIncube.Mastvswater$aov.tab$Df[3],")")
+allPValues.LoneIncube[6,2] <- paste0("(R=",ANOVA.UWUF.LoneIncube.waters$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.UWUF.LoneIncube.waters$aov.tab$Df[1],","
+                                     , ANOVA.UWUF.LoneIncube.waters$aov.tab$Df[3],")")
 
 allPValues.LoneIncube <- cbind(allPValues.LoneIncube, p.adjust(allPValues.LoneIncube[,1],method = "fdr", n = 6))
-colnames(allPValues.LoneIncube) <- c("P","R^2","fdr_adj")
-
+colnames(allPValues.LoneIncube) <- c("p","R^2","fdr_adj")
 
 
 # Now print everything
 system("mkdir ./BETAPLOTS/UWUF/")
-capture.output(ANOVA.UWUF.ExN, file = "./BETAPLOTS/UWUF/ANOVA.UWUF.ExN.txt")
-# capture.output(pairwaiseAdonis.UWUF.ExN, file = "pairwaiseAdonis.UWUF.ExN.txt")
-# capture.output(allPValues.ExN, file = "allPValues.pairwise.ExN.txt")
 
-capture.output(ANOVA.UWUF.ExNWater, file = "./BETAPLOTS/UWUF/ANOVA.UWUF.ExNWater.txt")
-# capture.output(pairwaiseAdonis.UWUF.ExNWater, file = "pairwaiseAdonis.UWUF.ExNWater.txt")
+# THIS IS ALL THE STATS
+allStatsList <- c("ANOVA.UWUF.ExN"
+                  , "anova.betadisp.UWUF.ExN"
+                  , "ANOVA.UWUF.ExN.ExNvsEverything"
+                  , "anova.betadisp.UWUF.ExN.ExNvsEverything"
+                  , "allPValues.ExN"
+                  , "ANOVA.UWUF.ExNWater"
+                  , "anova.betadisp.UWUF.ExNWater.anova"
+                  , "ANOVA.UWUF.ExNWater.ExNvsEverything"
+                  , "anova.betadisp.UWUF.ExNWater.ExNvsEverything"
+                  , "allPValues.ExNWater"
+                  , "ANOVA.UWUF.LoneIncube"
+                  , "anova.betadisp.UWUF.LoneIncube"
+                  , "allPValues.LoneIncube")
 
-capture.output(ANOVA.UWUF.LoneIncube, file = "./BETAPLOTS/UWUF/ANOVA.UWUF.LoneIncube.txt")
-# capture.output(pairwaiseAdonis.UWUF.LoneIncube, file = "pairwaiseAdonis.UWUF.LoneIncube.txt")
+for (n in allStatsList) {
+  if (length(grep("allPValues.", n)) == 1) {
+    capture.output(xtable(get(paste0(n)), digits = 3), file = paste0("./BETAPLOTS_LATEX/",n,"UWUF.txt"))
+  } else {
+    capture.output(get(paste0(n)), file = paste0("./BETAPLOTS/UWUF/",n,".txt"))
+  }
+}
 
-capture.output(allPValues.ExNWater, file = "./BETAPLOTS/UWUF/allPValues.ExNWater.txt")
-capture.output(allPValues.ExN, file = "./BETAPLOTS/UWUF/allPValues.ExN.txt")
-capture.output(allPValues.LoneIncube, file = "./BETAPLOTS/UWUF/allPValues.LoneIncube.txt")
-capture.output(ANOVA.UWUF.ExN.ExNvsEverything, file = "./BETAPLOTS/UWUF/ExNvseverything.txt")
-
-capture.output(xtable(rbind(allPValues.ExN,allPValues.ExNWater,allPValues.LoneIncube), digits = 3), file = paste0("./BETAPLOTS_LATEX/allPValues.",metric,".txt"))
-
-
+# capture.output(ANOVA.UWUF.ExN, file = "./BETAPLOTS/UWUF/ANOVA.UWUF.ExN.txt")
+# # capture.output(pairwaiseAdonis.UWUF.ExN, file = "pairwaiseAdonis.UWUF.ExN.txt")
+# # capture.output(allPValues.ExN, file = "allPValues.pairwise.ExN.txt")
+# 
+# capture.output(ANOVA.UWUF.ExNWater, file = "./BETAPLOTS/UWUF/ANOVA.UWUF.ExNWater.txt")
+# # capture.output(pairwaiseAdonis.UWUF.ExNWater, file = "pairwaiseAdonis.UWUF.ExNWater.txt")
+# 
+# capture.output(ANOVA.UWUF.LoneIncube, file = "./BETAPLOTS/UWUF/ANOVA.UWUF.LoneIncube.txt")
+# # capture.output(pairwaiseAdonis.UWUF.LoneIncube, file = "pairwaiseAdonis.UWUF.LoneIncube.txt")
+# 
+# capture.output(allPValues.ExNWater, file = "./BETAPLOTS/UWUF/allPValues.ExNWater.txt")
+# capture.output(allPValues.ExN, file = "./BETAPLOTS/UWUF/allPValues.ExN.txt")
+# capture.output(allPValues.LoneIncube, file = "./BETAPLOTS/UWUF/allPValues.LoneIncube.txt")
+# capture.output(ANOVA.UWUF.ExN.ExNvsEverything, file = "./BETAPLOTS/UWUF/ExNvseverything.txt")
+# captureoutput(ANOVA.UWUF.ExNWater.ExNvsEverything, file = "./BETAPLOTS/UWUF/ExNWatervseverything.txt")
+# 
+# capture.output(xtable(rbind(allPValues.ExN,allPValues.ExNWater,allPValues.LoneIncube), digits = 3), file = paste0("./BETAPLOTS_LATEX/allPValues.",metric,".txt"))
 
 ####### PLOT ############
 # EXN UWUF
 MF.ExN$ColRep <- factor(MF.ExN$ColRep, levels = c('NereotestExNExN','NereotestNereoExN','NereotestMastExN','NereotestNereoMastExN'))
-ExNColours <- c("darkgrey","green","red","brown")
+ExNColours <- c("darkgrey","green","purple","brown")
 
 # Make chulls
 
@@ -417,7 +513,7 @@ plot(NMDS.UWUF.ExN$points
      , xlab = "NMDS 1"
      , ylab = "NMDS 2"
      , cex = 2
-     )
+)
 lines(NMDS.UWUF.ExN.ExN[NMDS.UWUF.ExN.ExN.chull,]
       , col = ExNColours[1])
 lines(NMDS.UWUF.ExN.Nereo[NMDS.UWUF.ExN.Nereo.chull,]
@@ -436,14 +532,14 @@ plot(0,0
      , bty = "n")
 legend("top"
        , pch = 19
-       , legend = c("Alone","With Nereocystis","With Mastocarpus","With Both")#levels(MF.ExN$ColRep)
+       , legend = c("NMF Alone","with Nereo","with Mast","with Nereo + Mast")#levels(MF.ExN$ColRep)
        , col = ExNColours
        , cex = 1)
 dev.off()
 
 # ExN UWUF
 MF.ExNWater$ColRep <- factor(MF.ExNWater$ColRep, levels = c('NereotestH2OWater','NereotestExNWater','NereotestNereoWater','NereotestMastWater','NereotestNereoMastWater'))
-ExNWaterColours <- c("blue","darkgrey","green","red","brown")
+ExNWaterColours <- c("blue","darkgrey","green","purple","brown")
 
 
 # Make chulls
@@ -498,14 +594,14 @@ plot(0,0
      , bty = "n")
 legend("center"
        , pch = 19
-       , legend = c("Water only","Nereo Meristem Only", "Nereocystis","Mastocarpus","Nereo + Mast")
+       , legend = c("Water only","NMF Alone", "with Nereo","with Mast","with Nereo + Mast")
        , col = ExNWaterColours
        , cex = 1)
 dev.off()
 
 # LoneIncube UWUF
 MF.LoneIncube$ColRep <- factor(MF.LoneIncube$ColRep, levels = c('LoneincubeNereowater','LoneincubeNereoNereo','LoneincubeMastwater','LoneincubeMastMast'))
-LoneIncubeColours <- c("blue","green","purple","red")
+LoneIncubeColours <- c("lightseagreen","green","lightslateblue","purple")
 
 NMDS.UWUF.LoneIncube.WNereo <- NMDS.UWUF.LoneIncube$points[grep("water.Loneincube.Nereo.", rownames(NMDS.UWUF.LoneIncube$points), fixed = TRUE),]
 NMDS.UWUF.LoneIncube.WNereo.chull <- chull(NMDS.UWUF.LoneIncube.WNereo)
@@ -552,10 +648,17 @@ plot(0,0
      , bty = 'n')
 legend("center"
        , pch = 19
-       , legend = c("Water-Nereocystis","Nereocystis","Water-Mastocarpus","Mastocarpus")#levels(MF.LoneIncube$ColRep)
+       , legend = c("Water-Nereo","Nereo","Water-Mast","Mast")#levels(MF.LoneIncube$ColRep)
        , col = LoneIncubeColours
        , cex = 1)
 dev.off()
+
+######### Save allPvalues ##########
+
+allPValues.ExN.UWUF <- allPValues.ExN
+allPValues.ExNWater.UWUF <- allPValues.ExNWater
+allPValues.LoneIncube.UWUF <- allPValues.LoneIncube
+
 
 ########### ALL PLOT ##############
 
@@ -582,22 +685,22 @@ MF.all$ColRep <- factor(MF.all$ColRep, levels = c("NereotestExNExN"
                                                   , "LoneincubeNereowater"
                                                   , "LoneincubeMastwater"
 ))
-colorsPlot <- c( "aquamarine4" # [12] "NereotestExNExN" 
-                 , "chartreuse3" # [17] "NereotestNereoExN"       
-                 , "olivedrab" # [15] "NereotestMastExN"       
-                 , "green4" # [18] "NereotestNereoMastExN"  
-                 , "green" # [10] "LoneincubeNereoNereo" 
+colorsPlot <- c( "green" # [12] "NereotestExNExN" 
+                 , "green" # [17] "NereotestNereoExN"       
+                 , "green" # [15] "NereotestMastExN"       
+                 , "green" # [18] "NereotestNereoMastExN"  
+                 , "yellowgreen" # [10] "LoneincubeNereoNereo" 
                  , "darkgreen" # [2] "EnvironmentalBrocktonOldNereo"        
-                 , "chartreuse3" # [3] "EnvironmentalBrocktonYoungNereo"  
-                 , "red" # [8] "LoneincubeMastMast"        
-                 , "darkred"# [1] "EnvironmentalBrocktonMast"            
+                 , "darkolivegreen4" # [3] "EnvironmentalBrocktonYoungNereo"  
+                 , "purple" # [8] "LoneincubeMastMast"        
+                 , "magenta"# [1] "EnvironmentalBrocktonMast"            
                  , "lightblue" # [14] "NereotestH2OWater"                    
-                 , "deepskyblue" # [13] "NereotestExNWater"                    
-                 , "darkblue"# [20] "NereotestNereoWater" 
-                 , "darkmagenta" # [16] "NereotestMastWater"                   
-                 , "black" # [19] "NereotestNereoMastWater"              
-                 , "darkblue" # [11] "LoneincubeNereoWater"                 
-                 , "darkmagenta" # [9] "LoneincubeMastWater"                  
+                 , "blue" # [13] "NereotestExNWater"                    
+                 , "blue"# [20] "NereotestNereoWater" 
+                 , "blue" # [16] "NereotestMastWater"                   
+                 , "blue" # [19] "NereotestNereoMastWater"              
+                 , "dodgerblue" # [11] "LoneincubeNereoWater"                 
+                 , "dodgerblue" # [9] "LoneincubeMastWater"                  
 )
 
 
@@ -605,9 +708,9 @@ pchPlot <- c(19# [12] "NereotestExNExN"
              , 19# [17] "NereotestNereoExN"                    
              , 19# [15] "NereotestMastExN"                     
              , 19# [18] "NereotestNereoMastExN"                
-             , 17# [10] "LoneincubeNereoNereo"                 
+             , 18# [3] "EnvironmentalBrocktonYoungNereo"
+             , 17# [10] "LoneincubeNereoNereo" 
              , 18# [2] "EnvironmentalBrocktonOldNereo"        
-             , 18# [3] "EnvironmentalBrocktonYoungNereo" 
              , 19# [8] "LoneincubeMastMast"                   
              , 18# [1] "EnvironmentalBrocktonMast"          
              , 8# [14] "NereotestH2OWater"                    
@@ -624,29 +727,104 @@ NMDS.UWUF$points <- NMDS.UWUF$points[sapply(rownames(MF.all), function(x) {
   grep(paste0("^",x,"$"), rownames(NMDS.UWUF$points))
 }),]
 
+##### Do stats all plots #####
 
+newFactor <- c( "Nereo" # [12] "NereotestExNExN" 
+                , "Nereo" # [17] "NereotestNereoExN"       
+                , "Nereo" # [15] "NereotestMastExN"       
+                , "Nereo" # [18] "NereotestNereoMastExN"  
+                , "Nereo" # [10] "LoneincubeNereoNereo" 
+                , "Nereo" # [2] "EnvironmentalBrocktonOldNereo"        
+                , "Nereo" # [3] "EnvironmentalBrocktonYoungNereo"  
+                , "Mast" # [8] "LoneincubeMastMast"        
+                , "Mast"# [1] "EnvironmentalBrocktonMast"            
+                , "Water" # [14] "NereotestH2OWater"                    
+                , "Water" # [13] "NereotestExNWater"                    
+                , "Water"# [20] "NereotestNereoWater" 
+                , "Water" # [16] "NereotestMastWater"                   
+                , "Water" # [19] "NereotestNereoMastWater"              
+                , "Water" # [11] "LoneincubeNereoWater"                 
+                , "Water" # [9] "LoneincubeMastWater"                  
+)
+
+MF.all$newFactor <- newFactor[factor(MF.all$ColRep)]
+allPValues.algae.water.UWUF <- matrix(nrow = 3, ncol = 2)
+rownames(allPValues.algae.water.UWUF) <- c(1,2,3) 
+colnames(allPValues.algae.water.UWUF) <- c("p"," ")
+count <- 0
+newRowNames <- c()
+for (g1 in 1:(length(unique(newFactor))-1)) {
+  for (g2 in (g1+1):length(unique(newFactor))) {
+    count <- count +1
+    g1temp <- unique(newFactor)[g1]
+    g2temp <- unique(newFactor)[g2]
+    
+    MF.temp <- MF.all[grep(paste0("(",g1temp,"|",g2temp,")"), MF.all$newFactor),]
+    dm.temp <- dm.UWUF.all[sapply(rownames(MF.temp), function(x) grep(x, rownames(dm.UWUF.all)))
+                         , sapply(rownames(MF.temp), function(x) grep(x, colnames(dm.UWUF.all)))]
+    anova.temp <- adonis(dm.temp ~ newFactor, data = MF.temp)   
+    ptemp <- anova.temp$aov.tab$`Pr(>F)`[1]
+    rtemp <- anova.temp$aov.tab$R2[1]
+    dftemp <- paste0(anova.temp$aov.tab$Df[1],",",anova.temp$aov.tab$Df[3])
+    toPaste <- paste0("(R^2=",round(rtemp,3)," Df=",dftemp,")")
+    
+    allPValues.algae.water.UWUF[count,1] <- ptemp
+    allPValues.algae.water.UWUF[count,2] <- toPaste
+    
+    newRowNames <- rbind(newRowNames, c(g1temp, g2temp))
+  }
+}
+allPValues.algae.water.UWUF <- cbind(newRowNames,signif(as.numeric(allPValues.algae.water.UWUF[,1],3))
+                                   , allPValues.algae.water.UWUF[,2]
+                                   , signif(p.adjust(allPValues.algae.water.UWUF[,1], method = "fdr", n = 3),3)
+)
+colnames(allPValues.algae.water.UWUF) <- c("Group 1","Group 2", "p"," ","FDR adj. p")
+
+anova.algae.water.UWUF <- adonis(dm.UWUF.all ~ newFactor, data = MF.all)
+
+betadisp.UWUF.algae.water <- betadisper(dist(dm.UWUF.all), group = MF.all$newFactor)
+betadisp.UWUF.algae.water.anova <- anova(betadisp.UWUF.algae.water)
 
 pdf(file = paste0("./BETAPLOTS/",metric,"/NMDS_all_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.UWUF$points
      , main = paste0("NMDS plot of all samples (",metric,")")
      , sub = round(NMDS.UWUF$stress/100,2)
-     , col = colorsPlot[factor(MF.all$ColRep)]
-     , pch = pchPlot[factor(MF.all$ColRep)]
+     , bg = colorsPlot[factor(MF.all$ColRep)]
+     , col = "black"
+     , pch = 21
+     # , pch = pchPlot[factor(MF.all$ColRep)]
      , cex = 2
      , xlab = "NMDS 1"
      , ylab = "NMDS 2"
-     )
+)
 par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
 legend("left"
-  , legend = levels(MF.all$ColRep)
-  , pch = pchPlot
-  , col = colorsPlot
-  , cex = 1
-  , bty = "n")
+       , legend = c("Nereo Meristem (lab)"
+                    , "Nereo Meristem (wild)"
+                    , "Nereo blade (lab)"
+                    , "Nereo blade (wild)"
+                    , "Mast blade (lab)"
+                    , "Mast blade (wild)"
+                    , "Water alone (NMF experiment)"
+                    , "Water (NMF experiment)"
+                    , "Water (Single Sp. Experiment)"
+       )
+       , pch = 21
+       #, pch = c(19,18,17,18,19,18,8,11,11)
+       , pt.bg = c("green", "yellowgreen", "darkgreen", "darkolivegreen4"
+                   , "purple", "magenta"
+                   , "lightblue", "blue", "dodgerblue" )
+       , col = "black"
+       , pt.cex = 2
+       , cex = 1
+       , y.intersp = 2
+       , bty = "n")
 dev.off()
 
-
+capture.output(anova.algae.water.UWUF, file = paste0("BETAPLOTS/",metric,"/anova.algae.water.overall.",metric,".txt"))
+capture.output(betadisp.UWUF.algae.water.anova, file = paste0("BETAPLOTS/",metric,"/anova.betadisp.algae.water.overall.",metric,".txt"))
+capture.output(print(xtable(allPValues.algae.water.UWUF), include.rownames = FALSE), file = paste0("BETAPLOTS_LATEX/allPValues.algae.water.",metric,".txt"))
 
 ######### WUF #############
 metric <-"WUF"
@@ -672,6 +850,8 @@ NMDS.WUF.LoneIncube <- isoMDS(as.matrix(dm.WUF.LoneIncube), y = cmdscale(as.matr
 ###### STATS ##########
 # ExN
 ANOVA.WUF.ExN <- adonis(dm.WUF.ExN ~ ColRep, data = MF.ExN)
+betadisp.WUF.ExN <- betadisper(dist(dm.WUF.ExN), group = MF.ExN$ColRep)
+anova.betadisp.WUF.ExN <- anova(betadisp.WUF.ExN)
 # ANOSIM.WUF.ExN <- anosim(dm.WUF.ExN, grouping = MF.ExN$ColRep)
 
 # ExN to others
@@ -687,6 +867,8 @@ for (i in 1:length(MF.ExN.ExNvsEverything$ColRep)) {
 }
 MF.ExN.ExNvsEverything
 ANOVA.WUF.ExN.ExNvsEverything <- adonis(dm.WUF.ExN.ExNvsEverything ~ EXNCOMPARE, data = MF.ExN.ExNvsEverything)
+betadisp.WUF.ExN.ExNvsEverything <- betadisper(dist(dm.WUF.ExN.ExNvsEverything), group = MF.ExN.ExNvsEverything$EXNCOMPARE)
+anova.betadisp.WUF.ExN.ExNvsEverything <- anova(betadisp.WUF.ExN.ExNvsEverything)
 
 # ExN Split
 dm.WUF.ExN.ExNvsNereo <- dm.WUF.ExN[grep("([.]ExN[.])|([.]Nereo[.])", rownames(dm.WUF.ExN)), grep("([.]ExN[.])|([.]Nereo[.])", colnames(dm.WUF.ExN))]
@@ -734,24 +916,56 @@ allPValues.ExN[4,1] <- ANOVA.WUF.ExN.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExN[5,1] <- ANOVA.WUF.ExN.NereovsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExN[6,1] <- ANOVA.WUF.ExN.MastvsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.ExN[1,2] <- ANOVA.WUF.ExN.ExNvsNereo$aov.tab[5]$R2[1]
-allPValues.ExN[2,2] <- ANOVA.WUF.ExN.ExNvsMast$aov.tab[5]$R2[1]
-allPValues.ExN[3,2] <- ANOVA.WUF.ExN.ExNvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExN[4,2] <- ANOVA.WUF.ExN.NereovsMast$aov.tab[5]$R2[1]
-allPValues.ExN[5,2] <- ANOVA.WUF.ExN.NereovsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExN[6,2] <- ANOVA.WUF.ExN.MastvsNereoMast$aov.tab[5]$R2[1]
+allPValues.ExN[1,2] <- paste0("(R=",ANOVA.WUF.ExN.ExNvsNereo$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.WUF.ExN.ExNvsNereo$aov.tab$Df[1],","
+                              ,ANOVA.WUF.ExN.ExNvsNereo$aov.tab$Df[3],")")
+allPValues.ExN[2,2] <- paste0("(R=",ANOVA.WUF.ExN.ExNvsMast$aov.tab$R2[1],",df="
+                              ,ANOVA.WUF.ExN.ExNvsMast$aov.tab$Df[1],","
+                              ,ANOVA.WUF.ExN.ExNvsMast$aov.tab$Df[3],")")
+allPValues.ExN[3,2] <- paste0("(R=",ANOVA.WUF.ExN.ExNvsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.WUF.ExN.ExNvsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.WUF.ExN.ExNvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExN[4,2] <- paste0("(R=",ANOVA.WUF.ExN.NereovsMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.WUF.ExN.NereovsMast$aov.tab$Df[1],","
+                              ,ANOVA.WUF.ExN.NereovsMast$aov.tab$Df[3],")")
+allPValues.ExN[5,2] <- paste0("(R=",ANOVA.WUF.ExN.NereovsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.WUF.ExN.NereovsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.WUF.ExN.NereovsNereoMast$aov.tab$Df[3],")")
+allPValues.ExN[6,2] <- paste0("(R=",ANOVA.WUF.ExN.MastvsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.WUF.ExN.MastvsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.WUF.ExN.MastvsNereoMast$aov.tab$Df[3],")")
 
-
-allPValues.ExN <- cbind(allPValues.ExN, p.adjust(allPValues.ExN[,1],method = "fdr", n = 6))
-colnames(allPValues.ExN) <- c("P","R^2","fdr_adj")
-
+allPValues.ExN <- cbind(allPValues.ExN
+                        , c(p.adjust(allPValues.ExN[1:3,1],method = "fdr", n = 3)
+                            , p.adjust(allPValues.ExN[4:6,1],method = "fdr", n = 3)))
+colnames(allPValues.ExN) <- c("p","R^2","fdr_adj")
 
 
 # ExN Water
 ANOVA.WUF.ExNWater <- adonis(dm.WUF.ExNWater ~ ColRep, data = MF.ExNWater)
+betadisp.WUF.ExNWater <- betadisper(dist(dm.WUF.ExNWater), group = MF.ExNWater$ColRep)
+anova.betadisp.WUF.ExNWater.anova <- anova(betadisp.WUF.ExNWater)
 # ANOSIM.WUF.ExNWater <- anosim(dm.WUF.ExNWater, grouping = MF.ExNWater$ColRep) # NOT WORKING
 # pairwaiseAdonis.WUF.ExNWater <- pairwise.adonis(dm.WUF.ExNWater, factors = MF.ExNWater$ColRep)
 
+
+# ExN Water to others
+dm.WUF.ExNWater.ExNvsEverything <- dm.WUF.ExNWater[-grep("H2O", rownames(dm.WUF.ExNWater)),
+                                                 -grep("H2O", colnames(dm.WUF.ExNWater))]
+MF.ExNWater.ExNvsEverything <- MF.ExNWater[-grep("H2O", rownames(MF.ExNWater)),]
+# Filter out H2O
+MF.ExNWater.ExNvsEverything$EXNCOMPARE <- ""
+for (i in 1:length(MF.ExNWater.ExNvsEverything$ColRep)) {
+  if (MF.ExNWater.ExNvsEverything[i,"ColRep"] != "NereotestExNWater") {
+    MF.ExNWater.ExNvsEverything[i,"EXNCOMPARE"] <- "OTHER"
+  } else {
+    MF.ExNWater.ExNvsEverything[i,"EXNCOMPARE"] <- "ExN"
+  }
+}
+
+ANOVA.WUF.ExNWater.ExNvsEverything <- adonis(dm.WUF.ExNWater.ExNvsEverything ~ EXNCOMPARE, data = MF.ExNWater.ExNvsEverything)
+betadisp.WUF.ExNWater.ExNvsEverything <- betadisper(dist(dm.WUF.ExNWater.ExNvsEverything), group = MF.ExNWater.ExNvsEverything$EXNCOMPARE)
+anova.betadisp.WUF.ExNWater.ExNvsEverything <- anova(betadisp.WUF.ExNWater.ExNvsEverything)
 
 # ExN Water split
 dm.WUF.ExNWater.ExNvsH2O <- dm.WUF.ExNWater[grep("([.]ExN[.])|([.]H2O[.])", rownames(dm.WUF.ExNWater)), grep("([.]ExN[.])|([.]H2O[.])", colnames(dm.WUF.ExNWater))]
@@ -827,21 +1041,45 @@ allPValues.ExNWater[7,1] <- ANOVA.WUF.ExNWater.H2OvsNereoMast$aov.tab[6]$`Pr(>F)
 allPValues.ExNWater[8,1] <- ANOVA.WUF.ExNWater.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExNWater[9,1] <- ANOVA.WUF.ExNWater.NereovsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExNWater[10,1] <- ANOVA.WUF.ExNWater.MastvsNereoMast$aov.tab[6]$`Pr(>F)`[1]
+
 # Add R^2 values
-allPValues.ExNWater[1,2] <- ANOVA.WUF.ExNWater.ExNvsH2O$aov.tab[5]$R2[1]
-allPValues.ExNWater[2,2] <- ANOVA.WUF.ExNWater.ExNvsNereo$aov.tab[5]$R2[1]
-allPValues.ExNWater[3,2] <- ANOVA.WUF.ExNWater.ExNvsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[4,2] <- ANOVA.WUF.ExNWater.ExNvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[5,2] <- ANOVA.WUF.ExNWater.H2OvsNereo$aov.tab[5]$R2[1]
-allPValues.ExNWater[6,2] <- ANOVA.WUF.ExNWater.H2OvsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[7,2] <- ANOVA.WUF.ExNWater.H2OvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[8,2] <- ANOVA.WUF.ExNWater.NereovsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[9,2] <- ANOVA.WUF.ExNWater.NereovsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[10,2] <- ANOVA.WUF.ExNWater.MastvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater <- cbind(allPValues.ExNWater, p.adjust(allPValues.ExNWater[,1],method = "fdr", n = 10))
-colnames(allPValues.ExNWater) <- c("P","R^2","fdr_adj")
+allPValues.ExNWater[1,2] <- paste0("(R=",ANOVA.WUF.ExNWater.ExNvsH2O$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.ExNvsH2O$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.ExNvsH2O$aov.tab$Df[3],")")
+allPValues.ExNWater[2,2] <- paste0("(R=",ANOVA.WUF.ExNWater.ExNvsNereo$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.ExNvsNereo$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.ExNvsNereo$aov.tab$Df[3],")")
+allPValues.ExNWater[3,2] <- paste0("(R=",ANOVA.WUF.ExNWater.ExNvsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.ExNvsMast$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.ExNvsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[4,2] <- paste0("(R=",ANOVA.WUF.ExNWater.ExNvsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.ExNvsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.ExNvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[5,2] <- paste0("(R=",ANOVA.WUF.ExNWater.H2OvsNereo$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.H2OvsNereo$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.H2OvsNereo$aov.tab$Df[3],")")
+allPValues.ExNWater[6,2] <- paste0("(R=",ANOVA.WUF.ExNWater.H2OvsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.H2OvsMast$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.H2OvsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[7,2] <- paste0("(R=",ANOVA.WUF.ExNWater.H2OvsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.H2OvsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.H2OvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[8,2] <- paste0("(R=",ANOVA.WUF.ExNWater.NereovsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.NereovsMast$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.NereovsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[9,2] <- paste0("(R=",ANOVA.WUF.ExNWater.NereovsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.WUF.ExNWater.NereovsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.WUF.ExNWater.NereovsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[10,2] <- paste0("(R=",ANOVA.WUF.ExNWater.MastvsNereoMast$aov.tab[5]$R2[1],",df="
+                                    ,ANOVA.WUF.ExNWater.MastvsNereoMast$aov.tab$Df[1],","
+                                    ,ANOVA.WUF.ExNWater.MastvsNereoMast$aov.tab$Df[3],")")
 
 
+allPValues.ExNWater <- cbind(allPValues.ExNWater
+                             , c(allPValues.ExNWater[1,1],p.adjust(allPValues.ExNWater[2:4,1],method = "fdr", n = 3)
+                                 , p.adjust(allPValues.ExNWater[5:7,1],method = "fdr", n = 3)
+                                 , p.adjust(allPValues.ExNWater[8:10,1],method = "fdr", n = 3)))
+colnames(allPValues.ExNWater) <- c("p","R^2","fdr_adj")
 
 # Lone Incube
 # Add another column
@@ -849,8 +1087,11 @@ MF.LoneIncube$WorS <- MF.LoneIncube$Substrate
 MF.LoneIncube$WorS <- gsub("(Nereo)|(Mast)", "Seaweed", MF.LoneIncube[,'WorS'])
 
 ANOVA.WUF.LoneIncube <- adonis(dm.WUF.LoneIncube ~ WorS*Treatment, data = MF.LoneIncube)
+betadisp.WUF.LoneIncube <- betadisper(dist(dm.WUF.LoneIncube), group = MF.LoneIncube$ColRep)
+anova.betadisp.WUF.LoneIncube <- anova(betadisp.WUF.LoneIncube)
 # ANOSIM.WUF.LoneIncube <- anosim(dm.WUF.LoneIncube, grouping = MF.LoneIncube$ColRep) # NOT WORKING
 # pairwaiseAdonis.WUF.LoneIncube <- pairwise.adonis(dm.WUF.LoneIncube, factors = MF.LoneIncube$ColRep)
+
 
 # Lone Incube split
 dm.WUF.LoneIncube.NereovsMast <- dm.WUF.LoneIncube[grep("(^Nereo[.])|(^Mast[.])", rownames(dm.WUF.LoneIncube)), grep("(^Nereo[.])|(^Mast[.])", colnames(dm.WUF.LoneIncube))]
@@ -886,54 +1127,91 @@ ANOVA.WUF.LoneIncube.MastvsNwater <- adonis(dm.WUF.LoneIncube.MastvsNwater ~ Col
 # 4 comparisons; 0.05/4 = 0.00625
 allPValues.LoneIncube <- matrix(nrow= 6, ncol = 2)
 rownames(allPValues.LoneIncube) <- c("NereovsMast"
-                                     ,"waters"
-                                     ,"Nereovswater"
-                                     ,"Mastvswater"
+                                     ,"NereovsNwater"
                                      ,"NereovsMwater"
                                      ,"MastvsNwater"
+                                     ,"MastvsMwater"
+                                     ,"NwatervsMwater"
 )
 allPValues.LoneIncube[1,1] <- ANOVA.WUF.LoneIncube.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[2,1] <- ANOVA.WUF.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[3,1] <- ANOVA.WUF.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[4,1] <- ANOVA.WUF.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[5,1] <- ANOVA.WUF.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[6,1] <- ANOVA.WUF.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[2,1] <- ANOVA.WUF.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[3,1] <- ANOVA.WUF.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[4,1] <- ANOVA.WUF.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[5,1] <- ANOVA.WUF.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[6,1] <- ANOVA.WUF.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.LoneIncube[1,2] <- ANOVA.WUF.LoneIncube.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[2,2] <- ANOVA.WUF.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[3,2] <- ANOVA.WUF.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[4,2] <- ANOVA.WUF.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[5,2] <- ANOVA.WUF.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[6,2] <- ANOVA.WUF.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[1,2] <- paste0("(R=",ANOVA.WUF.LoneIncube.NereovsMast$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.WUF.LoneIncube.NereovsMast$aov.tab$Df[1],","
+                                     , ANOVA.WUF.LoneIncube.NereovsMast$aov.tab$Df[3],")")
+allPValues.LoneIncube[2,2] <- paste0("(R=",ANOVA.WUF.LoneIncube.Nereovswater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.WUF.LoneIncube.Nereovswater$aov.tab$Df[1],","
+                                     , ANOVA.WUF.LoneIncube.Nereovswater$aov.tab$Df[3],")")
+allPValues.LoneIncube[3,2] <- paste0("(R=",ANOVA.WUF.LoneIncube.NereovsMwater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.WUF.LoneIncube.NereovsMwater$aov.tab$Df[1],","
+                                     , ANOVA.WUF.LoneIncube.NereovsMwater$aov.tab$Df[3],")")
+allPValues.LoneIncube[4,2] <- paste0("(R=",ANOVA.WUF.LoneIncube.MastvsNwater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.WUF.LoneIncube.MastvsNwater$aov.tab$Df[1],","
+                                     , ANOVA.WUF.LoneIncube.MastvsNwater$aov.tab$Df[3],")")
+allPValues.LoneIncube[5,2] <- paste0("(R=",ANOVA.WUF.LoneIncube.Mastvswater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.WUF.LoneIncube.Mastvswater$aov.tab$Df[1],","
+                                     , ANOVA.WUF.LoneIncube.Mastvswater$aov.tab$Df[3],")")
+allPValues.LoneIncube[6,2] <- paste0("(R=",ANOVA.WUF.LoneIncube.waters$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.WUF.LoneIncube.waters$aov.tab$Df[1],","
+                                     , ANOVA.WUF.LoneIncube.waters$aov.tab$Df[3],")")
 
 allPValues.LoneIncube <- cbind(allPValues.LoneIncube, p.adjust(allPValues.LoneIncube[,1],method = "fdr", n = 6))
-colnames(allPValues.LoneIncube) <- c("P","R^2","fdr_adj")
+colnames(allPValues.LoneIncube) <- c("p","R^2","fdr_adj")
 
 
 
 # Now print everything
 system("mkdir ./BETAPLOTS/WUF/")
-capture.output(ANOVA.WUF.ExN, file = "./BETAPLOTS/WUF/ANOVA.WUF.ExN.txt")
-# capture.output(pairwaiseAdonis.WUF.ExN, file = "pairwaiseAdonis.WUF.ExN.txt")
-# capture.output(allPValues.ExN, file = "allPValues.pairwise.ExN.txt")
 
-capture.output(ANOVA.WUF.ExNWater, file = "./BETAPLOTS/WUF/ANOVA.WUF.ExNWater.txt")
-# capture.output(pairwaiseAdonis.WUF.ExNWater, file = "pairwaiseAdonis.WUF.ExNWater.txt")
+# THIS IS ALL THE STATS
+allStatsList <- c("ANOVA.WUF.ExN"
+                  , "anova.betadisp.WUF.ExN"
+                  , "ANOVA.WUF.ExN.ExNvsEverything"
+                  , "anova.betadisp.WUF.ExN.ExNvsEverything"
+                  , "allPValues.ExN"
+                  , "ANOVA.WUF.ExNWater"
+                  , "anova.betadisp.WUF.ExNWater.anova"
+                  , "ANOVA.WUF.ExNWater.ExNvsEverything"
+                  , "anova.betadisp.WUF.ExNWater.ExNvsEverything"
+                  , "allPValues.ExNWater"
+                  , "ANOVA.WUF.LoneIncube"
+                  , "anova.betadisp.WUF.LoneIncube"
+                  , "allPValues.LoneIncube")
 
-capture.output(ANOVA.WUF.LoneIncube, file = "./BETAPLOTS/WUF/ANOVA.WUF.LoneIncube.txt")
-# capture.output(pairwaiseAdonis.WUF.LoneIncube, file = "pairwaiseAdonis.WUF.LoneIncube.txt")
+for (n in allStatsList) {
+  if (length(grep("allPValues.", n)) == 1) {
+    capture.output(xtable(get(paste0(n)), digits = 3), file = paste0("./BETAPLOTS_LATEX/",n,"WUF.txt"))
+  } else {
+    capture.output(get(paste0(n)), file = paste0("./BETAPLOTS/WUF/",n,".txt"))
+  }
+}
 
-capture.output(allPValues.ExNWater, file = "./BETAPLOTS/WUF/allPValues.ExNWater.txt")
-capture.output(allPValues.ExN, file = "./BETAPLOTS/WUF/allPValues.ExN.txt")
-capture.output(allPValues.LoneIncube, file = "./BETAPLOTS/WUF/allPValues.LoneIncube.txt")
-capture.output(ANOVA.WUF.ExN.ExNvsEverything, file = "./BETAPLOTS/WUF/ExNvseverything.txt")
-
-capture.output(xtable(rbind(allPValues.ExN,allPValues.ExNWater,allPValues.LoneIncube), digits = 3), file = paste0("./BETAPLOTS_LATEX/allPValues.",metric,".txt"))
+# capture.output(ANOVA.WUF.ExN, file = "./BETAPLOTS/WUF/ANOVA.WUF.ExN.txt")
+# # capture.output(pairwaiseAdonis.WUF.ExN, file = "pairwaiseAdonis.WUF.ExN.txt")
+# # capture.output(allPValues.ExN, file = "allPValues.pairwise.ExN.txt")
+# 
+# capture.output(ANOVA.WUF.ExNWater, file = "./BETAPLOTS/WUF/ANOVA.WUF.ExNWater.txt")
+# # capture.output(pairwaiseAdonis.WUF.ExNWater, file = "pairwaiseAdonis.WUF.ExNWater.txt")
+# 
+# capture.output(ANOVA.WUF.LoneIncube, file = "./BETAPLOTS/WUF/ANOVA.WUF.LoneIncube.txt")
+# # capture.output(pairwaiseAdonis.WUF.LoneIncube, file = "pairwaiseAdonis.WUF.LoneIncube.txt")
+# 
+# capture.output(allPValues.ExNWater, file = "./BETAPLOTS/WUF/allPValues.ExNWater.txt")
+# capture.output(allPValues.ExN, file = "./BETAPLOTS/WUF/allPValues.ExN.txt")
+# capture.output(allPValues.LoneIncube, file = "./BETAPLOTS/WUF/allPValues.LoneIncube.txt")
+# capture.output(ANOVA.WUF.ExN.ExNvsEverything, file = "./BETAPLOTS/WUF/ExNvseverything.txt")
+# captureoutput(ANOVA.WUF.ExNWater.ExNvsEverything, file = "./BETAPLOTS/WUF/ExNWatervseverything.txt")
+# 
+# capture.output(xtable(rbind(allPValues.ExN,allPValues.ExNWater,allPValues.LoneIncube), digits = 3), file = paste0("./BETAPLOTS_LATEX/allPValues.",metric,".txt"))
 
 ####### PLOT ############
 # EXN WUF
 MF.ExN$ColRep <- factor(MF.ExN$ColRep, levels = c('NereotestExNExN','NereotestNereoExN','NereotestMastExN','NereotestNereoMastExN'))
-ExNColours <- c("darkgrey","green","red","brown")
+ExNColours <- c("darkgrey","green","purple","brown")
 
 # Make chulls
 
@@ -982,14 +1260,14 @@ plot(0,0
      , bty = "n")
 legend("top"
        , pch = 19
-       , legend = c("Alone","With Nereocystis","With Mastocarpus","With Both")#levels(MF.ExN$ColRep)
+       , legend = c("NMF Alone","with Nereo","with Mast","with Nereo + Mast")#levels(MF.ExN$ColRep)
        , col = ExNColours
        , cex = 1)
 dev.off()
 
 # ExN WUF
 MF.ExNWater$ColRep <- factor(MF.ExNWater$ColRep, levels = c('NereotestH2OWater','NereotestExNWater','NereotestNereoWater','NereotestMastWater','NereotestNereoMastWater'))
-ExNWaterColours <- c("blue","darkgrey","green","red","brown")
+ExNWaterColours <- c("blue","darkgrey","green","purple","brown")
 
 
 # Make chulls
@@ -1044,14 +1322,14 @@ plot(0,0
      , bty = "n")
 legend("center"
        , pch = 19
-       , legend = c("Water only","Nereo Meristem Only", "Nereocystis","Mastocarpus","Nereo + Mast")
+       , legend = c("Water only","NMF Alone", "with Nereo","with Mast","with Nereo + Mast")
        , col = ExNWaterColours
        , cex = 1)
 dev.off()
 
 # LoneIncube WUF
 MF.LoneIncube$ColRep <- factor(MF.LoneIncube$ColRep, levels = c('LoneincubeNereowater','LoneincubeNereoNereo','LoneincubeMastwater','LoneincubeMastMast'))
-LoneIncubeColours <- c("blue","green","purple","red")
+LoneIncubeColours <- c("lightseagreen","green","lightslateblue","purple")
 
 NMDS.WUF.LoneIncube.WNereo <- NMDS.WUF.LoneIncube$points[grep("water.Loneincube.Nereo.", rownames(NMDS.WUF.LoneIncube$points), fixed = TRUE),]
 NMDS.WUF.LoneIncube.WNereo.chull <- chull(NMDS.WUF.LoneIncube.WNereo)
@@ -1098,10 +1376,17 @@ plot(0,0
      , bty = 'n')
 legend("center"
        , pch = 19
-       , legend = c("Water-Nereocystis","Nereocystis","Water-Mastocarpus","Mastocarpus")#levels(MF.LoneIncube$ColRep)
+       , legend = c("Water-Nereo","Nereo","Water-Mast","Mast")#levels(MF.LoneIncube$ColRep)
        , col = LoneIncubeColours
        , cex = 1)
 dev.off()
+
+######### Save allPvalues ##########
+
+allPValues.ExN.WUF <- allPValues.ExN
+allPValues.ExNWater.WUF <- allPValues.ExNWater
+allPValues.LoneIncube.WUF <- allPValues.LoneIncube
+
 
 ########### ALL PLOT ##############
 
@@ -1128,22 +1413,22 @@ MF.all$ColRep <- factor(MF.all$ColRep, levels = c("NereotestExNExN"
                                                   , "LoneincubeNereowater"
                                                   , "LoneincubeMastwater"
 ))
-colorsPlot <- c( "aquamarine4" # [12] "NereotestExNExN" 
-                 , "chartreuse3" # [17] "NereotestNereoExN"       
-                 , "olivedrab" # [15] "NereotestMastExN"       
-                 , "green4" # [18] "NereotestNereoMastExN"  
-                 , "green" # [10] "LoneincubeNereoNereo" 
+colorsPlot <- c( "green" # [12] "NereotestExNExN" 
+                 , "green" # [17] "NereotestNereoExN"       
+                 , "green" # [15] "NereotestMastExN"       
+                 , "green" # [18] "NereotestNereoMastExN"  
+                 , "yellowgreen" # [10] "LoneincubeNereoNereo" 
                  , "darkgreen" # [2] "EnvironmentalBrocktonOldNereo"        
-                 , "chartreuse3" # [3] "EnvironmentalBrocktonYoungNereo"  
-                 , "red" # [8] "LoneincubeMastMast"        
-                 , "darkred"# [1] "EnvironmentalBrocktonMast"            
+                 , "darkolivegreen4" # [3] "EnvironmentalBrocktonYoungNereo"  
+                 , "purple" # [8] "LoneincubeMastMast"        
+                 , "magenta"# [1] "EnvironmentalBrocktonMast"            
                  , "lightblue" # [14] "NereotestH2OWater"                    
-                 , "deepskyblue" # [13] "NereotestExNWater"                    
-                 , "darkblue"# [20] "NereotestNereoWater" 
-                 , "darkmagenta" # [16] "NereotestMastWater"                   
-                 , "black" # [19] "NereotestNereoMastWater"              
-                 , "darkblue" # [11] "LoneincubeNereoWater"                 
-                 , "darkmagenta" # [9] "LoneincubeMastWater"                  
+                 , "blue" # [13] "NereotestExNWater"                    
+                 , "blue"# [20] "NereotestNereoWater" 
+                 , "blue" # [16] "NereotestMastWater"                   
+                 , "blue" # [19] "NereotestNereoMastWater"              
+                 , "dodgerblue" # [11] "LoneincubeNereoWater"                 
+                 , "dodgerblue" # [9] "LoneincubeMastWater"                  
 )
 
 
@@ -1151,9 +1436,9 @@ pchPlot <- c(19# [12] "NereotestExNExN"
              , 19# [17] "NereotestNereoExN"                    
              , 19# [15] "NereotestMastExN"                     
              , 19# [18] "NereotestNereoMastExN"                
-             , 17# [10] "LoneincubeNereoNereo"                 
+             , 18# [3] "EnvironmentalBrocktonYoungNereo"
+             , 17# [10] "LoneincubeNereoNereo" 
              , 18# [2] "EnvironmentalBrocktonOldNereo"        
-             , 18# [3] "EnvironmentalBrocktonYoungNereo" 
              , 19# [8] "LoneincubeMastMast"                   
              , 18# [1] "EnvironmentalBrocktonMast"          
              , 8# [14] "NereotestH2OWater"                    
@@ -1170,27 +1455,104 @@ NMDS.WUF$points <- NMDS.WUF$points[sapply(rownames(MF.all), function(x) {
   grep(paste0("^",x,"$"), rownames(NMDS.WUF$points))
 }),]
 
+##### Do stats all plots #####
 
+newFactor <- c( "Nereo" # [12] "NereotestExNExN" 
+                , "Nereo" # [17] "NereotestNereoExN"       
+                , "Nereo" # [15] "NereotestMastExN"       
+                , "Nereo" # [18] "NereotestNereoMastExN"  
+                , "Nereo" # [10] "LoneincubeNereoNereo" 
+                , "Nereo" # [2] "EnvironmentalBrocktonOldNereo"        
+                , "Nereo" # [3] "EnvironmentalBrocktonYoungNereo"  
+                , "Mast" # [8] "LoneincubeMastMast"        
+                , "Mast"# [1] "EnvironmentalBrocktonMast"            
+                , "Water" # [14] "NereotestH2OWater"                    
+                , "Water" # [13] "NereotestExNWater"                    
+                , "Water"# [20] "NereotestNereoWater" 
+                , "Water" # [16] "NereotestMastWater"                   
+                , "Water" # [19] "NereotestNereoMastWater"              
+                , "Water" # [11] "LoneincubeNereoWater"                 
+                , "Water" # [9] "LoneincubeMastWater"                  
+)
+
+MF.all$newFactor <- newFactor[factor(MF.all$ColRep)]
+allPValues.algae.water.WUF <- matrix(nrow = 3, ncol = 2)
+rownames(allPValues.algae.water.WUF) <- c(1,2,3) 
+colnames(allPValues.algae.water.WUF) <- c("p"," ")
+count <- 0
+newRowNames <- c()
+for (g1 in 1:(length(unique(newFactor))-1)) {
+  for (g2 in (g1+1):length(unique(newFactor))) {
+    count <- count +1
+    g1temp <- unique(newFactor)[g1]
+    g2temp <- unique(newFactor)[g2]
+    
+    MF.temp <- MF.all[grep(paste0("(",g1temp,"|",g2temp,")"), MF.all$newFactor),]
+    dm.temp <- dm.WUF.all[sapply(rownames(MF.temp), function(x) grep(x, rownames(dm.WUF.all)))
+                         , sapply(rownames(MF.temp), function(x) grep(x, colnames(dm.WUF.all)))]
+    anova.temp <- adonis(dm.temp ~ newFactor, data = MF.temp)   
+    ptemp <- anova.temp$aov.tab$`Pr(>F)`[1]
+    rtemp <- anova.temp$aov.tab$R2[1]
+    dftemp <- paste0(anova.temp$aov.tab$Df[1],",",anova.temp$aov.tab$Df[3])
+    toPaste <- paste0("(R^2=",round(rtemp,3)," Df=",dftemp,")")
+    
+    allPValues.algae.water.WUF[count,1] <- ptemp
+    allPValues.algae.water.WUF[count,2] <- toPaste
+    
+    newRowNames <- rbind(newRowNames, c(g1temp, g2temp))
+  }
+}
+allPValues.algae.water.WUF <- cbind(newRowNames,signif(as.numeric(allPValues.algae.water.WUF[,1],3))
+                                   , allPValues.algae.water.WUF[,2]
+                                   , signif(p.adjust(allPValues.algae.water.WUF[,1], method = "fdr", n = 3),3)
+)
+colnames(allPValues.algae.water.WUF) <- c("Group 1","Group 2", "p"," ","FDR adj. p")
+
+anova.algae.water.WUF <- adonis(dm.WUF.all ~ newFactor, data = MF.all)
+
+betadisp.WUF.algae.water <- betadisper(dist(dm.WUF.all), group = MF.all$newFactor)
+betadisp.WUF.algae.water.anova <- anova(betadisp.WUF.algae.water)
 
 pdf(file = paste0("./BETAPLOTS/",metric,"/NMDS_all_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.WUF$points
      , main = paste0("NMDS plot of all samples (",metric,")")
      , sub = round(NMDS.WUF$stress/100,2)
-     , col = colorsPlot[factor(MF.all$ColRep)]
-     , pch = pchPlot[factor(MF.all$ColRep)]
+     , bg = colorsPlot[factor(MF.all$ColRep)]
+     , col = "black"
+     , pch = 21
+     # , pch = pchPlot[factor(MF.all$ColRep)]
      , cex = 2
      , xlab = "NMDS 1"
      , ylab = "NMDS 2"
 )
 par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
 legend("left"
-       , legend = levels(MF.all$ColRep)
-       , pch = pchPlot
-       , col = colorsPlot
+       , legend = c("Nereo Meristem (lab)"
+                    , "Nereo Meristem (wild)"
+                    , "Nereo blade (lab)"
+                    , "Nereo blade (wild)"
+                    , "Mast blade (lab)"
+                    , "Mast blade (wild)"
+                    , "Water alone (NMF experiment)"
+                    , "Water (NMF experiment)"
+                    , "Water (Single Sp. Experiment)"
+       )
+       , pch = 21
+       #, pch = c(19,18,17,18,19,18,8,11,11)
+       , pt.bg = c("green", "yellowgreen", "darkgreen", "darkolivegreen4"
+                   , "purple", "magenta"
+                   , "lightblue", "blue", "dodgerblue" )
+       , col = "black"
+       , pt.cex = 2
        , cex = 1
+       , y.intersp = 2
        , bty = "n")
 dev.off()
+
+capture.output(anova.algae.water.WUF, file = paste0("BETAPLOTS/",metric,"/anova.algae.water.overall.",metric,".txt"))
+capture.output(betadisp.WUF.algae.water.anova, file = paste0("BETAPLOTS/",metric,"/anova.betadisp.algae.water.overall.",metric,".txt"))
+capture.output(print(xtable(allPValues.algae.water.WUF), include.rownames = FALSE), file = paste0("BETAPLOTS_LATEX/allPValues.algae.water.",metric,".txt"))
 
 ######### BC #############
 metric <-"BC"
@@ -1216,6 +1578,8 @@ NMDS.BC.LoneIncube <- isoMDS(as.matrix(dm.BC.LoneIncube), y = cmdscale(as.matrix
 ###### STATS ##########
 # ExN
 ANOVA.BC.ExN <- adonis(dm.BC.ExN ~ ColRep, data = MF.ExN)
+betadisp.BC.ExN <- betadisper(dist(dm.BC.ExN), group = MF.ExN$ColRep)
+anova.betadisp.BC.ExN <- anova(betadisp.BC.ExN)
 # ANOSIM.BC.ExN <- anosim(dm.BC.ExN, grouping = MF.ExN$ColRep)
 
 # ExN to others
@@ -1231,6 +1595,8 @@ for (i in 1:length(MF.ExN.ExNvsEverything$ColRep)) {
 }
 MF.ExN.ExNvsEverything
 ANOVA.BC.ExN.ExNvsEverything <- adonis(dm.BC.ExN.ExNvsEverything ~ EXNCOMPARE, data = MF.ExN.ExNvsEverything)
+betadisp.BC.ExN.ExNvsEverything <- betadisper(dist(dm.BC.ExN.ExNvsEverything), group = MF.ExN.ExNvsEverything$EXNCOMPARE)
+anova.betadisp.BC.ExN.ExNvsEverything <- anova(betadisp.BC.ExN.ExNvsEverything)
 
 # ExN Split
 dm.BC.ExN.ExNvsNereo <- dm.BC.ExN[grep("([.]ExN[.])|([.]Nereo[.])", rownames(dm.BC.ExN)), grep("([.]ExN[.])|([.]Nereo[.])", colnames(dm.BC.ExN))]
@@ -1252,6 +1618,9 @@ dm.BC.ExN.NereovsMast <- dm.BC.ExN[grep("([.]Nereo[.])|([.]Mast[.])", rownames(d
 MF.ExN.NereovsMast <- MF.ExN[grep("([.]Nereo[.])|([.]Mast[.])", rownames(MF.ExN)),]
 ANOVA.BC.ExN.NereovsMast <- adonis(dm.BC.ExN.NereovsMast ~ ColRep, data = MF.ExN.NereovsMast)
 # ANOSIM.BC.ExN.NereovsMast <- anosim(dm.BC.ExN.NereovsMast, grouping = MF.ExN.NereovsMast$ColRep)
+betadisp.BC.ExN.NereovsMast <- betadisper(dist(dm.BC.ExN.NereovsMast), group = MF.ExN.NereovsMast$ColRep)
+anova.betadisp.BC.ExN.NereovsMast <- anova(betadisp.BC.ExN.NereovsMast) 
+capture.output(anova.betadisp.BC.ExN.NereovsMast, file = "BETAPLOTS/BC/anova.betadisp.BC.ExN.NereovsMast.txt")
 
 dm.BC.ExN.NereovsNereoMast <- dm.BC.ExN[grep("([.]Nereo[.])|([.]NereoMast[.])", rownames(dm.BC.ExN)), grep("([.]Nereo[.])|([.]NereoMast[.])", colnames(dm.BC.ExN))]
 MF.ExN.NereovsNereoMast <- MF.ExN[grep("([.]Nereo[.])|([.]NereoMast[.])", rownames(MF.ExN)),]
@@ -1278,22 +1647,56 @@ allPValues.ExN[4,1] <- ANOVA.BC.ExN.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExN[5,1] <- ANOVA.BC.ExN.NereovsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExN[6,1] <- ANOVA.BC.ExN.MastvsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.ExN[1,2] <- ANOVA.BC.ExN.ExNvsNereo$aov.tab[5]$R2[1]
-allPValues.ExN[2,2] <- ANOVA.BC.ExN.ExNvsMast$aov.tab[5]$R2[1]
-allPValues.ExN[3,2] <- ANOVA.BC.ExN.ExNvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExN[4,2] <- ANOVA.BC.ExN.NereovsMast$aov.tab[5]$R2[1]
-allPValues.ExN[5,2] <- ANOVA.BC.ExN.NereovsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExN[6,2] <- ANOVA.BC.ExN.MastvsNereoMast$aov.tab[5]$R2[1]
+allPValues.ExN[1,2] <- paste0("(R=",ANOVA.BC.ExN.ExNvsNereo$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.BC.ExN.ExNvsNereo$aov.tab$Df[1],","
+                              ,ANOVA.BC.ExN.ExNvsNereo$aov.tab$Df[3],")")
+allPValues.ExN[2,2] <- paste0("(R=",ANOVA.BC.ExN.ExNvsMast$aov.tab$R2[1],",df="
+                              ,ANOVA.BC.ExN.ExNvsMast$aov.tab$Df[1],","
+                              ,ANOVA.BC.ExN.ExNvsMast$aov.tab$Df[3],")")
+allPValues.ExN[3,2] <- paste0("(R=",ANOVA.BC.ExN.ExNvsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.BC.ExN.ExNvsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.BC.ExN.ExNvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExN[4,2] <- paste0("(R=",ANOVA.BC.ExN.NereovsMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.BC.ExN.NereovsMast$aov.tab$Df[1],","
+                              ,ANOVA.BC.ExN.NereovsMast$aov.tab$Df[3],")")
+allPValues.ExN[5,2] <- paste0("(R=",ANOVA.BC.ExN.NereovsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.BC.ExN.NereovsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.BC.ExN.NereovsNereoMast$aov.tab$Df[3],")")
+allPValues.ExN[6,2] <- paste0("(R=",ANOVA.BC.ExN.MastvsNereoMast$aov.tab[5]$R2[1],",df="
+                              ,ANOVA.BC.ExN.MastvsNereoMast$aov.tab$Df[1],","
+                              ,ANOVA.BC.ExN.MastvsNereoMast$aov.tab$Df[3],")")
 
+allPValues.ExN <- cbind(allPValues.ExN
+                        , c(p.adjust(allPValues.ExN[1:3,1],method = "fdr", n = 3)
+                            , p.adjust(allPValues.ExN[4:6,1],method = "fdr", n = 3)))
+colnames(allPValues.ExN) <- c("p","R^2","fdr_adj")
 
-allPValues.ExN <- cbind(allPValues.ExN, p.adjust(allPValues.ExN[,1],method = "fdr", n = 6))
-colnames(allPValues.ExN) <- c("P","R^2","fdr_adj")
 
 # ExN Water
 ANOVA.BC.ExNWater <- adonis(dm.BC.ExNWater ~ ColRep, data = MF.ExNWater)
+betadisp.BC.ExNWater <- betadisper(dist(dm.BC.ExNWater), group = MF.ExNWater$ColRep)
+anova.betadisp.BC.ExNWater.anova <- anova(betadisp.BC.ExNWater)
 # ANOSIM.BC.ExNWater <- anosim(dm.BC.ExNWater, grouping = MF.ExNWater$ColRep) # NOT WORKING
 # pairwaiseAdonis.BC.ExNWater <- pairwise.adonis(dm.BC.ExNWater, factors = MF.ExNWater$ColRep)
 
+
+# ExN Water to others
+dm.BC.ExNWater.ExNvsEverything <- dm.BC.ExNWater[-grep("H2O", rownames(dm.BC.ExNWater)),
+                                                 -grep("H2O", colnames(dm.BC.ExNWater))]
+MF.ExNWater.ExNvsEverything <- MF.ExNWater[-grep("H2O", rownames(MF.ExNWater)),]
+# Filter out H2O
+MF.ExNWater.ExNvsEverything$EXNCOMPARE <- ""
+for (i in 1:length(MF.ExNWater.ExNvsEverything$ColRep)) {
+  if (MF.ExNWater.ExNvsEverything[i,"ColRep"] != "NereotestExNWater") {
+    MF.ExNWater.ExNvsEverything[i,"EXNCOMPARE"] <- "OTHER"
+  } else {
+    MF.ExNWater.ExNvsEverything[i,"EXNCOMPARE"] <- "ExN"
+  }
+}
+
+ANOVA.BC.ExNWater.ExNvsEverything <- adonis(dm.BC.ExNWater.ExNvsEverything ~ EXNCOMPARE, data = MF.ExNWater.ExNvsEverything)
+betadisp.BC.ExNWater.ExNvsEverything <- betadisper(dist(dm.BC.ExNWater.ExNvsEverything), group = MF.ExNWater.ExNvsEverything$EXNCOMPARE)
+anova.betadisp.BC.ExNWater.ExNvsEverything <- anova(betadisp.BC.ExNWater.ExNvsEverything)
 
 # ExN Water split
 dm.BC.ExNWater.ExNvsH2O <- dm.BC.ExNWater[grep("([.]ExN[.])|([.]H2O[.])", rownames(dm.BC.ExNWater)), grep("([.]ExN[.])|([.]H2O[.])", colnames(dm.BC.ExNWater))]
@@ -1370,19 +1773,42 @@ allPValues.ExNWater[8,1] <- ANOVA.BC.ExNWater.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExNWater[9,1] <- ANOVA.BC.ExNWater.NereovsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 allPValues.ExNWater[10,1] <- ANOVA.BC.ExNWater.MastvsNereoMast$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.ExNWater[1,2] <- ANOVA.BC.ExNWater.ExNvsH2O$aov.tab[5]$R2[1]
-allPValues.ExNWater[2,2] <- ANOVA.BC.ExNWater.ExNvsNereo$aov.tab[5]$R2[1]
-allPValues.ExNWater[3,2] <- ANOVA.BC.ExNWater.ExNvsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[4,2] <- ANOVA.BC.ExNWater.ExNvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[5,2] <- ANOVA.BC.ExNWater.H2OvsNereo$aov.tab[5]$R2[1]
-allPValues.ExNWater[6,2] <- ANOVA.BC.ExNWater.H2OvsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[7,2] <- ANOVA.BC.ExNWater.H2OvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[8,2] <- ANOVA.BC.ExNWater.NereovsMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[9,2] <- ANOVA.BC.ExNWater.NereovsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater[10,2] <- ANOVA.BC.ExNWater.MastvsNereoMast$aov.tab[5]$R2[1]
-allPValues.ExNWater <- cbind(allPValues.ExNWater, p.adjust(allPValues.ExNWater[,1],method = "fdr", n = 10))
-colnames(allPValues.ExNWater) <- c("P","R^2","fdr_adj")
+allPValues.ExNWater[1,2] <- paste0("(R=",ANOVA.BC.ExNWater.ExNvsH2O$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.ExNvsH2O$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.ExNvsH2O$aov.tab$Df[3],")")
+allPValues.ExNWater[2,2] <- paste0("(R=",ANOVA.BC.ExNWater.ExNvsNereo$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.ExNvsNereo$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.ExNvsNereo$aov.tab$Df[3],")")
+allPValues.ExNWater[3,2] <- paste0("(R=",ANOVA.BC.ExNWater.ExNvsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.ExNvsMast$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.ExNvsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[4,2] <- paste0("(R=",ANOVA.BC.ExNWater.ExNvsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.ExNvsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.ExNvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[5,2] <- paste0("(R=",ANOVA.BC.ExNWater.H2OvsNereo$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.H2OvsNereo$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.H2OvsNereo$aov.tab$Df[3],")")
+allPValues.ExNWater[6,2] <- paste0("(R=",ANOVA.BC.ExNWater.H2OvsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.H2OvsMast$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.H2OvsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[7,2] <- paste0("(R=",ANOVA.BC.ExNWater.H2OvsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.H2OvsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.H2OvsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[8,2] <- paste0("(R=",ANOVA.BC.ExNWater.NereovsMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.NereovsMast$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.NereovsMast$aov.tab$Df[3],")")
+allPValues.ExNWater[9,2] <- paste0("(R=",ANOVA.BC.ExNWater.NereovsNereoMast$aov.tab[5]$R2[1],",df="
+                                   ,ANOVA.BC.ExNWater.NereovsNereoMast$aov.tab$Df[1],","
+                                   ,ANOVA.BC.ExNWater.NereovsNereoMast$aov.tab$Df[3],")")
+allPValues.ExNWater[10,2] <- paste0("(R=",ANOVA.BC.ExNWater.MastvsNereoMast$aov.tab[5]$R2[1],",df="
+                                    ,ANOVA.BC.ExNWater.MastvsNereoMast$aov.tab$Df[1],","
+                                    ,ANOVA.BC.ExNWater.MastvsNereoMast$aov.tab$Df[3],")")
 
+allPValues.ExNWater <- cbind(allPValues.ExNWater
+                             , c(allPValues.ExNWater[1,1],p.adjust(allPValues.ExNWater[2:4,1],method = "fdr", n = 3)
+                             , p.adjust(allPValues.ExNWater[5:7,1],method = "fdr", n = 3)
+                             , p.adjust(allPValues.ExNWater[8:10,1],method = "fdr", n = 3)))
+colnames(allPValues.ExNWater) <- c("p","  ","fdr_adj")
 
 # Lone Incube
 # Add another column
@@ -1390,8 +1816,11 @@ MF.LoneIncube$WorS <- MF.LoneIncube$Substrate
 MF.LoneIncube$WorS <- gsub("(Nereo)|(Mast)", "Seaweed", MF.LoneIncube[,'WorS'])
 
 ANOVA.BC.LoneIncube <- adonis(dm.BC.LoneIncube ~ WorS*Treatment, data = MF.LoneIncube)
+betadisp.BC.LoneIncube <- betadisper(dist(dm.BC.LoneIncube), group = MF.LoneIncube$ColRep)
+anova.betadisp.BC.LoneIncube <- anova(betadisp.BC.LoneIncube)
 # ANOSIM.BC.LoneIncube <- anosim(dm.BC.LoneIncube, grouping = MF.LoneIncube$ColRep) # NOT WORKING
 # pairwaiseAdonis.BC.LoneIncube <- pairwise.adonis(dm.BC.LoneIncube, factors = MF.LoneIncube$ColRep)
+
 
 # Lone Incube split
 dm.BC.LoneIncube.NereovsMast <- dm.BC.LoneIncube[grep("(^Nereo[.])|(^Mast[.])", rownames(dm.BC.LoneIncube)), grep("(^Nereo[.])|(^Mast[.])", colnames(dm.BC.LoneIncube))]
@@ -1427,53 +1856,90 @@ ANOVA.BC.LoneIncube.MastvsNwater <- adonis(dm.BC.LoneIncube.MastvsNwater ~ ColRe
 # 4 comparisons; 0.05/4 = 0.00625
 allPValues.LoneIncube <- matrix(nrow= 6, ncol = 2)
 rownames(allPValues.LoneIncube) <- c("NereovsMast"
-                                     ,"waters"
-                                     ,"Nereovswater"
-                                     ,"Mastvswater"
+                                     ,"NereovsNwater"
                                      ,"NereovsMwater"
                                      ,"MastvsNwater"
+                                     ,"MastvsMwater"
+                                     ,"NwatervsMwater"
 )
 allPValues.LoneIncube[1,1] <- ANOVA.BC.LoneIncube.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[2,1] <- ANOVA.BC.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[3,1] <- ANOVA.BC.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[4,1] <- ANOVA.BC.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[5,1] <- ANOVA.BC.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[6,1] <- ANOVA.BC.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[2,1] <- ANOVA.BC.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[3,1] <- ANOVA.BC.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[4,1] <- ANOVA.BC.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[5,1] <- ANOVA.BC.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[6,1] <- ANOVA.BC.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
 # Add R^2 values
-allPValues.LoneIncube[1,2] <- ANOVA.BC.LoneIncube.NereovsMast$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[2,2] <- ANOVA.BC.LoneIncube.waters$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[3,2] <- ANOVA.BC.LoneIncube.Nereovswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[4,2] <- ANOVA.BC.LoneIncube.Mastvswater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[5,2] <- ANOVA.BC.LoneIncube.NereovsMwater$aov.tab[6]$`Pr(>F)`[1]
-allPValues.LoneIncube[6,2] <- ANOVA.BC.LoneIncube.MastvsNwater$aov.tab[6]$`Pr(>F)`[1]
+allPValues.LoneIncube[1,2] <- paste0("(R=",ANOVA.BC.LoneIncube.NereovsMast$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.BC.LoneIncube.NereovsMast$aov.tab$Df[1],","
+                                     , ANOVA.BC.LoneIncube.NereovsMast$aov.tab$Df[3],")")
+allPValues.LoneIncube[2,2] <- paste0("(R=",ANOVA.BC.LoneIncube.Nereovswater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.BC.LoneIncube.Nereovswater$aov.tab$Df[1],","
+                                     , ANOVA.BC.LoneIncube.Nereovswater$aov.tab$Df[3],")")
+allPValues.LoneIncube[3,2] <- paste0("(R=",ANOVA.BC.LoneIncube.NereovsMwater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.BC.LoneIncube.NereovsMwater$aov.tab$Df[1],","
+                                     , ANOVA.BC.LoneIncube.NereovsMwater$aov.tab$Df[3],")")
+allPValues.LoneIncube[4,2] <- paste0("(R=",ANOVA.BC.LoneIncube.MastvsNwater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.BC.LoneIncube.MastvsNwater$aov.tab$Df[1],","
+                                     , ANOVA.BC.LoneIncube.MastvsNwater$aov.tab$Df[3],")")
+allPValues.LoneIncube[5,2] <- paste0("(R=",ANOVA.BC.LoneIncube.Mastvswater$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.BC.LoneIncube.Mastvswater$aov.tab$Df[1],","
+                                     , ANOVA.BC.LoneIncube.Mastvswater$aov.tab$Df[3],")")
+allPValues.LoneIncube[6,2] <- paste0("(R=",ANOVA.BC.LoneIncube.waters$aov.tab[5]$R2[1],",df="
+                                     , ANOVA.BC.LoneIncube.waters$aov.tab$Df[1],","
+                                     , ANOVA.BC.LoneIncube.waters$aov.tab$Df[3],")")
 
 allPValues.LoneIncube <- cbind(allPValues.LoneIncube, p.adjust(allPValues.LoneIncube[,1],method = "fdr", n = 6))
-colnames(allPValues.LoneIncube) <- c("P","R^2","fdr_adj")
+colnames(allPValues.LoneIncube) <- c("p","R^2","fdr_adj")
 
 
 
 # Now print everything
 system("mkdir ./BETAPLOTS/BC/")
-capture.output(ANOVA.BC.ExN, file = "./BETAPLOTS/BC/ANOVA.BC.ExN.txt")
-# capture.output(pairwaiseAdonis.BC.ExN, file = "pairwaiseAdonis.BC.ExN.txt")
-# capture.output(allPValues.ExN, file = "allPValues.pairwise.ExN.txt")
 
-capture.output(ANOVA.BC.ExNWater, file = "./BETAPLOTS/BC/ANOVA.BC.ExNWater.txt")
-# capture.output(pairwaiseAdonis.BC.ExNWater, file = "pairwaiseAdonis.BC.ExNWater.txt")
+# THIS IS ALL THE STATS
+allStatsList <- c("ANOVA.BC.ExN"
+                  , "anova.betadisp.BC.ExN"
+                  , "ANOVA.BC.ExN.ExNvsEverything"
+                  , "anova.betadisp.BC.ExN.ExNvsEverything"
+                  , "allPValues.ExN"
+                  , "ANOVA.BC.ExNWater"
+                  , "anova.betadisp.BC.ExNWater.anova"
+                  , "ANOVA.BC.ExNWater.ExNvsEverything"
+                  , "anova.betadisp.BC.ExNWater.ExNvsEverything"
+                  , "allPValues.ExNWater"
+                  , "ANOVA.BC.LoneIncube"
+                  , "anova.betadisp.BC.LoneIncube"
+                  , "allPValues.LoneIncube")
+for (n in allStatsList) {
+  if (length(grep("allPValues.", n)) == 1) {
+    capture.output(xtable(get(paste0(n)), digits = 3), file = paste0("./BETAPLOTS_LATEX/",n,"BC.txt"))
+  } else {
+    capture.output(get(paste0(n)), file = paste0("./BETAPLOTS/BC/",n,".txt"))
+  }
+}
 
-capture.output(ANOVA.BC.LoneIncube, file = "./BETAPLOTS/BC/ANOVA.BC.LoneIncube.txt")
-# capture.output(pairwaiseAdonis.BC.LoneIncube, file = "pairwaiseAdonis.BC.LoneIncube.txt")
+# capture.output(ANOVA.BC.ExN, file = "./BETAPLOTS/BC/ANOVA.BC.ExN.txt")
+# # capture.output(pairwaiseAdonis.BC.ExN, file = "pairwaiseAdonis.BC.ExN.txt")
+# # capture.output(allPValues.ExN, file = "allPValues.pairwise.ExN.txt")
+# 
+# capture.output(ANOVA.BC.ExNWater, file = "./BETAPLOTS/BC/ANOVA.BC.ExNWater.txt")
+# # capture.output(pairwaiseAdonis.BC.ExNWater, file = "pairwaiseAdonis.BC.ExNWater.txt")
+# 
+# capture.output(ANOVA.BC.LoneIncube, file = "./BETAPLOTS/BC/ANOVA.BC.LoneIncube.txt")
+# # capture.output(pairwaiseAdonis.BC.LoneIncube, file = "pairwaiseAdonis.BC.LoneIncube.txt")
+# 
+# capture.output(allPValues.ExNWater, file = "./BETAPLOTS/BC/allPValues.ExNWater.txt")
+# capture.output(allPValues.ExN, file = "./BETAPLOTS/BC/allPValues.ExN.txt")
+# capture.output(allPValues.LoneIncube, file = "./BETAPLOTS/BC/allPValues.LoneIncube.txt")
+# capture.output(ANOVA.BC.ExN.ExNvsEverything, file = "./BETAPLOTS/BC/ExNvseverything.txt")
+# captureoutput(ANOVA.BC.ExNWater.ExNvsEverything, file = "./BETAPLOTS/BC/ExNWatervseverything.txt")
+# 
+# capture.output(xtable(rbind(allPValues.ExN,allPValues.ExNWater,allPValues.LoneIncube), digits = 3), file = paste0("./BETAPLOTS_LATEX/allPValues.",metric,".txt"))
 
-capture.output(allPValues.ExNWater, file = "./BETAPLOTS/BC/allPValues.ExNWater.txt")
-capture.output(allPValues.ExN, file = "./BETAPLOTS/BC/allPValues.ExN.txt")
-capture.output(allPValues.LoneIncube, file = "./BETAPLOTS/BC/allPValues.LoneIncube.txt")
-capture.output(ANOVA.BC.ExN.ExNvsEverything, file = "./BETAPLOTS/BC/ExNvseverything.txt")
-
-capture.output(xtable(rbind(allPValues.ExN,allPValues.ExNWater,allPValues.LoneIncube), digits = 3), file = paste0("./BETAPLOTS_LATEX/allPValues.",metric,".txt"))
 ####### PLOT ############
 # EXN BC
 MF.ExN$ColRep <- factor(MF.ExN$ColRep, levels = c('NereotestExNExN','NereotestNereoExN','NereotestMastExN','NereotestNereoMastExN'))
-ExNColours <- c("darkgrey","green","red","brown")
+ExNColours <- c("darkgrey","green","purple","brown")
 
 # Make chulls
 
@@ -1522,14 +1988,14 @@ plot(0,0
      , bty = "n")
 legend("top"
        , pch = 19
-       , legend = c("Alone","With Nereocystis","With Mastocarpus","With Both")#levels(MF.ExN$ColRep)
+       , legend = c("NMF Alone","with Nereo","With Masto","with Nereo + Mast")#levels(MF.ExN$ColRep)
        , col = ExNColours
        , cex = 1)
 dev.off()
 
 # ExN BC
 MF.ExNWater$ColRep <- factor(MF.ExNWater$ColRep, levels = c('NereotestH2OWater','NereotestExNWater','NereotestNereoWater','NereotestMastWater','NereotestNereoMastWater'))
-ExNWaterColours <- c("blue","darkgrey","green","red","brown")
+ExNWaterColours <- c("blue","darkgrey","green","purple","brown")
 
 
 # Make chulls
@@ -1584,14 +2050,14 @@ plot(0,0
      , bty = "n")
 legend("center"
        , pch = 19
-       , legend = c("Water only","Nereo Meristem Only", "Nereocystis","Mastocarpus","Nereo + Mast")
+       , legend = c("Water only","NMF Alone", "with Nereo","with Masto","with Nereo + Mast")
        , col = ExNWaterColours
        , cex = 1)
 dev.off()
 
 # LoneIncube BC
 MF.LoneIncube$ColRep <- factor(MF.LoneIncube$ColRep, levels = c('LoneincubeNereowater','LoneincubeNereoNereo','LoneincubeMastwater','LoneincubeMastMast'))
-LoneIncubeColours <- c("blue","green","purple","red")
+LoneIncubeColours <- c("lightseagreen","green","lightslateblue","purple")
 
 NMDS.BC.LoneIncube.WNereo <- NMDS.BC.LoneIncube$points[grep("water.Loneincube.Nereo.", rownames(NMDS.BC.LoneIncube$points), fixed = TRUE),]
 NMDS.BC.LoneIncube.WNereo.chull <- chull(NMDS.BC.LoneIncube.WNereo)
@@ -1638,10 +2104,17 @@ plot(0,0
      , bty = 'n')
 legend("center"
        , pch = 19
-       , legend = c("Water-Nereocystis","Nereocystis","Water-Mastocarpus","Mastocarpus")#levels(MF.LoneIncube$ColRep)
+       , legend = c("Water-Nereo","Nereo","Water-Mast","Mast")#levels(MF.LoneIncube$ColRep)
        , col = LoneIncubeColours
        , cex = 1)
 dev.off()
+
+######### Save allPvalues ##########
+
+allPValues.ExN.BC <- allPValues.ExN
+allPValues.ExNWater.BC <- allPValues.ExNWater
+allPValues.LoneIncube.BC <- allPValues.LoneIncube
+
 
 ########### ALL PLOT ##############
 
@@ -1668,22 +2141,22 @@ MF.all$ColRep <- factor(MF.all$ColRep, levels = c("NereotestExNExN"
                                                   , "LoneincubeNereowater"
                                                   , "LoneincubeMastwater"
 ))
-colorsPlot <- c( "aquamarine4" # [12] "NereotestExNExN" 
-                 , "chartreuse3" # [17] "NereotestNereoExN"       
-                 , "olivedrab" # [15] "NereotestMastExN"       
-                 , "green4" # [18] "NereotestNereoMastExN"  
-                 , "green" # [10] "LoneincubeNereoNereo" 
+colorsPlot <- c( "green" # [12] "NereotestExNExN" 
+                 , "green" # [17] "NereotestNereoExN"       
+                 , "green" # [15] "NereotestMastExN"       
+                 , "green" # [18] "NereotestNereoMastExN"  
+                 , "yellowgreen" # [10] "LoneincubeNereoNereo" 
                  , "darkgreen" # [2] "EnvironmentalBrocktonOldNereo"        
-                 , "chartreuse3" # [3] "EnvironmentalBrocktonYoungNereo"  
-                 , "red" # [8] "LoneincubeMastMast"        
-                 , "darkred"# [1] "EnvironmentalBrocktonMast"            
+                 , "darkolivegreen4" # [3] "EnvironmentalBrocktonYoungNereo"  
+                 , "purple" # [8] "LoneincubeMastMast"        
+                 , "magenta"# [1] "EnvironmentalBrocktonMast"            
                  , "lightblue" # [14] "NereotestH2OWater"                    
-                 , "deepskyblue" # [13] "NereotestExNWater"                    
-                 , "darkblue"# [20] "NereotestNereoWater" 
-                 , "darkmagenta" # [16] "NereotestMastWater"                   
-                 , "black" # [19] "NereotestNereoMastWater"              
-                 , "darkblue" # [11] "LoneincubeNereoWater"                 
-                 , "darkmagenta" # [9] "LoneincubeMastWater"                  
+                 , "blue" # [13] "NereotestExNWater"                    
+                 , "blue"# [20] "NereotestNereoWater" 
+                 , "blue" # [16] "NereotestMastWater"                   
+                 , "blue" # [19] "NereotestNereoMastWater"              
+                 , "dodgerblue" # [11] "LoneincubeNereoWater"                 
+                 , "dodgerblue" # [9] "LoneincubeMastWater"                  
 )
 
 
@@ -1691,9 +2164,9 @@ pchPlot <- c(19# [12] "NereotestExNExN"
              , 19# [17] "NereotestNereoExN"                    
              , 19# [15] "NereotestMastExN"                     
              , 19# [18] "NereotestNereoMastExN"                
-             , 17# [10] "LoneincubeNereoNereo"                 
+             , 18# [3] "EnvironmentalBrocktonYoungNereo"
+             , 17# [10] "LoneincubeNereoNereo" 
              , 18# [2] "EnvironmentalBrocktonOldNereo"        
-             , 18# [3] "EnvironmentalBrocktonYoungNereo" 
              , 19# [8] "LoneincubeMastMast"                   
              , 18# [1] "EnvironmentalBrocktonMast"          
              , 8# [14] "NereotestH2OWater"                    
@@ -1710,27 +2183,121 @@ NMDS.BC$points <- NMDS.BC$points[sapply(rownames(MF.all), function(x) {
   grep(paste0("^",x,"$"), rownames(NMDS.BC$points))
 }),]
 
+##### Do stats all plots #####
 
+newFactor <- c( "Nereo" # [12] "NereotestExNExN" 
+                 , "Nereo" # [17] "NereotestNereoExN"       
+                 , "Nereo" # [15] "NereotestMastExN"       
+                 , "Nereo" # [18] "NereotestNereoMastExN"  
+                 , "Nereo" # [10] "LoneincubeNereoNereo" 
+                 , "Nereo" # [2] "EnvironmentalBrocktonOldNereo"        
+                 , "Nereo" # [3] "EnvironmentalBrocktonYoungNereo"  
+                 , "Mast" # [8] "LoneincubeMastMast"        
+                 , "Mast"# [1] "EnvironmentalBrocktonMast"            
+                 , "Water" # [14] "NereotestH2OWater"                    
+                 , "Water" # [13] "NereotestExNWater"                    
+                 , "Water"# [20] "NereotestNereoWater" 
+                 , "Water" # [16] "NereotestMastWater"                   
+                 , "Water" # [19] "NereotestNereoMastWater"              
+                 , "Water" # [11] "LoneincubeNereoWater"                 
+                 , "Water" # [9] "LoneincubeMastWater"                  
+)
+
+MF.all$newFactor <- newFactor[factor(MF.all$ColRep)]
+allPValues.algae.water.BC <- matrix(nrow = 3, ncol = 2)
+rownames(allPValues.algae.water.BC) <- c(1,2,3) 
+colnames(allPValues.algae.water.BC) <- c("p"," ")
+count <- 0
+newRowNames <- c()
+for (g1 in 1:(length(unique(newFactor))-1)) {
+  for (g2 in (g1+1):length(unique(newFactor))) {
+    count <- count +1
+    g1temp <- unique(newFactor)[g1]
+    g2temp <- unique(newFactor)[g2]
+    
+    MF.temp <- MF.all[grep(paste0("(",g1temp,"|",g2temp,")"), MF.all$newFactor),]
+    dm.temp <- dm.BC.all[sapply(rownames(MF.temp), function(x) grep(x, rownames(dm.BC.all)))
+              , sapply(rownames(MF.temp), function(x) grep(x, colnames(dm.BC.all)))]
+    anova.temp <- adonis(dm.temp ~ newFactor, data = MF.temp)   
+    ptemp <- anova.temp$aov.tab$`Pr(>F)`[1]
+    rtemp <- anova.temp$aov.tab$R2[1]
+    dftemp <- paste0(anova.temp$aov.tab$Df[1],",",anova.temp$aov.tab$Df[3])
+    toPaste <- paste0("(R^2=",round(rtemp,3)," Df=",dftemp,")")
+    
+    allPValues.algae.water.BC[count,1] <- ptemp
+    allPValues.algae.water.BC[count,2] <- toPaste
+    
+    newRowNames <- rbind(newRowNames, c(g1temp, g2temp))
+  }
+}
+allPValues.algae.water.BC <- cbind(newRowNames,signif(as.numeric(allPValues.algae.water.BC[,1],3))
+                                   , allPValues.algae.water.BC[,2]
+                                   , signif(p.adjust(allPValues.algae.water.BC[,1], method = "fdr", n = 3),3)
+                                   )
+colnames(allPValues.algae.water.BC) <- c("Group 1","Group 2", "p"," ","FDR adj. p")
+
+anova.algae.water.BC <- adonis(dm.BC.all ~ newFactor, data = MF.all)
+
+betadisp.BC.algae.water <- betadisper(dist(dm.BC.all), group = MF.all$newFactor)
+betadisp.BC.algae.water.anova <- anova(betadisp.BC.algae.water)
 
 pdf(file = paste0("./BETAPLOTS/",metric,"/NMDS_all_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
 par(fig = c(0,0.7,0,1))
 plot(NMDS.BC$points
      , main = paste0("NMDS plot of all samples (",metric,")")
      , sub = round(NMDS.BC$stress/100,2)
-     , col = colorsPlot[factor(MF.all$ColRep)]
-     , pch = pchPlot[factor(MF.all$ColRep)]
+     , bg = colorsPlot[factor(MF.all$ColRep)]
+     , col = "black"
+     , pch = 21
+     # , pch = pchPlot[factor(MF.all$ColRep)]
      , cex = 2
      , xlab = "NMDS 1"
      , ylab = "NMDS 2"
 )
 par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
 legend("left"
-       , legend = levels(MF.all$ColRep)
-       , pch = pchPlot
-       , col = colorsPlot
+       , legend = c("Nereo Meristem (lab)"
+                    , "Nereo Meristem (wild)"
+                    , "Nereo blade (lab)"
+                    , "Nereo blade (wild)"
+                    , "Mast blade (lab)"
+                    , "Mast blade (wild)"
+                    , "Water alone (NMF experiment)"
+                    , "Water (NMF experiment)"
+                    , "Water (Single Sp. Experiment)"
+                    )
+       , pch = 21
+       #, pch = c(19,18,17,18,19,18,8,11,11)
+       , pt.bg = c("green", "yellowgreen", "darkgreen", "darkolivegreen4"
+                 , "purple", "magenta"
+                 , "lightblue", "blue", "dodgerblue" )
+       , col = "black"
+       , pt.cex = 2
        , cex = 1
+       , y.intersp = 2
        , bty = "n")
 dev.off()
 
+capture.output(anova.algae.water.BC, file = paste0("BETAPLOTS/",metric,"/anova.algae.water.overall.",metric,".txt"))
+capture.output(betadisp.BC.algae.water.anova, file = paste0("BETAPLOTS/",metric,"/anova.betadisp.algae.water.overall.",metric,".txt"))
+capture.output(print(xtable(allPValues.algae.water.BC), include.rownames = FALSE), file = paste0("BETAPLOTS_LATEX/allPValues.algae.water.",metric,".txt"))
 
-
+# ################### ALL BETA STATS for all metrics ###################
+# # take allPValues and make them into a table
+# for (met in c("BC","WUF","UWUF")) {
+#   for (treat in c("ExN","ExNWater","LoneIncube")){
+#     rnametemp <- rownames(get(paste0("allPValues.",treat,".",met)))
+# 
+#     ptemp <- get(paste0("allPValues.",treat,".",met))[,"p"]
+#     ttemp <- paste0("(R^2=",signif(get(paste0("allPValues.",treat,".",met))[,2],3),", df=1)")
+#     fdrtemp <- get(paste0("allPValues.",treat,".",met))[,"fdr_adj"]
+#     tempMat <- cbind(ptemp,ttemp,fdrtemp)
+#     rownames(tempMat) <- rnametemp
+#     colnames(tempMat) <- c("p","  ","FDR adj. p")
+#     
+#     assign(paste0("allPValues.",treat,".",met,".FINAL"), tempMat)
+#     
+#     capture.output(xtable(tempMat), file = paste0("BETAPLOTS_LATEX/allPValues.",treat,".",met,".FINAL.txt"))
+#     
+#     }
+# }
