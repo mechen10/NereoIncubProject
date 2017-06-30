@@ -722,6 +722,8 @@ pchPlot <- c(19# [12] "NereotestExNExN"
              , 11# [9] "LoneincubeMastWater"                  
 )
 metric <- "UWUF"
+
+
 # Reorder to make it correct order
 NMDS.UWUF$points <- NMDS.UWUF$points[sapply(rownames(MF.all), function(x) {
   grep(paste0("^",x,"$"), rownames(NMDS.UWUF$points))

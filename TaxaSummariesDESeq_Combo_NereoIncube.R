@@ -990,7 +990,6 @@ text(x = -1, y = seq(0,length.out = length(otherMajor.Environ) + 1, by = -0.08)
 dev.off()
 
 ################ ALL PLOTS TOGETHER #################
-### WORKING
 # Want to put NMF-incubation experiment together and seaweed surfaces together
 # Make new legend that combines everything
 colorLegend.ExN.new <- cbind(rownames(colorLegend.ExN.LEGEND), as.character(colorLegend.ExN.LEGEND[,1]))
@@ -1004,7 +1003,20 @@ postemp <- grep("Unidentified", comboLegend[,1])
 comboLegend <- comboLegend[-postemp,]
 # comboLegend <- comboLegend[c(1:(postemp-1),(postemp+1):(nrow(comboLegend)-1),postemp),]
 
-# Get greyed out ones
+# Change legend to have 2 columns; fancy
+
+listPhyla <- gsub(":.*$","",rev(comboLegend[,1]))
+uniqueListPhyla <- unique(listPhyla)
+repUniquePhyla <- c()
+spaceUniquePhyla <- c()
+for (i in uniqueListPhyla) {
+  n <- sum(listPhyla %in% i)-1
+  repUniquePhyla <- c(repUniquePhyla, paste0(i,":"), rep(" ",n))
+  spaceUniquePhyla <- c(spaceUniquePhyla, rep(1,n),2)
+}
+listGenera <- gsub("^.*:","", rev(comboLegend[,1]))
+
+
 
 pdf("TAXASUMMARIES/TaxaSummaries_combo.pdf", pointsize = 14, width = 10, height = 7)
 par(oma = c(0,0,0,0))
@@ -1055,14 +1067,17 @@ plot(0,0
      , xlab = ""
      , ylab = ""
      , bty = "n")
-legend("center"
+legend(x = -1.1, y = 0
        , legend = rev(comboLegend[,1])
        , pch = 22
        , pt.bg = rev(comboLegend[,2])
        , col = rev(comboLegend[,2])
        , cex = 0.65
-       , pt.cex = 1.2)
-
+       , pt.cex = 1.2
+       , bty = "n"
+       , xjust = 0
+       , yjust = 0.5
+       )
 par(fig = c(0,0.6,0.47,0.52), mar = c(0,4.1,0,2.1), new = TRUE)
 barplot(cbind(rep(1, 24))
         , beside = TRUE
