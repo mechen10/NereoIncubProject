@@ -275,6 +275,15 @@ for (b in betaList) {
   
   betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],c(paste0("PERMANOVA.",metric,".ExN.ExNvsEverything"),paste0("PERMDISP.",metric,".ExN.ExNvsEverything")))
   
+  # PERMANOVA of 'OTHER'
+  MF.ExN.EverythingElse <- MF.ExN.ExNvsEverything[MF.ExN.ExNvsEverything$EXNCOMPARE == "OTHER",]
+  dm.ExN.EverythingElse <- dm.ExN.ExNvsEverything[match(rownames(MF.ExN.EverythingElse),rownames(dm.ExN.ExNvsEverything)),match(rownames(MF.ExN.EverythingElse),colnames(dm.ExN.ExNvsEverything))]
+  assign(paste0("PERMANOVA.ExN.everythingelse.",metric), adonis(dm.ExN.EverythingElse ~ Treatment,data = MF.ExN.EverythingElse))
+  assign(paste0("PERMDISP.ExN.everythingelse.",metric), anova(betadisper(dist(dm.ExN.EverythingElse), group = MF.ExN.EverythingElse$Treatment)))
+  
+  betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],c(paste0("PERMANOVA.ExN.everythingelse.",metric),paste0("PERMDISP.ExN.everythingelse.",metric)))
+  
+  
   # Now print everything
   system(paste0("mkdir ./BETAPLOTS/",metric,"/"))
   
@@ -523,6 +532,17 @@ for (b in betaList) {
   assign(paste0("PERMANOVA.",metric,".ExNWater.ExNvsEverything"), adonis(dm.ExNWater.ExNvsEverything ~ EXNCOMPARE, data = MF.ExNWater.ExNvsEverything))
   assign(paste0("betadisp.",metric,".ExNWater.ExNvsEverything"), betadisper(dist(dm.ExNWater.ExNvsEverything), group = MF.ExNWater.ExNvsEverything$EXNCOMPARE))
   assign(paste0("PERMDISP.",metric,".ExNWater.ExNvsEverything"), anova(get(paste0("betadisp.",metric,".ExNWater.ExNvsEverything"))))
+  
+  
+  # PERMANOVA of 'OTHER'
+  MF.ExNWater.EverythingElse <- MF.ExNWater.ExNvsEverything[MF.ExNWater.ExNvsEverything$EXNCOMPARE == "OTHER",]
+  dm.ExNWater.EverythingElse <- dm.ExNWater.ExNvsEverything[match(rownames(MF.ExNWater.EverythingElse),rownames(dm.ExNWater.ExNvsEverything)),match(rownames(MF.ExNWater.EverythingElse),colnames(dm.ExNWater.ExNvsEverything))]
+  assign(paste0("PERMANOVA.ExNWater.everythingelse.",metric), adonis(dm.ExNWater.EverythingElse ~ Treatment,data = MF.ExNWater.EverythingElse))
+  assign(paste0("PERMDISP.ExNWater.everythingelse.",metric), anova(betadisper(dist(dm.ExNWater.EverythingElse), group = MF.ExNWater.EverythingElse$Treatment)))
+  
+  betaListFiles.ExNWater[[paste0(metric)]] <- c(betaListFiles.ExNWater[[paste0(metric)]],c(paste0("PERMANOVA.ExNWater.everythingelse.",metric),paste0("PERMDISP.ExNWater.everythingelse.",metric)))
+  
+  
   
   betaListFiles.ExNWater[[paste0(metric)]] <- c(betaListFiles.ExNWater[[paste0(metric)]],c(paste0("PERMANOVA.",metric,".ExNWater.ExNvsEverything"),paste0("PERMDISP.",metric,".ExN.ExNvsEverything")))
   
@@ -1028,9 +1048,9 @@ for (b in betaList) {
                       , "Nereo blade (wild)"
                       , "Mast blade (lab)"
                       , "Mast blade (wild)"
-                      , "Water alone (NMF experiment)"
-                      , "Water (NMF experiment)"
-                      , "Water (Single Sp. Experiment)"
+                      , "Water alone (M-W-NMF)"
+                      , "Water (M-W-NMF)"
+                      , "Water (M-W)"
          )
          , pch = 21
          #, pch = c(19,18,17,18,19,18,8,11,11)
@@ -1063,7 +1083,8 @@ for (a in alphaList) {
   # Get labels
   factorsCompareExN <- cbind(c(" ","NMF Alone","  ","Nereo","Nereo","Mast")
                              , c("Nereo","Mast","NereoMast","Mast","NereoMast","NereoMast"))
-  colnamesTop <- c("","","","Welch's t-Test (Richness)","")
+  colnamesTop <- c("","","","Welch's t-Test","")
+  colnamessubTop <- c("","","","(Richness)","")
   colnamesSecond <- c("Group 1","Group 2","p"," ","FDR adj. p")
   
   # Get ExN vs everything individual tests
@@ -1080,7 +1101,7 @@ for (a in alphaList) {
                              , get(paste0("allPvalues.ExN.",tempI))[4:6,])
   
   CombinedTable.ExN <- cbind(factorsCompareExN, CombinedTable.ExN)
-  CombinedTable.ExN <- rbind(colnamesTop, colnamesSecond, CombinedTable.ExN)
+  CombinedTable.ExN <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.ExN)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.ExN) <- seq(1,nrow(CombinedTable.ExN), by = 1)
@@ -1121,7 +1142,8 @@ for (b in betaList){
   # Get labels
   factorsCompareExN <- cbind(c(" ","NMF Alone","  ","Nereo","Nereo","Mast")
                              , c("Nereo","Mast","NereoMast","Mast","NereoMast","NereoMast"))
-  colnamesTop <- c("","","","PERMANOVA (Community Dissimilarity)","")
+  colnamesTop <- c("","","","PERMANOVA","")
+  colnamessubTop <- c("","","","(Community Dissimilarity)","")
   colnamesSecond <- c("Group 1","Group 2","p"," ","FDR adj. p")
   
   # Get ExN vs everything individual tests
@@ -1139,7 +1161,7 @@ for (b in betaList){
                              , get(paste0("allPValues.ExN.",metric))[4:6,])
   
   CombinedTable.ExN <- cbind(factorsCompareExN, CombinedTable.ExN)
-  CombinedTable.ExN <- rbind(colnamesTop, colnamesSecond, CombinedTable.ExN)
+  CombinedTable.ExN <- rbind(colnamesTop,colnamessubTop, colnamesSecond, CombinedTable.ExN)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.ExN) <- seq(1,nrow(CombinedTable.ExN), by = 1)
@@ -1181,7 +1203,9 @@ for (a in alphaList) {
   # Get labels
   factorsCompareExNWater <- cbind(c("Water Only", "","NMF Alone","  ","Nereo","Nereo","Mast")
                                   , c("NMF Alone","Nereo","Mast","NereoMast","Mast","NereoMast","NereoMast"))
-  colnamesTop <- c("","","","Welch's t-Test (Richness)","")
+  colnamesTop <- c("","","","Welch's t-Test","")
+  colnamessubTop <- c("","","","(Richness)","")
+  
   colnamesSecond <- c("Group 1","Group 2","p"," ","FDR adj. p")
   
   # Get ExNWater vs everything individual tests
@@ -1199,7 +1223,7 @@ for (a in alphaList) {
                                   , get(paste0("allPvalues.ExNWater.",tempI))[4:6,] )
   
   CombinedTable.ExNWater <- cbind(factorsCompareExNWater, CombinedTable.ExNWater)
-  CombinedTable.ExNWater <- rbind(colnamesTop, colnamesSecond, CombinedTable.ExNWater)
+  CombinedTable.ExNWater <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.ExNWater)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.ExNWater) <- seq(1,nrow(CombinedTable.ExNWater), by = 1)
@@ -1242,7 +1266,8 @@ for (b in betaList) {
   # Get labels
   factorsCompareExNWater <- cbind(c("Water Only", "","NMF Alone","  ","Nereo","Nereo","Mast")
                                   , c("NMF Alone","Nereo","Mast","NereoMast","Mast","NereoMast","NereoMast"))
-  colnamesTop <- c("","","","PERMANOVA (Community Dissimilarity)","")
+  colnamesTop <- c("","","","PERMANOVA","")
+  colnamessubTop <- c("","","","(Community Dissimilarity)","")
   colnamesSecond <- c("Group 1","Group 2","p"," ","FDR adj. p")
   
   # Get ExNWater vs everything individual tests
@@ -1262,7 +1287,7 @@ for (b in betaList) {
                                   , get(paste0("allPValues.ExNWater.",metric))[4:6,])
   
   CombinedTable.ExNWater <- cbind(factorsCompareExNWater, CombinedTable.ExNWater)
-  CombinedTable.ExNWater <- rbind(colnamesTop, colnamesSecond, CombinedTable.ExNWater)
+  CombinedTable.ExNWater <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.ExNWater)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.ExNWater) <- seq(1,nrow(CombinedTable.ExNWater), by = 1)
@@ -1305,14 +1330,15 @@ for (a in alphaList) {
   # Get labels
   factorsCompareAlgae <- cbind(c("Nereo", "Nereo","Mast")
                                   , c("Mast","Water","Water"))
-  colnamesTop <- c("","","","Welch's t-Test (Richness)","")
+  colnamesTop <- c("","","","Welch's t-Test","")
+  colnamessubTop <- c("","","","(Richness)","")
   colnamesSecond <- c("Group 1","Group 2","p"," ","FDR adj. p")
 
   # Merge everything 
   CombinedTable.All <-  get(paste0("allPvalues.algae.",tempI))
   
   CombinedTable.All <- cbind(factorsCompareAlgae, CombinedTable.All)
-  CombinedTable.All <- rbind(colnamesTop, colnamesSecond, CombinedTable.All)
+  CombinedTable.All <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.All)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.All) <- seq(1,nrow(CombinedTable.All), by = 1)
@@ -1353,14 +1379,15 @@ for (b in betaList) {
   # Get labels
   factorsCompareAlgae <- cbind(c("Nereo", "Nereo","Mast")
                                , c("Mast","Water","Water"))
-  colnamesTop <- c("","","","PERMANOVA (Community Dissimilarity)","")
+  colnamesTop <- c("","","","PERMANOVA","")
+  colnamessubTop <- c("","","","(Community Dissimilarity)","")
   colnamesSecond <- c("Group 1","Group 2","p"," ","FDR adj. p")
   
   # Merge everything 
   CombinedTable.All <- get(paste0("allPValues.algae.water.",metric))
   
   CombinedTable.All <- cbind(factorsCompareAlgae, CombinedTable.All)
-  CombinedTable.All <- rbind(colnamesTop, colnamesSecond, CombinedTable.All)
+  CombinedTable.All <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.All)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.All) <- seq(1,nrow(CombinedTable.All), by = 1)
@@ -1403,14 +1430,15 @@ for (a in alphaList) {
   # Get labels
   factorsCompareLoneIncube <- cbind(c("Nereo", "Nereo-Water")
                                   , c("Mast","Mast-Water"))
-  colnamesTop <- c("","","Welch's t-Test (Richness)","")
+  colnamesTop <- c("","","Welch's t-Test","")
+  colnamessubTop <- c("","","(Richness)","")
   colnamesSecond <- c("Group 1","Group 2","p","")
   
   # Merge everything 
   CombinedTable.LoneIncube <- get(paste0("allPvalues.LoneIncube.",tempI))[1:2,1:2]
   
   CombinedTable.LoneIncube <- cbind(factorsCompareLoneIncube, CombinedTable.LoneIncube)
-  CombinedTable.LoneIncube <- rbind(colnamesTop, colnamesSecond, CombinedTable.LoneIncube)
+  CombinedTable.LoneIncube <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.LoneIncube)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.LoneIncube) <- seq(1,nrow(CombinedTable.LoneIncube), by = 1)
@@ -1453,7 +1481,8 @@ for (b in betaList) {
   # Get labels
   factorsCompareLoneIncube <- cbind(c("Nereo", "Nereo-Water")
                                     , c("Mast","Mast-Water"))
-  colnamesTop <- c("","","PERMANOVA (Community Dissimilarity)","")
+  colnamesTop <- c("","","PERMANOVA","")
+  colnamessubTop <- c("","","(Community Dissimilarity)","")
   colnamesSecond <- c("Group 1","Group 2","p","")
   # Get LoneIncube vs everything individual tests
   
@@ -1461,7 +1490,7 @@ for (b in betaList) {
   CombinedTable.LoneIncube <- get(paste0("allPValues.LoneIncube.",metric))[1:2,1:2]
                                   
   CombinedTable.LoneIncube <- cbind(factorsCompareLoneIncube, CombinedTable.LoneIncube)
-  CombinedTable.LoneIncube <- rbind(colnamesTop, colnamesSecond, CombinedTable.LoneIncube)
+  CombinedTable.LoneIncube <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.LoneIncube)
   
   # Add dummy row and col name so it doesn't freak out
   rownames(CombinedTable.LoneIncube) <- seq(1,nrow(CombinedTable.LoneIncube), by = 1)
@@ -1637,6 +1666,83 @@ capture.output(print(xtable(Table.Combined.LoneIncube.Edited)
                      , sanitize.text.function = function(x) {x}
 )
 , file = paste0("LATEX_outputs/CHOSENMETRICS_LATEX_CombinedTable.LoneIncube.txt"))
+
+
+########### Combined Tables After Revisions ############
+### EXN and EXNWATER ##
+# Get single compare ExN beta
+singleCompareExN.beta <- paste0("\\makecell{", Table.Combined.ExN.Edited[4:6,3]," \\\\", Table.Combined.ExN.Edited[4:6,4], "}")
+# Get pairwise compare ExN beta
+pairwiseCompareExN.beta <- paste0("\\makecell{", Table.Combined.ExN.Edited[7:9,5], " \\\\", Table.Combined.ExN.Edited[7:9,4],"}")
+
+# Get control compare ExNWater beta
+controlCompareExNWater.beta <- paste0("\\makecell{", Table.Combined.ExNWater.Edited[4,3]," \\\\", Table.Combined.ExNWater.Edited[4,4], "}")
+# Get single compare ExNWater beta
+singleCompareExNWater.beta <- paste0("\\makecell{", Table.Combined.ExNWater.Edited[5:7,3]," \\\\", Table.Combined.ExNWater.Edited[5:7,4], "}")
+# Get pariwise compare ExNWater beta
+pairwiseCompareExNWater.beta <- paste0("\\makecell{", Table.Combined.ExNWater.Edited[8:10,5]," \\\\", Table.Combined.ExNWater.Edited[8:10,4], "}")
+
+# Get single compare ExN alpha
+singleCompareExN.alpha <- paste0("\\makecell{", Table.Combined.ExN.Edited[4:6,6]," \\\\", Table.Combined.ExN.Edited[4:6,7], "}")
+# Get pairwise compare ExN alpha
+pairwiseCompareExN.alpha <- paste0("\\makecell{", Table.Combined.ExN.Edited[7:9,8], " \\\\", Table.Combined.ExN.Edited[7:9,7],"}")
+
+# Get control compare ExNWater alpha
+controlCompareExNWater.alpha <- paste0("\\makecell{", Table.Combined.ExNWater.Edited[4,6]," \\\\", Table.Combined.ExNWater.Edited[4,7], "}")
+# Get single compare ExNWater alpha
+singleCompareExNWater.alpha <- paste0("\\makecell{", Table.Combined.ExNWater.Edited[5:7,6]," \\\\", Table.Combined.ExNWater.Edited[5:7,7], "}")
+# Get pariwise compare ExNWater alpha
+pairwiseCompareExNWater.alpha <- paste0("\\makecell{", Table.Combined.ExNWater.Edited[8:10,8]," \\\\", Table.Combined.ExNWater.Edited[8:10,7], "}")
+
+
+# Get first two columns for group compairsons; manual because I add in graphics
+# groupLabels <- Table.Combined.ExNWater.Edited[4:10,1:2]
+groupLabels <- cbind(c("\\wateronly Water Only", "","\\NMF NMF Alone", "", "\\Nereo Nereo", "\\Nereo Nereo","\\Mast Mast")
+                     , c("\\NMF NMF Alone","\\Nereo Nereo", "\\Mast Mast", "\\NereoMast NereoMast", "\\Mast Mast", "\\NereoMast NereoMast","\\NereoMast NereoMast"))
+
+# Get headers
+header1 <- c("","","PERMANOVA","","Welch's $t$-test","")
+header2 <- c("","","(Community Dissimilarity)","","(Richness)","")
+header3 <- c("Group 1","Group 2","Water samples","NMF surface","Water samples","NMF surface")
+
+# Get data columns
+col2 <- rbind("",cbind(singleCompareExN.beta),cbind(pairwiseCompareExN.beta[1:3]))
+col1 <- rbind(controlCompareExNWater.beta,cbind(singleCompareExNWater.beta),cbind(pairwiseCompareExNWater.beta))
+col4 <- rbind("", cbind(singleCompareExN.alpha), cbind(pairwiseCompareExN.alpha))
+col3 <- rbind(controlCompareExNWater.alpha, cbind(singleCompareExNWater.alpha), cbind(pairwiseCompareExNWater.alpha))
+
+# combine group labels
+dataCombined <- cbind(groupLabels, col1, col2, col3, col4)
+
+# Combine headers
+
+dataCombined <- rbind(header1,header2,header3,dataCombined)
+
+# Print
+capture.output(print(xtable(dataCombined)
+                     , include.colnames = FALSE
+                     , include.rownames = FALSE
+                     , math.style.negative = TRUE
+                     , math.style.exponents = TRUE
+                     , sanitize.text.function = function(x) {x}
+)
+, file = paste0("LATEX_outputs/CHOSENMETRICS_LATEX_CombinedTable_postrevisions_ALL.txt"))
+
+
+## ALGAE ALL ##
+Table.Combined.All.Edited.postrev <- Table.Combined.All.Edited[,c(1,2,5,4,8,7)]
+Table.Combined.All.Edited.postrev <- gsub("FDR adj. ","",Table.Combined.All.Edited.postrev)
+# Print
+capture.output(print(xtable(Table.Combined.All.Edited.postrev)
+                     , include.colnames = FALSE
+                     , include.rownames = FALSE
+                     , math.style.negative = TRUE
+                     , math.style.exponents = TRUE
+                     , sanitize.text.function = function(x) {x}
+)
+, file = paste0("LATEX_outputs/CHOSENMETRICS_LATEX_allAlgae_postrevisions_ALLALGAE.txt"))
+
+
 
 
 ######### **Mast vs Nereo incubated stuff** ###########
