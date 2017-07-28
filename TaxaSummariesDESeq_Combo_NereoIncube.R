@@ -1251,9 +1251,7 @@ for (r in 1:nrow(deseq.sig.ALL.star)) {
   }
 }
 
-deseq.fc.ALL.NAs
 ######### PLOT ############
-?heatmap.2
 pdf("./DESEQ/Heatmap_enrichedOTUs.pdf", pointsize = 14)
 heatmap.2(as.matrix(deseq.fc.ALL.NAs)
         , Rowv = NA
@@ -1289,12 +1287,12 @@ plot(0,0
      , bty = "n"
      , xlab = ""
      , ylab = "")
-text(x = 0.05, y = c(1,0.95,0.90,0.85,0.80)
-     , labels = c(" -","  *"," **","***", "<white>")
+text(x = 0.05, y = c(1,0.95,0.90,0.85)
+     , labels = c(" -","  *"," **","***")
      , pos = 2
      , cex = 0.8)
-text(x = 0.1, y = c(1,0.95,0.90,0.85,0.80)
-     , labels = c( "Absent","p <= 0.05", "p <= 0.01","p <= 0.001", "< 3% abundance")
+text(x = 0.1, y = c(1,0.95,0.90,0.85)
+     , labels = c( "Absent","p <= 0.05", "p <= 0.01","p <= 0.001")
      , pos = 4
      , cex = 0.8)
 text(x = -0.85, y = c(-0.44,-0.5)
@@ -1307,5 +1305,18 @@ text(x = -0.45, y = c(-0.44,-0.5)
      , pos = 1
      , cex = 0.8
      , xpd = "n")
+legend(x = -1.05, y = 1.16
+       , cex = 2
+       , legend = ""
+       , pch = 22
+       , col = "black"
+       , pt.bg = "white"
+       , bty = "n")
+text(x = -1.0, y = 1
+     , labels = c("<3% Abundant")
+     , adj = c(0.4,3.2)
+     , cex = 0.8
+     , xpd = "n"
+     )
 dev.off()
 
