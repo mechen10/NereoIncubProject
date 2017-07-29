@@ -11,32 +11,30 @@ option_list = list(
               help="Metadata fp"),
   make_option(c("-c", "--category"), type="character",
               help="Category in metadata to collapse by (groups)"),
-  make_option(c("-g", "--groups"), type="character",
+  make_option(c("-o","--groups"), type="character",
               help="Groups that you want to compare in anaylsis. Comma separated. Note that there is NO DEFAULT"),
-  make_option(c("-G", "--groupstwo"), type="character",
+  make_option(c("-T","--groupstwo"), type="character",
               help="Groups that you want to compare in anaylsis. Comma separated. Note that there is NO DEFAULT"),
   make_option(c("-t", "--minthreshold"), type="character",
               help="minthreshold for filtering OTUTable"),
-  make_option(c("-a", "--annotationsIncluded"), type="logical", action = "store_true",
+  make_option(c("-a", "--annotationsIncluded"), type="logical", action = "store_true", default = FALSE,
               help="Include this flag if there are annotations in last column of data table"),
-  make_option(c("-r", "--relativeAbund"), type="logical", action = "store_true",
+  make_option(c("-r", "--relativeAbund"), type="logical", action = "store_true", default = FALSE,
               help="Include this flag if table is relative abundance, and what rarefaction depth it was"),
   make_option(c("-d", "--depth"), type="character", default = NULL,
               help="Include rarefaction depth IF the relativeAbund flag is TRUE")
 );
 
-
-make_option()
 opt_parser = OptionParser(option_list=option_list);
 opt = parse_args(opt_parser);
 
 OTUTableFP = opt$OTUTableFP
-metadataFP = opt$metadata
+MFFP = opt$metadata
 category = opt$category
 groups = opt$groups
-groups <- strsplit(groups, split = ",", fixed = TRUE)
+groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
 groups2 <- opt$groupstwo
-groups2 <- strsplit(groups2, split = ",", fixed = TRUE)
+groups2 <- unlist(strsplit(groups2, split = ",", fixed = TRUE))
 minthreshold = opt$minthreshold
 annotations = opt$annotationsIncluded
 relativeAbund = opt$relativeAbund
@@ -44,19 +42,33 @@ depth = opt$depth
 
 
 #################### set temp info ####################
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
-OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m1000_L6.txt"
-MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
-minthreshold <- 10
-category <- "ColRep"
-annotations <- FALSE
-relativeAbund <- FALSE
-depth <- NULL
-groups2 <- "NereotestH2OWater,NereotestExNWater,NereotestNereoWater,NereotestMastWater,NereotestNereoMastWater"
-groups2 <- unlist(strsplit(groups2, split = ",", fixed = TRUE))
-groups <- "NereotestExNExN,NereotestMastExN,NereotestNereoExN,NereotestNereoMastExN"
-groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
-
+# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
+# OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m1000_L6.txt"
+# MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+# minthreshold <- 10
+# category <- "ColRep"
+# annotations <- FALSE
+# relativeAbund <- FALSE
+# depth <- NULL
+# groups2 <- "NereotestH2OWater,NereotestExNWater,NereotestNereoWater,NereotestMastWater,NereotestNereoMastWater"
+# groups2 <- unlist(strsplit(groups2, split = ",", fixed = TRUE))
+# groups <- "NereotestExNExN,NereotestMastExN,NereotestNereoExN,NereotestNereoMastExN"
+# groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
+# 
+# 
+# setwd("/Users/parfreylab/Desktop/lab_member_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/")
+# OTUTableFP <- "./ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m1000_L6.txt"
+# MFFP <- "./ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+# minthreshold <- 10
+# category <- "ColRep"
+# annotations <- FALSE
+# relativeAbund <- FALSE
+# depth <- NULL
+# groups2 <- "NereotestH2OWater,NereotestExNWater,NereotestNereoWater,NereotestMastWater,NereotestNereoMastWater"
+# groups2 <- unlist(strsplit(groups2, split = ",", fixed = TRUE))
+# groups <- "NereotestExNExN,NereotestMastExN,NereotestNereoExN,NereotestNereoMastExN"
+# groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
+# 
 
 ########################### LOAD DATA #################################
 library("DESeq2")
@@ -114,6 +126,7 @@ if (annotations) {
 ## Filter OTUs that are <50 counts
 mxOTU <- unlist(lapply(1:nrow(OTUTable.deseq), function(x) max(OTUTable.deseq[x,])))
 OTUTable.deseq <- OTUTable.deseq[-which(mxOTU < 100), ]
+
 
 ## Change taxasum into relative abundance
 taxasum <- data.frame(sapply(1:ncol(OTUTable.deseq), function(x) {
@@ -173,9 +186,10 @@ for (groupOne in 1:(length(groups)-1)) {
     # filter out small counts
     # Gets max of each row
     mx <- apply(OTUTable.filt,1,FUN = sum)
+    
     # Gets rid of things that are less than 10
     OTUTable.filt <- OTUTable.filt[ mx > minthreshold,]
-    
+
     dds <- DESeqDataSetFromMatrix(countData = as.matrix(OTUTable.filt)
                                   , colData = colData
                                   , design = ~condition
@@ -443,8 +457,8 @@ for (i in c(0.5,1)) {
   colAll <- c(colAll, rgb(0,i,i))
 }
 
-barplot(rep(1,length(colAll))
-        , col = colAll)
+# barplot(rep(1,length(colAll))
+#         , col = colAll)
 # colAll <- c(colAll, col2hex("orange"), col2hex("seagreen"))
 colAll <- unique(colAll)
 

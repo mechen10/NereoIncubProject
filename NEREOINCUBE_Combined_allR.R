@@ -6,7 +6,15 @@ option_list = list(
   make_option(c("-m", "--mappingfile"), type="character",
               help="Mapping file with alpha diversity in it"),
   make_option(c("-a", "--alphaNames"),
-              help="Comma separated list of alpha Names", type="character")
+              help="Comma separated list of alpha Names", type="character"),
+  make_option(c("-b", "--betaNames"),
+              help="Comma separated list of alpha Names", type="character"),
+  make_option(c("-B", "--BCPWD"),
+              help="Bray-Curtis distance matrix"),
+  make_option(c("-U", "--UWUFPWD"),
+              help="Unweighted Unifrac distance matrix"),
+  make_option(c("-W","--WUFPWD"),
+              help="Weighted Unifrac distance matrix")
   
 );
 
@@ -15,34 +23,39 @@ opt = parse_args(opt_parser);
 
 MFPWD = opt$mappingfile
 alphaNamesTMP = opt$alphaNames
-alphaNames <- unlist(strsplit(alphaNamesTMP, split = ","))
+alphaList <- unlist(strsplit(alphaNamesTMP, ","))
+betaNamesTMP = opt$betaNames
+betaList <- unlist(strsplit(betaNamesTMP, split = ","))
+BCPWD = opt$BCPWD
+UWUFPWD = opt$UWUFPWD
+WUFPWD = opt$WUFPWD
 
 
 #####FORTESTING ########
-# setwd("/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis")
-# MFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+# setwd("/Users/parfreylab/Desktop/lab_member_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis")
+# MFPWD <- "./ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 # alphaNames <- c("chao1","PD_whole_tree","observed_otus")
+# 
+# # setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/")
+# # MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha_2.txt"
+# alphaNames <-  'chao1_even_1000_alpha,PD_whole_tree_even_1000_alpha,observed_otus_even_1000_alpha'
+# alphaList <- unlist(strsplit(alphaNames, ","))
+# betaNames <- 'BC,WUF,UWUF'
+# betaList <- unlist(strsplit(betaNames,","))
+# 
+# BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div/bray_curtis_dm.txt"
+# WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/unweighted_unifrac_dm.txt"
+# UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt"
+# # MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
 
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/")
-MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha_2.txt"
-alphaNames <-  'chao1_even_1000_alpha,PD_whole_tree_even_1000_alpha,observed_otus_even_1000_alpha'
-alphaList <- unlist(strsplit(alphaNames, ","))
-betaNames <- 'BC,WUF,UWUF'
-betaList <- unlist(strsplit(betaNames,","))
-
-BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div_2/bray_curtis_dm.txt"
-WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/unweighted_unifrac_dm.txt"
-UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/weighted_unifrac_dm.txt"
-# MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
 
 ############## LOAD DATA ########
-library(car)
-library(xtable)
+library("car")
+library("xtable")
 library("MASS")
 library("vegan")
 library("stats")
 # library("multcomp")
-library("xtable")
 set.seed(3)
 # Alpha div script
 
