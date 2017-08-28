@@ -36,17 +36,17 @@ WUFPWD = opt$WUFPWD
 # MFPWD <- "./ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 # alphaNames <- c("chao1","PD_whole_tree","observed_otus")
 # 
-# # setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/")
-# # MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha_2.txt"
-# alphaNames <-  'chao1_even_1000_alpha,PD_whole_tree_even_1000_alpha,observed_otus_even_1000_alpha'
-# alphaList <- unlist(strsplit(alphaNames, ","))
-# betaNames <- 'BC,WUF,UWUF'
-# betaList <- unlist(strsplit(betaNames,","))
-# 
-# BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div/bray_curtis_dm.txt"
-# WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/unweighted_unifrac_dm.txt"
-# UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt"
-# # MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/")
+MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+alphaNames <-  'chao1_even_1000_alpha,PD_whole_tree_even_1000_alpha,observed_otus_even_1000_alpha'
+alphaList <- unlist(strsplit(alphaNames, ","))
+betaNames <- 'BC,WUF,UWUF'
+betaList <- unlist(strsplit(betaNames,","))
+
+BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div/bray_curtis_dm.txt"
+WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/unweighted_unifrac_dm.txt"
+UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt"
+MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 
 
 ############## LOAD DATA ########
@@ -1055,11 +1055,11 @@ for (b in betaList) {
   )
   par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
   legend("left"
-         , legend = c("Nereo Meristem (lab)"
+         , legend = c("Nereo Meristem (M-W-NMF)"
                       , "Nereo Meristem (wild)"
-                      , "Nereo blade (lab)"
+                      , "Nereo blade (M-W)"
                       , "Nereo blade (wild)"
-                      , "Mast blade (lab)"
+                      , "Mast blade (M-W)"
                       , "Mast blade (wild)"
                       , "Water alone (M-W-NMF)"
                       , "Water (M-W-NMF)"

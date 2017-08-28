@@ -30,9 +30,9 @@ MFPWD = opt$mappingfile
 # MFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
 
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
-BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div_2/bray_curtis_dm.txt"
-WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/unweighted_unifrac_dm.txt"
-UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div_2/weighted_unifrac_dm.txt"
+BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div/bray_curtis_dm.txt"
+WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/unweighted_unifrac_dm.txt"
+UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt"
 MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/MF_nochlpmito_m1000.txt"
 
 

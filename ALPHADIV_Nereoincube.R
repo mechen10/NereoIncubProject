@@ -24,7 +24,7 @@ alphaNames <- unlist(strsplit(alphaNamesTMP, split = ","))
 # alphaNames <- c("chao1","PD_whole_tree","observed_otus")
 
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
-MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha_2.txt"
+MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 alphaNames <-  'chao1_even_1000_alpha,PD_whole_tree_even_1000_alpha,observed_otus_even_1000_alpha'
 alphaList <- unlist(strsplit(alphaNames, ","))
 
@@ -369,7 +369,7 @@ for (i in alphaList) {
 }
 
 ######### **NMF vs Nereo and Mast** ###########
-levels(factor(MF.algae$ColRep))
+# levels(factor(MF.algae$ColRep))
 MF.algae <- MF[-grep("Starfish", MF$ColRep),]
 
 sortedGroups <- c("NereotestExNExN"
