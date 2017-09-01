@@ -42,13 +42,21 @@ depth = opt$depth
 
 
 #################### set temp info ####################
+
+#### For genus, used this:
+# summarize_taxa.py -i /Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/OTU_Table_nochlpmito_m1000.biom -d ';' -L 6 --suppress_biom_table_output -o taxa_sum_lvl6 -a
+### For OTU level, just used OTU table in text format
+# biom convert -i OTUTable --to-tsv --header-key taxonomy -o OTU_Table_text.txt
+
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/")
-# OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/OTU_Table_text.txt"
-OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/OTU_Table_text.txt'
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/GENUSLEVEL")
+
+OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/taxa_sum_lvl6/OTU_Table_nochlpmito_m1000_L6.txt"
+# OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/OTU_MP_filt/OTU_Table_text.txt'
 MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 minthreshold <- 10
 category <- "ColRep"
-annotations <- TRUE
+annotations <- FALSE
 relativeAbund <- FALSE
 depth <- NULL
 groups2 <- "NereotestH2OWater,NereotestExNWater,NereotestNereoWater,NereotestMastWater,NereotestNereoMastWater"
@@ -545,7 +553,7 @@ for (n in 1:length(otherMajor.Loneincube)) {
   if (length(grep("Unassigned", name)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(name, split = "..__", fixed = TRUE)
+    newName <- strsplit(name, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   otherMajor.Loneincube[n] <- newName
@@ -556,7 +564,7 @@ for (r in 1:nrow(colorLegend.Loneincube.LEGEND)) {
   if (length(grep("Unassigned",newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = "..__", fixed = TRUE)
+    newName <- strsplit(newName, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -683,7 +691,7 @@ for (n in 1:length(otherMajor.Water)) {
   if (length(grep("Unassigned", name)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(name, split = "..__", fixed = TRUE)
+    newName <- strsplit(name, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   otherMajor.Water[n] <- newName
@@ -694,7 +702,7 @@ for (r in 1:nrow(colorLegend.Water.LEGEND)) {
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = "..__", fixed = TRUE)
+    newName <- strsplit(newName, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -821,7 +829,7 @@ for (n in 1:length(otherMajor.ExN)) {
   if (length(grep("Unassigned", name)) < 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(name, split = "..__", fixed = TRUE)
+    newName <- strsplit(name, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   otherMajor.ExN[n] <- newName
@@ -832,7 +840,7 @@ for (r in 1:nrow(colorLegend.ExN.LEGEND)) {
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = "..__", fixed = TRUE)
+    newName <- strsplit(newName, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -952,7 +960,7 @@ for (n in 1:length(otherMajor.Environ)) {
   if (length(grep("Unassigned", name)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(name, split = "..__", fixed = TRUE)
+    newName <- strsplit(name, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   otherMajor.Environ[n] <- newName
@@ -963,7 +971,7 @@ for (r in 1:nrow(colorLegend.Environ.LEGEND)) {
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = "..__", fixed = TRUE)
+    newName <- strsplit(newName, split = ";__", fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -1129,7 +1137,7 @@ deseq.stat.names <- deseq.stat
 listNamesTemp <- c()
 for (r in 1:nrow(deseq.fc.names)) {
   tempName <- rownames(deseq.fc.names)[r]
-  tempName <- strsplit(tempName, split = "..__", fixed = TRUE)
+  tempName <- strsplit(tempName, split = ";__", fixed = TRUE)
   newName <- paste0(tempName[[1]][3], ": ", tempName[[1]][5],"_",tempName[[1]][6])
   if (newName == "NA: NA_NA"){
     newName <- "Unidentified"
