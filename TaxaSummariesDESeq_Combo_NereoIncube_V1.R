@@ -48,11 +48,24 @@ depth = opt$depth
 ### For OTU level, just used OTU table in text format
 # biom convert -i OTUTable --to-tsv --header-key taxonomy -o OTU_Table_text.txt
 
-# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTULEVEL")
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL")
+# OTU
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTULEVEL")
+OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTU_MP_filt/OTU_Table_text.txt'
+MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+minthreshold <- 10
+category <- "ColRep"
+annotations <- TRUE
+relativeAbund <- FALSE
+depth <- NULL
+groups2 <- "NereotestH2OWater,NereotestExNWater,NereotestNereoWater,NereotestMastWater,NereotestNereoMastWater"
+groups2 <- unlist(strsplit(groups2, split = ",", fixed = TRUE))
+groups <- "NereotestExNExN,NereotestMastExN,NereotestNereoExN,NereotestNereoMastExN"
+groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
+delimiter <- "..__" # For OTU
 
+# GENUS
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL")
 OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m1000_sorted_L6.txt"
-# OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTU_MP_filt/OTU_Table_text.txt'
 MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 minthreshold <- 10
 category <- "ColRep"
@@ -63,21 +76,7 @@ groups2 <- "NereotestH2OWater,NereotestExNWater,NereotestNereoWater,NereotestMas
 groups2 <- unlist(strsplit(groups2, split = ",", fixed = TRUE))
 groups <- "NereotestExNExN,NereotestMastExN,NereotestNereoExN,NereotestNereoMastExN"
 groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
-
-# 
-# setwd("/Users/parfreylab/Desktop/lab_member_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/")
-# OTUTableFP <- "./ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m1000_L6.txt"
-# MFFP <- "./ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
-# minthreshold <- 10
-# category <- "ColRep"
-# annotations <- FALSE
-# relativeAbund <- FALSE
-# depth <- NULL
-# groups2 <- "NereotestH2OWater,NereotestExNWater,NereotestNereoWater,NereotestMastWater,NereotestNereoMastWater"
-# groups2 <- unlist(strsplit(groups2, split = ",", fixed = TRUE))
-# groups <- "NereotestExNExN,NereotestMastExN,NereotestNereoExN,NereotestNereoMastExN"
-# groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
-# 
+delimiter <- ";__" # For genus
 
 ########################### LOAD DATA #################################
 library("DESeq2")
@@ -135,6 +134,9 @@ if (relativeAbund) {
   OTUTable.deseq <- OTUTable
 }
 
+## Sort from most to least abundant
+OTUTable.deseq <- OTUTable.deseq[order(rowSums(OTUTable.deseq)),]
+
 ## Filter OTUs that are <100 counts
 mxOTU <- unlist(lapply(1:nrow(OTUTable.deseq), function(x) max(OTUTable.deseq[x,])))
 OTUTable.deseq <- OTUTable.deseq[-which(mxOTU < 100), ]
@@ -146,22 +148,6 @@ taxasum <- data.frame(sapply(1:ncol(OTUTable.deseq), function(x) {
 }), row.names = rownames(OTUTable.deseq))
 
 colnames(taxasum) <- colnames(OTUTable.deseq)
-
-## Filter OTUs less than 5% abundant and make taxasum
-# 
-# colSumsOTUTable <-  colSums(OTUTable.deseq)
-# toDelete <- c()
-# taxasum <- c()
-# for (r in 1:nrow(OTUTable.deseq)) {
-#   perOTU <- OTUTable.deseq[r,]/colSumsOTUTable
-#   if (!any(perOTU > 0.05)) {
-#     toDelete <- c(toDelete, r)
-#   }
-#   taxasum <- rbind(taxasum, perOTU)
-# }
-# if (length(toDelete) > 0) {
-#   OTUTable.deseq <- OTUTable.deseq[-toDelete,]
-# }
 
 #### LOG info; record OTUs lost----------------------------------------------
 system(paste0("echo 'Original dimensions of OTU table: "
@@ -330,8 +316,6 @@ for (r in 1:nrow(deseq.combo)) {
 write.table(deseq.fc, row.names = TRUE, col.names = NA, sep = "\t", file = "DESEQ/deseq.fc.txt")
 write.table(deseq.sig, row.names = TRUE, col.names = NA, sep = "\t", file = "DESEQ/deseq.sig.txt")
 
-# nrow(deseq.fc)
-
 ######## *******Taxa summaries****** ############
 # Make sure MF and taxa summaries are in each other
 MF <- MF[(rownames(MF) %in% colnames(taxasum)),]
@@ -340,8 +324,6 @@ taxasum <- taxasum[,(colnames(taxasum) %in% rownames(MF))]
 # Reorder
 MF <- MF[order(match(rownames(MF),colnames(taxasum))),]
 
-# nrow(MF)
-# ncol(taxasum)
 ########## SPLIT INTO EXPERIMENTS #########
 
 taxasum.Loneincube <- taxasum[,grep("Loneincube", MF$Type)]
@@ -364,13 +346,16 @@ taxasum.Environ <- taxasum[,grep("Brockton", MF$ColRep)]
 MF.Environ <- MF[rownames(MF) %in% colnames(taxasum.Environ),]
 MF.Environ <- MF.Environ[order(match(rownames(MF.Environ), colnames(taxasum.Environ)))]
 
+taxasum.Star <- taxasum[,grep("starfish", MF$Project)]
+MF.Star <- MF[rownames(MF) %in% colnames(taxasum.Star),]
+MF.Star <- MF.Star[order(match(rownames(MF.Star),colnames(taxasum.Star)))]
 ########## COLOURS ##########
 
 # Filter deseq based on whether it is abundant at 5% or more
 toDelete <- c()
 for (r in 1:nrow(deseq.fc)) {
   rowAbund <- taxasum[match(rownames(deseq.fc)[r], rownames(taxasum)),]
-  if (max(rowAbund) < 0.05) {
+  if (max(rowAbund) < 0.03) {
     toDelete <- c(toDelete, r)
   }
 }
@@ -383,84 +368,46 @@ if (length(toDelete) > 0) {
 
 
 set.seed(5)
-# NOT ENOUGH COLORS
-# colAll <- c()
-# for (v in c(0.65,1)) {
-#   for (s in c(0.2,1)) {
-#     col1 <- rainbow(n = 3
-#                     , start = 0
-#                     , end = 1/6
-#                     , s = s
-#                     , v = v
-#                     , a = a)
-#     col2 <- rainbow(n = 3
-#                     , start = 2/6
-#                     , end = 3/6
-#                     , s = s
-#                     , v = v)
-#     col3 <- rainbow(n = 3
-#                     , start = 4/6
-#                     , end = 5/6
-#                     , s = s
-#                     , v = v)
-#     col4 <- rainbow(n = 3
-#                     , start = 1/6
-#                     , end = 2/6
-#                     , s = 1
-#                     , v = v)
-#     col5 <- rainbow(n = 3
-#                     , start = 3/6
-#                     , end = 4/6
-#                     , v = v
-#                     , s = 1)
-#     col6 <- rainbow(n = 3
-#                     , start = 5/6
-#                     , end = 6/6
-#                     , s = 1
-#                     , v = v)
-#     colAll <- c(colAll, col1, col2, col3, col4, col5, col6)
-#   }
-# }
 
 # Alternative color generator
 colAll <- c()
-for (i in seq(0.3, 0.7,length.out = 2)) {
-  for (j in seq(0.4, 0.8, length.out = 2)) {
-    for (k in seq(0.5, 1, length.out = 2)) {
+for (i in seq(0.2, 0.7,length.out = 4)) {
+  for (j in seq(0.3, 0.8, length.out = 4)) {
+    for (k in seq(0.3, 1, length.out = 3)) {
       if (!((i == j) & (i == k))) {
         colAll <- c(colAll, rgb(i,j,k))
       }
     }
   }
 }
-for (i in seq(0.3, 0.7,length.out = 2)) {
-  for (j in seq(0.4, 0.8, length.out = 2)) {
-    for (k in seq(0.5, 1, length.out = 2)) {
+for (i in seq(0.2, 0.7,length.out = 4)) {
+  for (j in seq(0.3, 0.8, length.out = 4)) {
+    for (k in seq(0.3, 1, length.out = 3)) {
       if (!((i == j) & (i == k))) {
         colAll <- c(colAll, rgb(j,i,k))
       }
     }
   }
 }
-for (i in seq(0.3, 0.7,length.out = 2)) {
-  for (j in seq(0.4, 0.8, length.out = 2)) {
-    for (k in seq(0.5, 1, length.out = 2)) {
+for (i in seq(0.2, 0.7,length.out = 4)) {
+  for (j in seq(0.3, 0.8, length.out = 4)) {
+    for (k in seq(0.3, 1, length.out = 3)) {
       if (!((i == j) & (i == k))) {
         colAll <- c(colAll, rgb(j,k,i))
       }
     }
   }
 }
-for (i in seq(0.3, 0.7,length.out = 2)) {
-  for (j in seq(0.4, 0.8, length.out = 2)) {
-    for (k in seq(0.5, 1, length.out = 2)) {
+for (i in seq(0.2, 0.7,length.out = 4)) {
+  for (j in seq(0.3, 0.8, length.out = 4)) {
+    for (k in seq(0.3, 1, length.out = 3)) {
       if (!((i == j) & (i == k))) {
         colAll <- c(colAll, rgb(k,j,i))
       }
     }
   }
 }
-for (i in c(0.25,0.5,1)) {
+for (i in c(0.25,0.5,0.75,1)) {
   colAll <- c(colAll, rgb(i,0,0))
   colAll <- c(colAll, rgb(0,i,0))
   colAll <- c(colAll, rgb(0,0,i))
@@ -470,15 +417,10 @@ for (i in c(0.25,0.5,1)) {
 }
 
 
-# barplot(rep(1,length(colAll))
-#         , col = colAll)
-# colAll <- c(colAll, col2hex("orange"), col2hex("seagreen"))
 colAll <- unique(colAll)
 
 
-randomColors <- c(colAll)[1:nrow(deseq.fc)]
-# randomColors <- sample(c(colAll, 'black'), nrow(deseq.fc), replace = FALSE)
-## NOTE! Unassigned is last, and I will make it black.
+randomColors <- c(sample(c(colAll),nrow(deseq.fc)-1),"black")
 
 colorLegend <- cbind(rownames(deseq.fc), c(randomColors))
 
@@ -503,68 +445,36 @@ for (i in levels(MF.Loneincube$ColRep)) {
 }
 taxasum.Loneincube <- taxasum.Loneincube[,order]
 
-# # Filter taxasum for things greater than 5%
-# deleteTaxa <- c()
-# # colorPlot.Water <- colorLegend
-# for (i in 1:nrow(taxasum.Water)) {
-#   if (max(taxasum.Water[i,]) < 0.05) {
-#     # deleteColor <- c(deleteColor, i)
-#     # colorPlot.Water[i,2] <- "white"
-#     deleteTaxa <- c(deleteTaxa, i)
-#   }
-# }
-# # colorLegend.Water <- colorLegend[-deleteColor,]
-# taxasum.Water <- taxasum.Water[-deleteTaxa,]
-# 
-
 # Align colors with LoneIncube
 colorLegend.Loneincube <- data.frame(rep("#FFFFFF", nrow(taxasum.Loneincube)), row.names = rownames(taxasum.Loneincube)
                                      ,stringsAsFactors = FALSE)
 for (r in 1:nrow(colorLegend.Loneincube)) {
   nameTemp <- rownames(colorLegend.Loneincube)[r]
-  tempRow <- sum(taxasum.Loneincube[r,] > 0.03)
-  if ((nameTemp %in% colorLegend[,1]) & (tempRow >= 2)) {
+  if ((nameTemp %in% colorLegend[,1]) ) {#& (tempRow >= 2)) {
     colorLegend.Loneincube[r,1] <- as.character(colorLegend[which(nameTemp == colorLegend[,1]),2])
-  } else if (tempRow >= 2) {
-    colorLegend.Loneincube[r,1] <- "#D3D3D3"
-  }
+  } 
 }
-
-# length(colorLegend.Loneincube[-which(colorLegend.Loneincube[,1] == "#FFFFFF"),])
 
 # For legend
 toDelete <- c()
-otherMajor.Loneincube <- c()
 for (r in 1:nrow(colorLegend.Loneincube)) {
   if (colorLegend.Loneincube[r,1] == "#FFFFFF") {
     toDelete <- c(toDelete, r)
-  } else if (colorLegend.Loneincube[r,1] == "#D3D3D3") {
-    toDelete <- c(toDelete, r)
-    otherMajor.Loneincube <- c(otherMajor.Loneincube, rownames(colorLegend.Loneincube)[r])
-  }
+  } 
 }
 if (length(toDelete) > 0){
   colorLegend.Loneincube.LEGEND <- data.frame(colorLegend.Loneincube)[-toDelete,]
   colorLegend.Loneincube.LEGEND <- data.frame(colorLegend.Loneincube.LEGEND)
   rownames(colorLegend.Loneincube.LEGEND) <- rownames(colorLegend.Loneincube)[-toDelete]
 }
-for (n in 1:length(otherMajor.Loneincube)) {
-  name <- otherMajor.Loneincube[n]
-  if (length(grep("Unassigned", name)) > 0) {
-    newName <- "Unidentified"
-  } else {
-    newName <- strsplit(name, split = ";__", fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
-  }
-  otherMajor.Loneincube[n] <- newName
-}
+
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.Loneincube.LEGEND)) {
   newName <- rownames(colorLegend.Loneincube.LEGEND)[r]
   if (length(grep("Unassigned",newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = ";__", fixed = TRUE)
+    newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -599,18 +509,14 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.Loneincube.LEGEND))
+       , legend = rev(rownames(colorLegend.Loneincube.LEGEND))[1:10]
       , pch = 22
-      , pt.bg = rev(colorsToPlot.Loneincube)
-      , col = rev(colorsToPlot.Loneincube)
+      , pt.bg = rev(colorsToPlot.Loneincube)[1:10]
+      , col = rev(colorsToPlot.Loneincube)[1:10]
       , cex = 0.5
       , pt.cex = 1.2
       , y.intersp = 1.5)
-text(x = -1, y = seq(-.3,length.out = length(otherMajor.Loneincube) + 1, by = -0.08)
-     , labels = c("OTHER TAXA >3% ABUNDANCE (grey): ", otherMajor.Loneincube)
-     , cex = 0.5
-     , pos = 4
-     )
+
 dev.off()
 
 ############ WATER #############
@@ -633,52 +539,22 @@ for (i in levels(MF.Water$ColRep)) {
 }
 taxasum.Water <- taxasum.Water[,order]
 
-# # Get IDs for legend that are greater than 5%
-# # deleteColor <- c()
-# deleteTaxa <- c()
-# # colorPlot.Water <- colorLegend
-# for (i in 1:nrow(taxasum.Water)) {
-#   if (max(taxasum.Water[i,]) < 0.05) {
-#     # deleteColor <- c(deleteColor, i)
-#     # colorPlot.Water[i,2] <- "white"
-#     deleteTaxa <- c(deleteTaxa, i)
-#   }
-# }
-# # colorLegend.Water <- colorLegend[-deleteColor,]
-# taxasum.Water <- taxasum.Water[-deleteTaxa,]
-
-# Get colorLegend values that are significant for water
-sig.Water <- deseq.sig[,grep("water", colnames(deseq.sig))]
-sig.Water.Names <- c()
-for (r in 1:nrow(sig.Water)) {
-  if ((any(sig.Water[r,] < 0.05, na.rm = TRUE))) {
-    sig.Water.Names <- c(sig.Water.Names, rownames(sig.Water)[r])
-  }
-}
-
 # Align colors with LoneIncube
 colorLegend.Water <- data.frame(rep("#FFFFFF", nrow(taxasum.Water)), row.names = rownames(taxasum.Water)
                                      ,stringsAsFactors = FALSE)
 for (r in 1:nrow(colorLegend.Water)) {
   nameTemp <- rownames(colorLegend.Water)[r]
-  tempRow <- sum(taxasum.Water[r,]>0.03)
-  if ((nameTemp %in% sig.Water.Names) & (tempRow >= 2)) {
+  if ((nameTemp %in% colorLegend[,1]) ) { 
     colorLegend.Water[r,1] <- as.character(colorLegend[which(nameTemp == colorLegend[,1]),2])
-  } else if (tempRow >= 2) {
-    colorLegend.Water[r,1] <- "#D3D3D3"
-  }
+  } 
 }
 
 # For legend
 toDelete <- c()
-otherMajor.Water <- c()
 for (r in 1:nrow(colorLegend.Water)) {
   if (colorLegend.Water[r,1] == "#FFFFFF") {
     toDelete <- c(toDelete, r)
-  } else if ( colorLegend.Water[r,1] == "#D3D3D3") {
-    toDelete <- c(toDelete,r)
-    otherMajor.Water <- c(otherMajor.Water, rownames(colorLegend.Water)[r])
-  }
+  } 
 }
 if (length(toDelete) > 0){
   colorLegend.Water.LEGEND <- data.frame(colorLegend.Water)[-toDelete,]
@@ -686,23 +562,13 @@ if (length(toDelete) > 0){
   rownames(colorLegend.Water.LEGEND) <- rownames(colorLegend.Water)[-toDelete]
 }
 
-for (n in 1:length(otherMajor.Water)) {
-  name <- otherMajor.Water[n]
-  if (length(grep("Unassigned", name)) > 0) {
-    newName <- "Unidentified"
-  } else {
-    newName <- strsplit(name, split = ";__", fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
-  }
-  otherMajor.Water[n] <- newName
-}
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.Water.LEGEND)) {
   newName <- rownames(colorLegend.Water.LEGEND)[r]
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = ";__", fixed = TRUE)
+    newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -712,7 +578,6 @@ rownames(colorLegend.Water.LEGEND)<- make.names(listNamesTemp, unique = TRUE)
 colorsToPlot.Water <- as.vector(colorLegend.Water.LEGEND[,1])
 
 pdf( "./TAXASUMMARIES/Water.pdf", pointsize = 14)
-# quartz()
 par(fig = c(0,0.65,0,1), mar = c(6,4,4,4))
 barplot(as.matrix(taxasum.Water)
         , col = colorLegend.Water[,1]
@@ -739,17 +604,12 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.Water.LEGEND))
+       , legend = rev(rownames(colorLegend.Water.LEGEND))[1:10]
        , pch = 22
-       , pt.bg = rev(colorsToPlot.Water)
-       , col = rev(colorsToPlot.Water)
+       , pt.bg = rev(colorsToPlot.Water)[1:10]
+       , col = rev(colorsToPlot.Water)[1:10]
        , cex = 0.5
        , pt.cex = 1.2)
-text(x = -1, y = seq(0,length.out = length(otherMajor.Water) + 1, by = -0.08)
-     , labels = c("OTHER TAXA >3% ABUNDANCE (grey): ", otherMajor.Water)
-     , cex = 0.5
-     , pos = 4
-)
 dev.off()
 
 
@@ -772,51 +632,21 @@ for (i in levels(MF.ExN$ColRep)) {
 }
 taxasum.ExN <- taxasum.ExN[,order]
 
-# # Get IDs for legend that are greater than 5%
-# deleteColor <- c()
-# deleteTaxa <- c()
-# # colorPlot.ExN <- colorLegend
-# for (i in 1:nrow(taxasum.ExN)) {
-#   if (max(taxasum.ExN[i,]) < 0.05) {
-#     deleteColor <- c(deleteColor, i)
-#     # colorPlot.ExN[i,2] <- "white"
-#     deleteTaxa <- c(deleteTaxa, i)
-#   }
-# }
-# colorLegend.ExN <- colorLegend[-deleteColor,]
-# taxasum.ExN <- taxasum.ExN[-deleteColor,]
-
-# Get colorLegend values that are significant for water
-sig.ExN <- deseq.sig[,grep("ExN", colnames(deseq.sig))]
-sig.ExN.Names <- c()
-for (r in 1:nrow(sig.ExN)) {
-  if ((any(sig.ExN[r,] < 0.05, na.rm = TRUE))) {
-    sig.ExN.Names <- c(sig.ExN.Names, rownames(sig.ExN)[r])
-  }
-}
-
 # Align colors with ExN
 colorLegend.ExN <- data.frame(rep("#FFFFFF", nrow(taxasum.ExN)), row.names = rownames(taxasum.ExN)
                                      ,stringsAsFactors = FALSE)
 for (r in 1:nrow(colorLegend.ExN)) {
   nameTemp <- rownames(colorLegend.ExN)[r]
-  tempRow <- sum(taxasum.ExN[r,]>0.03)
-  if ((nameTemp %in% sig.ExN.Names) & (tempRow >= 2)) {
+  if ((nameTemp %in% colorLegend[,1])){ 
     colorLegend.ExN[r,1] <- as.character(colorLegend[which(nameTemp == colorLegend[,1]),2])
-  } else if (tempRow >= 2) {
-    colorLegend.ExN[r,1] <- "#D3D3D3"
-  }
+  } 
 }
 
 # For legend
 toDelete <- c()
-otherMajor.ExN <- c()
 for (r in 1:nrow(colorLegend.ExN)) {
   if (colorLegend.ExN[r,1] == "#FFFFFF") {
     toDelete <- c(toDelete, r)
-  } else if (colorLegend.ExN[r,1] == "#D3D3D3") {
-    toDelete <- c(toDelete, r)
-    otherMajor.ExN <- c(otherMajor.ExN, rownames(colorLegend.ExN)[r])
   }
 }
 if (length(toDelete) > 0){
@@ -824,23 +654,14 @@ if (length(toDelete) > 0){
   colorLegend.ExN.LEGEND <- data.frame(colorLegend.ExN.LEGEND)
   rownames(colorLegend.ExN.LEGEND) <- rownames(colorLegend.ExN)[-toDelete]
 }
-for (n in 1:length(otherMajor.ExN)) {
-  name <- otherMajor.ExN[n]
-  if (length(grep("Unassigned", name)) < 0) {
-    newName <- "Unidentified"
-  } else {
-    newName <- strsplit(name, split = ";__", fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
-  }
-  otherMajor.ExN[n] <- newName
-}
+
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.ExN.LEGEND)) {
   newName <- rownames(colorLegend.ExN.LEGEND)[r]
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = ";__", fixed = TRUE)
+    newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -850,7 +671,6 @@ rownames(colorLegend.ExN.LEGEND) <- make.names(listNamesTemp, unique = TRUE)
 colorsToPlot.ExN <- as.vector(colorLegend.ExN.LEGEND[,1])
 
 pdf( "./TAXASUMMARIES/ExN.pdf", pointsize = 14)
-# quartz()
 par(fig = c(0,0.65,0,1), mar = c(6,4,4,4))
 barplot(as.matrix(taxasum.ExN)
         , col = colorLegend.ExN[,1]
@@ -877,17 +697,13 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.ExN.LEGEND))
+       , legend = rev(rownames(colorLegend.ExN.LEGEND))[1:10]
        , pch = 22
-       , pt.bg = rev(colorsToPlot.ExN)
-       , col = rev(colorsToPlot.ExN)
+       , pt.bg = rev(colorsToPlot.ExN)[1:10]
+       , col = rev(colorsToPlot.ExN)[1:10]
        , cex = 0.5
        , pt.cex = 1.2)
-text(x = -1, y = seq(0.4,length.out = length(otherMajor.ExN) + 1, by = -0.08)
-     , labels = c("OTHER TAXA >3% ABUNDANCE (grey): ", otherMajor.ExN)
-     , cex = 0.5
-     , pos = 4
-)
+
 dev.off()
 
 
@@ -910,44 +726,23 @@ for (i in levels(MF.Environ$ColRep)) {
 }
 taxasum.Environ <- taxasum.Environ[,order]
 
-# # Get IDs for legend that are greater than 5%
-# deleteColor <- c()
-# deleteTaxa <- c()
-# # colorPlot.ExN <- colorLegend
-# for (i in 1:nrow(taxasum.Environ)) {
-#   if (max(taxasum.Environ[i,]) < 0.05) {
-#     deleteColor <- c(deleteColor, i)
-#     # colorPlot.ExN[i,2] <- "white"
-#     deleteTaxa <- c(deleteTaxa, i)
-#   }
-# }
-# colorLegend.Environ <- colorLegend[-deleteColor,]
-# taxasum.Environ <- taxasum.Environ[-deleteColor,]
-
-
 # Align colors with LoneIncube
 colorLegend.Environ <- data.frame(rep("#FFFFFF", nrow(taxasum.Environ)), row.names = rownames(taxasum.Environ)
                               ,stringsAsFactors = FALSE)
 for (r in 1:nrow(colorLegend.Environ)) {
   nameTemp <- rownames(colorLegend.Environ)[r]
   tempRow <- sum(taxasum.Environ[r,]>0.03)
-  if ((nameTemp %in% colorLegend[,1]) & (tempRow >= 2)) {
+  if ((nameTemp %in% colorLegend[,1])){
     colorLegend.Environ[r,1] <- as.character(colorLegend[which(nameTemp == colorLegend[,1]),2])
-  } else if (tempRow >=2) {
-    colorLegend.Environ[r,1] <- "#D3D3D3"
-  }
+  } 
 }
 
 # For legend
 toDelete <- c()
-otherMajor.Environ <- c()
 for (r in 1:nrow(colorLegend.Environ)) {
   if (colorLegend.Environ[r,1] == "#FFFFFF") {
     toDelete <- c(toDelete, r)
-  } else if (colorLegend.Environ[r,1] == "#D3D3D3") {
-    toDelete <- c(toDelete,r)
-    otherMajor.Environ <- c(otherMajor.Environ, rownames(colorLegend.Environ)[r])
-  }
+  } 
 }
 if (length(toDelete) > 0){
   colorLegend.Environ.LEGEND <- data.frame(colorLegend.Environ)[-toDelete,]
@@ -955,23 +750,13 @@ if (length(toDelete) > 0){
   rownames(colorLegend.Environ.LEGEND) <- rownames(colorLegend.Environ)[-toDelete]
 }
 
-for (n in 1:length(otherMajor.Environ)) {
-  name <- otherMajor.Environ[n]
-  if (length(grep("Unassigned", name)) > 0) {
-    newName <- "Unidentified"
-  } else {
-    newName <- strsplit(name, split = ";__", fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
-  }
-  otherMajor.Environ[n] <- newName
-}
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.Environ.LEGEND)) {
   newName <- rownames(colorLegend.Environ.LEGEND)[r]
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = ";__", fixed = TRUE)
+    newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
     newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
   }
   listNamesTemp <- c(listNamesTemp, newName)
@@ -1008,47 +793,116 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.Environ.LEGEND))
+       , legend = rev(rownames(colorLegend.Environ.LEGEND))[1:10]
        , pch = 22
-       , pt.bg = rev(colorsToPlot.Environ)
-       , col = rev(colorsToPlot.Environ)
+       , pt.bg = rev(colorsToPlot.Environ)[1:10]
+       , col = rev(colorsToPlot.Environ)[1:10]
        , cex = 0.5
        , pt.cex = 1.2)
-text(x = -1, y = seq(0,length.out = length(otherMajor.Environ) + 1, by = -0.08)
-     , labels = c("OTHER TAXA >3% ABUNDANCE (grey): ", otherMajor.Environ)
-     , cex = 0.5
-     , pos = 4
+dev.off()
+
+############ Star #############
+
+# Sort in order by colrep
+MF.Star$ColRep <- factor(MF.Star$ColRep, levels = c("EnvironmentalStarfishInnerNereocystis"
+                                                          ,"EnvironmentalStarfishOuterNereocystis"
+                                                          , "EnvironmentalStarfishInnerWater"
+                                                    ,"EnvironmentalStarfishOuterWater"
 )
+)
+
+# Sort taxasum by ColRep
+order <- c()
+for (i in levels(MF.Star$ColRep)) {
+    allOfType <- rownames(MF.Star)[grep(paste0(i), MF.Star$ColRep)]
+    for (j in allOfType) {
+        order <- c(order, grep(paste0(j), colnames(taxasum.Star)))
+    }
+}
+taxasum.Star <- taxasum.Star[,order]
+
+# Align colors with LoneIncube
+colorLegend.Star <- data.frame(rep("#FFFFFF", nrow(taxasum.Star)), row.names = rownames(taxasum.Star)
+                                  ,stringsAsFactors = FALSE)
+for (r in 1:nrow(colorLegend.Star)) {
+    nameTemp <- rownames(colorLegend.Star)[r]
+    tempRow <- sum(taxasum.Star[r,]>0.03)
+    if ((nameTemp %in% colorLegend[,1])){
+        colorLegend.Star[r,1] <- as.character(colorLegend[which(nameTemp == colorLegend[,1]),2])
+    } 
+}
+
+# For legend
+toDelete <- c()
+for (r in 1:nrow(colorLegend.Star)) {
+    if (colorLegend.Star[r,1] == "#FFFFFF") {
+        toDelete <- c(toDelete, r)
+    } 
+}
+if (length(toDelete) > 0){
+    colorLegend.Star.LEGEND <- data.frame(colorLegend.Star)[-toDelete,]
+    colorLegend.Star.LEGEND <- data.frame(colorLegend.Star.LEGEND)
+    rownames(colorLegend.Star.LEGEND) <- rownames(colorLegend.Star)[-toDelete]
+}
+
+listNamesTemp <- c()
+for (r in 1:nrow(colorLegend.Star.LEGEND)) {
+    newName <- rownames(colorLegend.Star.LEGEND)[r]
+    if (length(grep("Unassigned", newName)) > 0) {
+        newName <- "Unidentified"
+    } else {
+        newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
+        newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
+    }
+    listNamesTemp <- c(listNamesTemp, newName)
+}
+rownames(colorLegend.Star.LEGEND) <- make.names(listNamesTemp, unique = TRUE)
+
+colorsToPlot.Star <- as.vector(colorLegend.Star.LEGEND[,1])
+
+pdf( "./TAXASUMMARIES/Star.pdf", pointsize = 14)
+par(fig = c(0,0.65,0,1), mar = c(6,4,4,4))
+barplot(as.matrix(taxasum.Star)
+        , col = colorLegend.Star[,1]
+        , las = 2
+        , space = c(0,0,0,0,1,0,0,0,1,0,1,0)
+        , border = FALSE
+        , xaxt = "n"
+        , ylab = "Relative Abundance"
+)
+axis(side = 1
+     , las = 2
+     , at = c(2.5,8.5,14)
+     , labels = c("Inner Nereocystis","Outer Nereocystis", "Inner Water", "Outer Water")
+     , tick = FALSE
+     , line = -1
+     , cex.axis = 0.6
+)
+par(fig = c(0.5,1,0,1), mar = c(2.1,0,4.1,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , xlab = ""
+     , ylab = ""
+     , bty = "n")
+legend("top"
+       , legend = rev(rownames(colorLegend.Star.LEGEND))[1:10]
+       , pch = 22
+       , pt.bg = rev(colorsToPlot.Star)[1:10]
+       , col = rev(colorsToPlot.Star)[1:10]
+       , cex = 0.5
+       , pt.cex = 1.2)
 dev.off()
 
 ################ ALL PLOTS TOGETHER #################
 # Want to put NMF-incubation experiment together and seaweed surfaces together
 # Make new legend that combines everything
-colorLegend.ExN.new <- cbind(rownames(colorLegend.ExN.LEGEND), as.character(colorLegend.ExN.LEGEND[,1]))
-colorLegend.Water.new <- cbind(rownames(colorLegend.Water.LEGEND), as.character(colorLegend.Water.LEGEND[,1]))
+colorLegend.ExN.new <- cbind(rev(rownames(colorLegend.ExN.LEGEND))[1:20], rev(as.character(colorLegend.ExN.LEGEND[,1]))[1:20])
+colorLegend.Water.new <- cbind(rev(rownames(colorLegend.Water.LEGEND))[1:20], rev(as.character(colorLegend.Water.LEGEND[,1]))[1:20])
 
 duplicatedRows1 <- which(colorLegend.ExN.new[,1] %in% colorLegend.Water.new[,1])
-comboLegend <- rbind(colorLegend.ExN.new[-duplicatedRows1,], colorLegend.Water.new)
-comboLegend <- comboLegend[order(comboLegend[,1]),]
-# Remove unidentified
-# postemp <- grep("Unidentified", comboLegend[,1])
-# comboLegend <- comboLegend[-postemp,]
-# comboLegend <- comboLegend[c(1:(postemp-1),(postemp+1):(nrow(comboLegend)-1),postemp),]
-
-# Change legend to have 2 columns; fancy
-
-listPhyla <- gsub(":.*$","",rev(comboLegend[,1]))
-uniqueListPhyla <- unique(listPhyla)
-repUniquePhyla <- c()
-spaceUniquePhyla <- c()
-for (i in uniqueListPhyla) {
-  n <- sum(listPhyla %in% i)-1
-  repUniquePhyla <- c(repUniquePhyla, paste0(i,":"), rep(" ",n))
-  spaceUniquePhyla <- c(spaceUniquePhyla, rep(1,n),2)
-}
-listGenera <- gsub("^.*:","", rev(comboLegend[,1]))
-
-
+comboLegend <- rbind(colorLegend.Water.new, colorLegend.ExN.new[-duplicatedRows1,])
 
 pdf("TAXASUMMARIES/TaxaSummaries_combo.pdf", pointsize = 14, width = 10, height = 7)
 par(oma = c(0,0,0,0))
@@ -1081,10 +935,11 @@ axis(side = 1
 )
 par(fig = c(0,0.6,0,0.6), mar = c(1,4.1,5.1,2.1), new = TRUE)
 #Need to add empty plot to make spacing right
-barplot(as.matrix(cbind(rep(0, nrow(taxasum.ExN)),taxasum.ExN))
+colnames(taxasum.ExN)
+barplot(as.matrix(cbind(rep(0, nrow(taxasum.ExN)),rep(0, nrow(taxasum.ExN)),rep(0, nrow(taxasum.ExN)),rep(0, nrow(taxasum.ExN)),taxasum.ExN))
         , col = colorLegend.ExN[,1]
         , las = 2
-        , space = c(0,4,0,0,0,0,1,0,0,0,0,2,0,0,3,0,0,0,0)
+        , space = c(0,0,0,0,1,0,0,0,0,1,0,0,0,0,1,0,0,3,0,0,0,0)
         , border = FALSE
         , xaxt = "n"
         , ylab = "NMF SURFACE"
@@ -1100,10 +955,10 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend(x = -1.1, y = 0
-       , legend = rev(comboLegend[,1])
+       , legend = (comboLegend[,1])
        , pch = 22
-       , pt.bg = rev(comboLegend[,2])
-       , col = rev(comboLegend[,2])
+       , pt.bg = (comboLegend[,2])
+       , col = (comboLegend[,2])
        , cex = 0.65
        , pt.cex = 1.2
        , bty = "n"
@@ -1124,6 +979,114 @@ dev.off()
 
 write.matrix(comboLegend, sep = "\t", file = "TAXASUMMARIES/comboLegend.txt")
 
+######### ALL NEREO PLOT ##############
+# Want to put NMF-incubation experiment together and seaweed surfaces together
+# Make new legend that combines everything
+taxasum.Environ.Nereoonly <- taxasum.Environ[,grep("Nereo", colnames(taxasum.Environ))]
+taxasum.ExN.Nereoonly <- taxasum.ExN[,grep("Nereotest.ExN",colnames(taxasum.ExN))]
+taxasum.Loneincube.Nereoonly <- taxasum.Loneincube[,grep("Nereo.Loneincube.Nereo", colnames(taxasum.Loneincube))]
+taxasum.Star.Nereoonly <- taxasum.Star[,grep("Nereocystis",colnames(taxasum.Star))]
+
+colorLegend.ExN.new <- cbind(rev(rownames(colorLegend.ExN.LEGEND))[1:20], rev(as.character(colorLegend.ExN.LEGEND[,1]))[1:20])
+colorLegend.Loneincube.new <- cbind(rev(rownames(colorLegend.Loneincube.LEGEND))[1:20], rev(as.character(colorLegend.Loneincube.LEGEND[,1]))[1:20])
+colorLegend.Star.new <- cbind(rev(rownames(colorLegend.Star.LEGEND))[1:20], rev(as.character(colorLegend.Star.LEGEND[,1]))[1:20])
+colorLegend.Environ.new <- cbind(rev(rownames(colorLegend.Environ.LEGEND))[1:20], rev(as.character(colorLegend.Environ.LEGEND[,1]))[1:20])
+comboLegend.Nereo <- rbind(colorLegend.ExN.new,colorLegend.Loneincube.new,colorLegend.Star.new,colorLegend.Environ.new)
+duplicatedRows.nereo <- which(duplicated(comboLegend.Nereo[,1]))
+comboLegend.Nereo <- comboLegend.Nereo[-duplicatedRows.nereo,]
+
+pdf("TAXASUMMARIES/Nereo_combo.pdf", pointsize = 14, width = 10, height = 7)
+par(oma = c(0,0,0,0))
+plot(0,0
+     , pch = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , bty = "n"
+     , xlab = ""
+     , ylab = "")
+title(ylab = "Relative Abundance"
+      , line = 3)
+par(oma = c(0,2,0,0))
+par(fig = c(0,0.6,0.4,1), mar = c(5.1,4.1,1,2.1), new = TRUE)
+barplot(as.matrix(taxasum.Environ.Nereoonly)
+        , col = colorLegend.Environ[,1]
+        , las = 2
+        , space = c(0,0,0,0,0,1,0,0,0,0)
+        , border = FALSE
+        , xaxt = "n"
+        , ylab = "ENVIRONMENTAL SAMPLES"
+)
+axis(side = 1
+     , las = 1
+     , at = c(2.5,8.5)
+     , labels = c("MERISTEM","MATURE BLADES")
+     , tick = FALSE
+     , line = -1
+     , cex.axis = 0.6
+)
+par(fig = c(0,0.6,0,0.6), mar = c(1,4.1,5.1,2.1), new = TRUE)
+#Need to add empty plot to make spacing right
+barplot(as.matrix(cbind(taxasum.ExN.Nereoonly,taxasum.Loneincube.Nereoonly,rep(0,nrow(taxasum.Loneincube.Nereoonly))))
+        , col = colorLegend.ExN[,1]
+        , las = 2
+        , space = c(0,0,0,0,0,1,0,0,0,0)
+        , border = FALSE
+        , xaxt = "n"
+        , ylab = "LAB SAMPLES"
+        
+)
+
+par(fig = c(0.55,1,0,0.5), mar = c(0,0,0,0), new = TRUE)
+plot(0,0
+     , pch = ""
+     , xaxt = "n"
+     , yaxt = "n"
+     , xlab = ""
+     , ylab = ""
+     , bty = "n")
+legend(x = -1.1, y = 0
+       , legend = (comboLegend.Nereo[,1])
+       , pch = 22
+       , pt.bg = (comboLegend.Nereo[,2])
+       , col = (comboLegend.Nereo[,2])
+       , cex = 0.65
+       , pt.cex = 1.2
+       , bty = "n"
+       , xjust = 0
+       , yjust = 0.5
+)
+par(fig = c(0,0.6,0.47,0.52), mar = c(0,4.1,0,2.1), new = TRUE)
+barplot(cbind(rep(1, 9))
+        , beside = TRUE
+        , xlab = ""
+        , xaxt = "n"
+        , yaxt = "n"
+        , col = c(rep("green",5),rep("darkgreen",5))
+        , space = c(0,0,0,0,0,1,0,0,0,0)
+        , border = c(rep("green",5),rep("darkgreen",5))
+)
+colnames(taxasum.Star.Nereoonly)
+par(fig = c(0.55,1,0.4,1), mar = c(5.1,4.1,1,2.1), new =TRUE)
+barplot(as.matrix(taxasum.Star.Nereoonly)
+        , col = colorLegend.Star[,1]
+        , las = 2
+        , space = c(0,0,0,0,1,0,0,0)
+        , border = FALSE
+        , xaxt = "n"
+        , ylab = "REMOTE SAMPLES"
+)
+axis(side = 1
+     , las = 1
+     , at = c(2,8)
+     , labels = c("INNER FOREST","OUTER FOREST")
+     , tick = FALSE
+     , line = -1
+     , cex.axis = 0.6
+)
+dev.off()
+
+
+
 
 ############## *********PLOT DESEQ********* ################
 # are fc, sig, and stat still the same?
@@ -1137,7 +1100,7 @@ deseq.stat.names <- deseq.stat
 listNamesTemp <- c()
 for (r in 1:nrow(deseq.fc.names)) {
   tempName <- rownames(deseq.fc.names)[r]
-  tempName <- strsplit(tempName, split = ";__", fixed = TRUE)
+  tempName <- strsplit(tempName, split = paste0(delimiter), fixed = TRUE)
   newName <- paste0(tempName[[1]][3], ": ", tempName[[1]][5],"_",tempName[[1]][6])
   if (newName == "NA: NA_NA"){
     newName <- "Unidentified"
@@ -1184,20 +1147,9 @@ deseq.sig.filter.Water <- deseq.sig.filter[,unlist(lapply(c("Nereo.water","Mast.
 deseq.stat.filter.ExN <- deseq.stat.filter[,unlist(lapply(c("Nereo.ExN","Mast.ExN","NereoMast.ExN"), function(x) grep(paste0("^",x,"$"), colnames(deseq.stat.filter))))]
 deseq.stat.filter.Water <- deseq.stat.filter[,unlist(lapply(c("Nereo.water","Mast.water","NereoMast.water"), function(x) grep(paste0("^",x,"$"), colnames(deseq.stat.filter))))]
 
-# GET COLORS
-# colorGrad <- colorRange(absMax*10*2+1)
-# colorRef <- cbind(seq(-absMax, absMax, 0.1), colorGrad)
-
 deseq.fc.Water.color <- deseq.fc.filter.Water
 deseq.sig.Water.color <- deseq.sig.filter.Water
 deseq.stat.Water.color <- deseq.stat.filter.Water
-
-# for (r in 1:nrow(deseq.fc.Water.color)) {
-#   for (c in 1:ncol(deseq.fc.Water.color)) {
-#     tempN <- round(deseq.fc.Water.color[r,c],1)
-#     deseq.fc.Water.color[r,c] <- tempN
-#   }
-# }
 
 
 # Sort OTUs manually!
@@ -1338,18 +1290,6 @@ text(x = -0.45, y = c(-0.44,-0.5)
      , pos = 1
      , cex = 0.8
      , xpd = "n")
-# legend(x = -1.05, y = 1.16
-#        , cex = 2
-#        , legend = ""
-#        , pch = 22
-#        , col = "black"
-#        , pt.bg = "white"
-#        , bty = "n")
-# text(x = -1.0, y = 1
-#      , labels = c("<3% Abundant")
-#      , adj = c(0.4,3.2)
-#      , cex = 0.8
-#      , xpd = "n"
-#      )
+
 dev.off()
 

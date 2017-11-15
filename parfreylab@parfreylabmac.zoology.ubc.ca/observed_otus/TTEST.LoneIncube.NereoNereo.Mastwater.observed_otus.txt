@@ -1,0 +1,12 @@
+
+	Welch Two Sample t-test
+
+data:  get(paste0("MF.LoneIncube.", group1))[, paste0(i)] and get(paste0("MF.LoneIncube.", group2))[, paste0(i)]
+t = 2.5646, df = 5.1794, p-value = 0.04874
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+  0.3199738 79.5400262
+sample estimates:
+mean of x mean of y 
+   158.75    118.82 
+

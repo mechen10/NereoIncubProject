@@ -1,0 +1,9 @@
+Anova Table (Type III tests)
+
+Response: MF.LoneIncube[, paste0(i)]
+                      Sum Sq Df F value    Pr(>F)    
+(Intercept)          1018.70  1 600.930 6.708e-13 ***
+MF.LoneIncube$ColRep  120.22  3  23.639 9.622e-06 ***
+Residuals              23.73 14                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

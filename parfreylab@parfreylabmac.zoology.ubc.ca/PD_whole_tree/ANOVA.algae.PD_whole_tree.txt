@@ -1,0 +1,8 @@
+Analysis of Variance Table
+
+Response: get(i)
+          Df Sum Sq Mean Sq F value    Pr(>F)    
+newFactor  2 257.42 128.710  26.918 1.866e-09 ***
+Residuals 72 344.27   4.782                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

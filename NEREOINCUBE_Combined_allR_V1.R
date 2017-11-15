@@ -102,62 +102,74 @@ MF.LoneIncube <- MF.filtered[grep("Loneincube", rownames(MF.filtered)),]
 alphaListFiles.ExN <- list()
 for (i in alphaList) {
   tempI <- gsub("_even_1000_alpha","", i)
-  alphaListFiles.ExN[[paste0(tempI)]] <- c()
-  ######## STATS ########
-
-  ExN.lm <- lm(MF.ExN[,paste0(i)] ~ MF.ExN$ColRep)
-  anova.ExN.lm <- Anova(ExN.lm, type = 'III') # OVERALL
-  assign(paste0("ANOVA.ExN.overall.",tempI,".all"), anova.ExN.lm)
-  alphaListFiles.ExN[[paste0(tempI)]] <- c(alphaListFiles.ExN[[paste0(tempI)]], paste0("ANOVA.ExN.overall.",tempI,".all"))
+  alphaListFiles.ExN[[paste0(tempI)]] <- list()
+  system(paste0("mkdir ALPHAPLOTS/",tempI))
   
+  ######## STATS ########
+  # OVERALL
+  alphaListFiles.ExN[[paste0(tempI)]][["Overall"]] <- list()
+  alphaListFiles.ExN[[paste0(tempI)]][["Overall"]][["lm"]] <- lm(MF.ExN[,paste0(i)] ~ MF.ExN$ColRep)
+  alphaListFiles.ExN[[paste0(tempI)]][["Overall"]][["Anova"]] <- Anova(ExN.lm, type='III')
+  # ExN.lm <- lm(MF.ExN[,paste0(i)] ~ MF.ExN$ColRep)
+  # anova.ExN.lm <- Anova(ExN.lm, type = 'III') # OVERALL
+  # assign(paste0("ANOVA.ExN.overall.",tempI,".all"), anova.ExN.lm)
+  # alphaListFiles.ExN[[paste0(tempI)]] <- c(alphaListFiles.ExN[[paste0(tempI)]], paste0("ANOVA.ExN.overall.",tempI,".all"))
+  # 
+
+  ## ExN
+  alphaListFiles.ExN[[paste0(tempI)]][["ExN"]]
   alltreatments <- c("ExN","Nereo","Mast","NereoMast")
+  alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["MFindividual"]] <- list()
   for (AT in alltreatments) {
-    assign(paste0("MF.ExN.",AT,"ExN"), MF.ExN[grep(paste0(AT), MF.ExN$ColRep),])
+      alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["MFindividual"]][[paste0(AT)]] <- MF.ExN[grep(paste0(AT), MF.ExN$ColRep),]
+    # assign(paste0("MF.ExN.",AT,"ExN"), MF.ExN[grep(paste0(AT), MF.ExN$ColRep),])
   }
   
   allcomparisons <- cbind(c("ExN","ExN","ExN","Nereo","Nereo","Mast")
                           , c("Nereo","Mast","NereoMast","Mast","NereoMast","NereoMast"))
-  INDIVTtest <- c()
+  # INDIVTtest <- c()
+  alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["ttestIndivRaw"]] <- list()
   for (AC in 1:nrow(allcomparisons)) {
     group1 <- allcomparisons[AC,1]
     group2 <- allcomparisons[AC,2]
-    assign(paste0("TTEST.ExN.",group1,".",group2,".",tempI), t.test(get(paste0("MF.ExN.",group1,"ExN"))[,paste0(i)],get(paste0("MF.ExN.",group2,"ExN"))[,paste0(i)]))
-    alphaListFiles.ExN[[paste0(tempI)]] <- c(alphaListFiles.ExN[[paste0(tempI)]], paste0("TTEST.ExN.",group1,".",group2,".",tempI))
-    INDIVTtest <- c(INDIVTtest, paste0("TTEST.ExN.",group1,".",group2,".",tempI))
+    alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["ttestIndivRaw"]][[paste0(group1,".",group2)]] <- t.test(alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["MFindividual"]][[paste0(group1)]][,paste0(i)], alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["MFindividual"]][[paste0(group2)]][,paste0(i)])
+    # assign(paste0("TTEST.ExN.",group1,".",group2,".",tempI), t.test(get(paste0("MF.ExN.",group1,"ExN"))[,paste0(i)],get(paste0("MF.ExN.",group2,"ExN"))[,paste0(i)]))
+    # alphaListFiles.ExN[[paste0(tempI)]] <- c(alphaListFiles.ExN[[paste0(tempI)]], paste0("TTEST.ExN.",group1,".",group2,".",tempI))
+    # INDIVTtest <- c(INDIVTtest, paste0("TTEST.ExN.",group1,".",group2,".",tempI))
   }
   
   allPvalues.ExN <- c()
-  for (test in INDIVTtest) {
-    ptemp <- get(test)$p.value
-    ttemp <- round(get(test)$statistic,2)
-    dftemp <- round(get(test)$parameter, 2)
-    toPaste <- paste0("(t=",ttemp,", df=",dftemp,")")
-    allPvalues.ExN <- rbind(allPvalues.ExN, c(ptemp, toPaste))
+  for (test in alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["ttestIndivRaw"]]) {
+    ptemp <- test$p.value
+    ttemp <- round(test$statistic,2)
+    dftemp <- round(test$parameter, 2)
+    toPaste <- paste0("$t_{",dftemp,"}$=",ttemp)
+    allPvalues.ExN <- rbind(allPvalues.ExN, c(ptemp, toPaste, signif(p.adjust(ptemp, method = "fdr", n = length(alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["ttestIndivRaw"]])))))
   }
-  allPvalues.ExN <- cbind(signif(as.numeric(allPvalues.ExN[,1]),3)
-                          , allPvalues.ExN[,2]
-                          , c(signif(p.adjust(allPvalues.ExN[1:3,1], method = "fdr", n = 3),3)
-                              ,signif(p.adjust(allPvalues.ExN[4:6,1], method = "fdr", n = 3),3) ))
+  # allPvalues.ExN <- cbind(signif(as.numeric(allPvalues.ExN[,1]),3)
+  #                         , allPvalues.ExN[,2]
+  #                         , c(signif(p.adjust(allPvalues.ExN[1:3,1], method = "fdr", n = 3),3)
+  #                             ,signif(p.adjust(allPvalues.ExN[4:6,1], method = "fdr", n = 3),3) ))
   
   rownames(allPvalues.ExN) <- sapply(1:nrow(allcomparisons), function(x) paste0(allcomparisons[x,1],"vs",paste0(allcomparisons[x,2])) )
   colnames(allPvalues.ExN) <- c("p","  ","FDR adj. p")
-  assign(paste0("allPvalues.ExN.",tempI), allPvalues.ExN)
-  
-  alphaListFiles.ExN[[paste0(tempI)]] <- c( alphaListFiles.ExN[[paste0(tempI)]], paste0("allPvalues.ExN.",tempI))
-  
+  alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["allPvalues.adjusted"]] <- allPvalues.ExN
+
+    # Print results
+  write.table(alphaListFiles.ExN[[paste0(tempI)]][["ExN"]][["allPvalues.adjusted"]],file=paste0("ALPHAPLOTS/",tempI,"/Alphadiversity_",tempI,".txt") , quote = FALSE, sep = "\t")
   #### ExN vs Everything else ##
-  
-  assign(paste0("TTEST.ExNvsEverythingelse.",tempI), t.test(MF.ExN.ExNExN[,paste0(i)], c(MF.ExN.NereoExN[,paste0(i)],MF.ExN.MastExN[,paste0(i)],MF.ExN.NereoMastExN[,paste0(i)])))
-  alphaListFiles.ExN[[paste0(tempI)]] <- c(alphaListFiles.ExN[[paste0(tempI)]], paste0("TTEST.ExNvsEverythingelse.",tempI))
-  
-  system(paste0("mkdir ALPHAPLOTS/",tempI,"/"))
-  
-  for (a in alphaListFiles.ExN[[paste0(tempI)]]) {
-    if (length(grep("ANOVA|TTEST", a)) > 0) {
-      capture.output(get(a), file = paste0("ALPHAPLOTS/",tempI,"/",a,".txt"))
-    }
-  }
-  
+  # 
+  # assign(paste0("TTEST.ExNvsEverythingelse.",tempI), t.test(MF.ExN.ExNExN[,paste0(i)], c(MF.ExN.NereoExN[,paste0(i)],MF.ExN.MastExN[,paste0(i)],MF.ExN.NereoMastExN[,paste0(i)])))
+  # alphaListFiles.ExN[[paste0(tempI)]] <- c(alphaListFiles.ExN[[paste0(tempI)]], paste0("TTEST.ExNvsEverythingelse.",tempI))
+  # 
+  # system(paste0("mkdir ALPHAPLOTS/",tempI,"/"))
+  # 
+  # for (a in alphaListFiles.ExN[[paste0(tempI)]]) {
+  #   if (length(grep("ANOVA|TTEST", a)) > 0) {
+  #     capture.output(get(a), file = paste0("ALPHAPLOTS/",tempI,"/",a,".txt"))
+  #   }
+  # }
+  # 
  
   
   ######## PLOTTING########
@@ -197,116 +209,158 @@ for (i in alphaList) {
   title(xlab = "Treatment", line = 8)
   dev.off()
   
+  # Print results
+  
+  
 }
 
 ######## *BETA* ##########
 
 betaListFiles.ExN <- list()
 for (b in betaList) {
+
   # Set metric
   metric <- b
+  system(paste0("mkdir BETAPLOTS/",metric))
   betaListFiles.ExN[[paste0(metric)]] <- c()
   dm.temp <- get(paste0("dm.",metric))
   
+  betaListFiles.ExN[[paste0(metric)]][["overall"]] <- list()
   # Make dm.filtered and NMDS
-  assign(paste0("dm.",metric,".ExN"), dm.temp[unlist(sapply(rownames(MF.ExN), function(x) {
-    grep(x, rownames(dm.temp))})),unlist(sapply(rownames(MF.ExN), function(x) {
-      grep(x, colnames(dm.temp))}))])
-  betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("dm.",metric,".ExN"))
+  betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]] <- dm.temp[unlist(sapply(rownames(MF.ExN), function(x) {
+      grep(x, rownames(dm.temp))})),unlist(sapply(rownames(MF.ExN), function(x) {
+          grep(x, colnames(dm.temp))}))]
+  # 
+  # assign(paste0("dm.",metric,".ExN"), dm.temp[unlist(sapply(rownames(MF.ExN), function(x) {
+  #   grep(x, rownames(dm.temp))})),unlist(sapply(rownames(MF.ExN), function(x) {
+  #     grep(x, colnames(dm.temp))}))])
+  # betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("dm.",metric,".ExN"))
+  
+  betaListFiles.ExN[[paste0(metric)]][["overall"]][["NMDS"]] <- isoMDS(as.matrix(betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]]), y = cmdscale(as.matrix(betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]]), 2))
 
-  assign(paste0("NMDS.",metric,".ExN")
-         , isoMDS(as.matrix(get(paste0("dm.",metric,".ExN"))), y = cmdscale(as.matrix(get(paste0("dm.",metric,".ExN"))), 2)))
-  betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("NMDS.",metric,".ExN"))
+  # assign(paste0("NMDS.",metric,".ExN")
+  #        , isoMDS(as.matrix(get(paste0("dm.",metric,".ExN"))), y = cmdscale(as.matrix(get(paste0("dm.",metric,".ExN"))), 2)))
+  # betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("NMDS.",metric,".ExN"))
   
   ###### STATS ##########
   # ExN
-  assign(paste0("PERMANOVA.overall.",metric,".ExN")
-         , adonis(get(paste0("dm.",metric,".ExN")) ~ ColRep, data = MF.ExN))
-  betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("PERMANOVA.overall.",metric,".ExN"))
+  # Overall
+  betaListFiles.ExN[[paste0(metric)]][["overall"]][["overallPERMANOVA"]] <- adonis(betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]] ~ ColRep, data = MF.ExN)
+  # assign(paste0("PERMANOVA.overall.",metric,".ExN")
+  #        , adonis(get(paste0("dm.",metric,".ExN")) ~ ColRep, data = MF.ExN))
+  # betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("PERMANOVA.overall.",metric,".ExN"))
+  # 
+  betaListFiles.ExN[[paste0(metric)]][["overall"]][["overallBETADISP"]] <- betadisper(dist(betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]]), group = MF.ExN$ColRep)
+  # 
+  # assign(paste0("betadisp.overall",metric,".ExN")
+  #        , betadisper(dist(get(paste0("dm.",metric,".ExN"))), group = MF.ExN$ColRep))
   
-  assign(paste0("betadisp.overall",metric,".ExN")
-         , betadisper(dist(get(paste0("dm.",metric,".ExN"))), group = MF.ExN$ColRep))
-  assign(paste0("PERMDISP.overall.",metric,".ExN")
-         , anova(get(paste0("betadisp.overall",metric,".ExN"))))
-  betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("PERMDISP.overall.",metric,".ExN"))
-  
+  betaListFiles.ExN[[paste0(metric)]][["overall"]][["overallPERMDISP"]] <-anova(betaListFiles.ExN[[paste0(metric)]][["overall"]][["overallBETADISP"]])
+  # assign(paste0("PERMDISP.overall.",metric,".ExN")
+  #        , anova(get(paste0("betadisp.overall",metric,".ExN"))))
+  # betaListFiles.ExN[[paste0(metric)]] <- c( betaListFiles.ExN[[paste0(metric)]], paste0("PERMDISP.overall.",metric,".ExN"))
+  # 
   # Treatment types
+  
+  # Pairwise
+  betaListFiles.ExN[[paste0(metric)]][["pairwise"]] <- list()
   treatTypes <- cbind(c("ExN.ExNvsNereo","ExN.ExNvsMast","ExN.ExNvsNereoMast","ExN.NereovsMast","ExN.NereovsNereoMast","ExN.MastvsNereoMast")
                       ,c("([.]ExN[.])|([.]Nereo[.])","([.]ExN[.])|([.]Mast[.])","([.]ExN[.])|([.]NereoMast[.])","([.]Nereo[.])|([.]Mast[.])","([.]Nereo[.])|([.]NereoMast[.])","([.]Mast[.])|([.]NereoMast[.])"))
   
+  betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivdm"]] <- list()
+  betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivMF"]] <- list()
+  betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMANOVA"]] <- list()
+  betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["BETADISP"]] <- list()
+  betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMDISP"]] <- list()
+  allPvalues.ExN <- matrix(nrow = nrow(treatTypes), ncol = 3)
   for (t in 1:nrow(treatTypes)) {
-    assign(paste0("dm.",treatTypes[t,1]), get(paste0("dm.",metric,".ExN"))[grep(treatTypes[t,2], rownames(get(paste0("dm.",metric,".ExN")))), grep(treatTypes[t,2], colnames(get(paste0("dm.",metric,".ExN"))))])
-    assign(paste0("MF.",treatTypes[t,1]), MF.ExN[grep(treatTypes[t,2], rownames(MF.ExN)),])
-    assign(paste0("PERMANOVA.",metric,".",treatTypes[t,1]), adonis(get(paste0("dm.",treatTypes[t,1])) ~ ColRep, data = get(paste0("MF.",treatTypes[t,1]))))
-    
-    assign(paste0("betadisp.",metric,".",treatTypes[t,1]), betadisper(dist(get(paste0("dm.",treatTypes[t,1]))), group = get(paste0("MF.",treatTypes[t,1]))[,'ColRep']))
-    assign(paste0("PERMDISP",".",treatTypes[t,1]), anova(get(paste0("betadisp.",metric,".",treatTypes[t,1]))))
-    
-    
-    betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]]
-                                         , paste0("dm.",treatTypes[t,1])
-                                         , paste0("MF.",treatTypes[t,1])
-                                         , paste0("PERMANOVA.",metric,".",treatTypes[t,1])
-                                         , paste0("PERMDISP",".",treatTypes[t,1]))
-    }
-  
-  IndivListTemp <- betaListFiles.ExN[[paste0(metric)]][grep(paste0("PERMANOVA.",metric), betaListFiles.ExN[[paste0(metric)]])]
-  allPValues.ExN <- matrix(nrow = length(IndivListTemp), ncol = 2)
-  rownames(allPValues.ExN) <- seq(1,length(IndivListTemp), by = 1)
-  colnames(allPValues.ExN) <- c("p"," ")
-  for (ILT in 1:length(IndivListTemp)) {
-    newName <- gsub(paste0("PERMANOVA.",metric,".ExN."), "", IndivListTemp[ILT])
-    rownames(allPValues.ExN)[ILT] <- newName
-    allPValues.ExN[ILT,1] <- get(IndivListTemp[ILT])$aov.tab[6]$`Pr(>F)`[1]
-    allPValues.ExN[ILT,2] <- paste0("(R^2=",round(get(IndivListTemp[ILT])$aov.tab[5]$R2[1],3),", F.model=",round(get(IndivListTemp[ILT])$aov.tab[4]$F.Model[1],3),", df="
-                                  ,get(IndivListTemp[ILT])$aov.tab$Df[1],","
-                                  ,get(IndivListTemp[ILT])$aov.tab$Df[3],")")
-    
+      betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivdm"]][[paste0(treatTypes[t,1])]] <- betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]][grep(treatTypes[t,2], rownames(betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]])), grep(treatTypes[t,2], colnames(betaListFiles.ExN[[paste0(metric)]][["overall"]][["dm"]]))]
+      betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivMF"]][[paste0(treatTypes[t,1])]] <- MF.ExN[grep(treatTypes[t,2], rownames(MF.ExN)),]
+      #   assign(paste0("dm.",treatTypes[t,1]), get(paste0("dm.",metric,".ExN"))[grep(treatTypes[t,2], rownames(get(paste0("dm.",metric,".ExN")))), grep(treatTypes[t,2], colnames(get(paste0("dm.",metric,".ExN"))))])
+    # assign(paste0("MF.",treatTypes[t,1]), MF.ExN[grep(treatTypes[t,2], rownames(MF.ExN)),])
+      betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMANOVA"]][[treatTypes[t,1]]] <- adonis(betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivdm"]][[paste0(treatTypes[t,1])]] ~ ColRep, data = betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivMF"]][[paste0(treatTypes[t,1])]])
+    # assign(paste0("PERMANOVA.",metric,".",treatTypes[t,1]), adonis(get(paste0("dm.",treatTypes[t,1])) ~ ColRep, data = get(paste0("MF.",treatTypes[t,1]))))
+      betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["BETADISP"]][[treatTypes[t,1]]] <- betadisper(dist(betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivdm"]][[paste0(treatTypes[t,1])]]), group = betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["indivMF"]][[paste0(treatTypes[t,1])]][,'ColRep'])
+    # assign(paste0("betadisp.",metric,".",treatTypes[t,1]), betadisper(dist(get(paste0("dm.",treatTypes[t,1]))), group = get(paste0("MF.",treatTypes[t,1]))[,'ColRep']))
+      betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMDISP"]][[treatTypes[t,1]]] <- anova(betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["BETADISP"]][[treatTypes[t,1]]])
+      # assign(paste0("PERMDISP",".",treatTypes[t,1]), anova(get(paste0("betadisp.",metric,".",treatTypes[t,1]))))
+      pvalue <- signif(betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMANOVA"]][[treatTypes[t,1]]][["aov.tab"]][1,"Pr(>F)"],3)
+      R2 <- betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMANOVA"]][[treatTypes[t,1]]][["aov.tab"]][1,"R2"]
+      Fmodel <- betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMANOVA"]][[treatTypes[t,1]]][["aov.tab"]][1,"F.Model"]
+      df <- betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["PERMANOVA"]][[treatTypes[t,1]]][["aov.tab"]][c(1,3),"Df"]
+      toPaste <- paste0("$R^2$=",signif(R2,3),", $F.model_{",df[1],",",df[2],"}$=",signif(Fmodel,3))
+      allPvalues.ExN[t,] <- c(pvalue, toPaste, p.adjust(pvalue,method="fdr",n=nrow(treatTypes)))
+    #   
+    # betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]]
+    #                                      , paste0("dm.",treatTypes[t,1])
+    #                                      , paste0("MF.",treatTypes[t,1])
+    #                                      , paste0("PERMANOVA.",metric,".",treatTypes[t,1])
+    #                                      , paste0("PERMDISP",".",treatTypes[t,1]))
   }
-  allPValues.ExN <- cbind(allPValues.ExN
-                          , c(p.adjust(allPValues.ExN[1:3,1],method = "fdr", n = 3)
-                              , p.adjust(allPValues.ExN[4:6,1],method = "fdr", n = 3)))
-  colnames(allPValues.ExN) <- c("p"," ","fdr_adj")
-  assign(paste0("allPValues.ExN.",metric), allPValues.ExN)
   
-  betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],paste0("allPValues.ExN.",metric))
+  betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["pvaluesummary"]] <- allPvalues.ExN
   
+  # Print out
+  
+  write.table(betaListFiles.ExN[[paste0(metric)]][["pairwise"]][["pvaluesummary"]], file=paste0("BETAPLOTS/",metric,"/Permanova_",metric,".txt"))
+  # 
+  # IndivListTemp <- betaListFiles.ExN[[paste0(metric)]][grep(paste0("PERMANOVA.",metric), betaListFiles.ExN[[paste0(metric)]])]
+  # allPValues.ExN <- matrix(nrow = length(IndivListTemp), ncol = 2)
+  # rownames(allPValues.ExN) <- seq(1,length(IndivListTemp), by = 1)
+  # colnames(allPValues.ExN) <- c("p"," ")
+  # for (ILT in 1:length(IndivListTemp)) {
+  #   newName <- gsub(paste0("PERMANOVA.",metric,".ExN."), "", IndivListTemp[ILT])
+  #   rownames(allPValues.ExN)[ILT] <- newName
+  #   allPValues.ExN[ILT,1] <- get(IndivListTemp[ILT])$aov.tab[6]$`Pr(>F)`[1]
+  #   allPValues.ExN[ILT,2] <- paste0("(R^2=",round(get(IndivListTemp[ILT])$aov.tab[5]$R2[1],3),", F.model=",round(get(IndivListTemp[ILT])$aov.tab[4]$F.Model[1],3),", df="
+  #                                 ,get(IndivListTemp[ILT])$aov.tab$Df[1],","
+  #                                 ,get(IndivListTemp[ILT])$aov.tab$Df[3],")")
+  #   
+  # }
+  # allPValues.ExN <- cbind(allPValues.ExN
+  #                         , c(p.adjust(allPValues.ExN[1:3,1],method = "fdr", n = 3)
+  #                             , p.adjust(allPValues.ExN[4:6,1],method = "fdr", n = 3)))
+  # colnames(allPValues.ExN) <- c("p"," ","fdr_adj")
+  # assign(paste0("allPValues.ExN.",metric), allPValues.ExN)
+  # 
+  # betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],paste0("allPValues.ExN.",metric))
+  # 
   # ExN to others
-  dm.ExN.ExNvsEverything <- get(paste0("dm.",metric,".ExN"))
-  MF.ExN.ExNvsEverything <- MF.ExN
-  MF.ExN.ExNvsEverything$EXNCOMPARE <- ""
-  for (i in 1:length(MF.ExN.ExNvsEverything$ColRep)) {
-    if (MF.ExN.ExNvsEverything[i,"ColRep"] != "NereotestExNExN") {
-      MF.ExN.ExNvsEverything[i,"EXNCOMPARE"] <- "OTHER"
-    } else {
-      MF.ExN.ExNvsEverything[i,"EXNCOMPARE"] <- "ExN"
-    }
-  }
-  assign(paste0("PERMANOVA.",metric,".ExN.ExNvsEverything"), adonis(dm.ExN.ExNvsEverything ~ EXNCOMPARE, data = MF.ExN.ExNvsEverything))
-  assign(paste0("betadisp.",metric,".ExN.ExNvsEverything"), betadisper(dist(dm.ExN.ExNvsEverything), group = MF.ExN.ExNvsEverything$EXNCOMPARE))
-  assign(paste0("PERMDISP.",metric,".ExN.ExNvsEverything"), anova(get(paste0("betadisp.",metric,".ExN.ExNvsEverything"))))
-  
-  betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],c(paste0("PERMANOVA.",metric,".ExN.ExNvsEverything"),paste0("PERMDISP.",metric,".ExN.ExNvsEverything")))
-  
-  # PERMANOVA of 'OTHER'
-  MF.ExN.EverythingElse <- MF.ExN.ExNvsEverything[MF.ExN.ExNvsEverything$EXNCOMPARE == "OTHER",]
-  dm.ExN.EverythingElse <- dm.ExN.ExNvsEverything[match(rownames(MF.ExN.EverythingElse),rownames(dm.ExN.ExNvsEverything)),match(rownames(MF.ExN.EverythingElse),colnames(dm.ExN.ExNvsEverything))]
-  assign(paste0("PERMANOVA.ExN.everythingelse.",metric), adonis(dm.ExN.EverythingElse ~ Treatment,data = MF.ExN.EverythingElse))
-  assign(paste0("PERMDISP.ExN.everythingelse.",metric), anova(betadisper(dist(dm.ExN.EverythingElse), group = MF.ExN.EverythingElse$Treatment)))
-  
-  betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],c(paste0("PERMANOVA.ExN.everythingelse.",metric),paste0("PERMDISP.ExN.everythingelse.",metric)))
-  
-  
-  # Now print everything
-  system(paste0("mkdir ./BETAPLOTS/",metric,"/"))
-  
-  for (n in betaListFiles.ExN[[paste0(metric)]]) {
-    if (length(grep("PERMANOVA|PERMDISP", paste0(n))) == 1) {
-      capture.output(get(paste0(n)), file = paste0("./BETAPLOTS/",metric,"/",n,".txt"))
-      
-    }
-  }
-  
+  # dm.ExN.ExNvsEverything <- get(paste0("dm.",metric,".ExN"))
+  # MF.ExN.ExNvsEverything <- MF.ExN
+  # MF.ExN.ExNvsEverything$EXNCOMPARE <- ""
+  # for (i in 1:length(MF.ExN.ExNvsEverything$ColRep)) {
+  #   if (MF.ExN.ExNvsEverything[i,"ColRep"] != "NereotestExNExN") {
+  #     MF.ExN.ExNvsEverything[i,"EXNCOMPARE"] <- "OTHER"
+  #   } else {
+  #     MF.ExN.ExNvsEverything[i,"EXNCOMPARE"] <- "ExN"
+  #   }
+  # }
+  # assign(paste0("PERMANOVA.",metric,".ExN.ExNvsEverything"), adonis(dm.ExN.ExNvsEverything ~ EXNCOMPARE, data = MF.ExN.ExNvsEverything))
+  # assign(paste0("betadisp.",metric,".ExN.ExNvsEverything"), betadisper(dist(dm.ExN.ExNvsEverything), group = MF.ExN.ExNvsEverything$EXNCOMPARE))
+  # assign(paste0("PERMDISP.",metric,".ExN.ExNvsEverything"), anova(get(paste0("betadisp.",metric,".ExN.ExNvsEverything"))))
+  # 
+  # betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],c(paste0("PERMANOVA.",metric,".ExN.ExNvsEverything"),paste0("PERMDISP.",metric,".ExN.ExNvsEverything")))
+  # 
+  # # PERMANOVA of 'OTHER'
+  # MF.ExN.EverythingElse <- MF.ExN.ExNvsEverything[MF.ExN.ExNvsEverything$EXNCOMPARE == "OTHER",]
+  # dm.ExN.EverythingElse <- dm.ExN.ExNvsEverything[match(rownames(MF.ExN.EverythingElse),rownames(dm.ExN.ExNvsEverything)),match(rownames(MF.ExN.EverythingElse),colnames(dm.ExN.ExNvsEverything))]
+  # assign(paste0("PERMANOVA.ExN.everythingelse.",metric), adonis(dm.ExN.EverythingElse ~ Treatment,data = MF.ExN.EverythingElse))
+  # assign(paste0("PERMDISP.ExN.everythingelse.",metric), anova(betadisper(dist(dm.ExN.EverythingElse), group = MF.ExN.EverythingElse$Treatment)))
+  # 
+  # betaListFiles.ExN[[paste0(metric)]] <- c(betaListFiles.ExN[[paste0(metric)]],c(paste0("PERMANOVA.ExN.everythingelse.",metric),paste0("PERMDISP.ExN.everythingelse.",metric)))
+  # 
+  # 
+  # # Now print everything
+  # system(paste0("mkdir ./BETAPLOTS/",metric,"/"))
+  # 
+  # for (n in betaListFiles.ExN[[paste0(metric)]]) {
+  #   if (length(grep("PERMANOVA|PERMDISP", paste0(n))) == 1) {
+  #     capture.output(get(paste0(n)), file = paste0("./BETAPLOTS/",metric,"/",n,".txt"))
+  #     
+  #   }
+  # }
+  # 
   ####### PLOT ############
   # EXN UWUF
   MF.ExN$ColRep <- factor(MF.ExN$ColRep, levels = c('NereotestExNExN','NereotestNereoExN','NereotestMastExN','NereotestNereoMastExN'))
@@ -316,7 +370,7 @@ for (b in betaList) {
   listChulls <- c("ExN","Nereo","Mast","NereoMast")
   plot.listChulls <- list()
   for ( LCH in listChulls) {
-    assign(paste0("NMDS.",metric,".ExN.",LCH), get(paste0("NMDS.",metric,".ExN"))$points[grep(paste0(".",LCH,"."), rownames(get(paste0("NMDS.",metric,".ExN"))$points), fixed = TRUE),])
+    assign(paste0("NMDS.",metric,".ExN.",LCH), betaListFiles.ExN[[paste0(metric)]][["overall"]][["NMDS"]]$points[grep(paste0(".",LCH,"."), rownames(betaListFiles.ExN[[paste0(metric)]][["overall"]][["NMDS"]]$points), fixed = TRUE),])
     assign(paste0("NMDS.",metric,".ExN.", LCH,".chull"), chull(get(paste0("NMDS.",metric,".ExN.",LCH))))
     assign(paste0("NMDS.",metric,".ExN.", LCH,".chull"), c(get(paste0("NMDS.",metric,".ExN.", LCH,".chull")), get(paste0("NMDS.",metric,".ExN.", LCH,".chull"))[1]))
     plot.listChulls[[LCH]]<- list(NMDS = get(paste0("NMDS.",metric,".ExN.",LCH))
@@ -325,11 +379,11 @@ for (b in betaList) {
 
   pdf(paste0("./BETAPLOTS/",metric,"/NMDS_",metric,"_ExN.pdf"), width = 10, height = 7, pointsize = 14)
   par(fig = c(0,0.7,0,1))
-  plot(get(paste0("NMDS.",metric,".ExN"))$points
+  plot(betaListFiles.ExN[[paste0(metric)]][["overall"]][["NMDS"]]$points
        , main = "NMDS of Nereo Meristem Swabs"
        , pch = 19
        , col = ExNColours[factor(MF.ExN$ColRep)]
-       , sub = paste0("Stress: ",round(get(paste0("NMDS.",metric,".ExN"))$stress/100,2))
+       , sub = paste0("Stress: ",round(betaListFiles.ExN[[paste0(metric)]][["overall"]][["NMDS"]]$stress/100,2))
        , xlab = "NMDS 1"
        , ylab = "NMDS 2"
        , cex = 2
@@ -471,6 +525,7 @@ for (b in betaList) {
   dm.temp <- get(paste0("dm.",metric))
   
   # Make dm.filtered and NMDS
+  
   assign(paste0("dm.",metric,".ExNWater"), dm.temp[unlist(sapply(rownames(MF.ExNWater), function(x) {
     grep(x, rownames(dm.temp))})),unlist(sapply(rownames(MF.ExNWater), function(x) {
       grep(x, colnames(dm.temp))}))])
@@ -1079,26 +1134,8 @@ for (b in betaList) {
   
 }
 
-############ ****Lab vs wild**** #############
-MF.nereoonly <- MF[grep("Lab|Brockton",MF$Site),]
-MF.nereoonly <- MF.nereoonly[-grep("Mast|Water",MF$SubstrateType)]
-labvswild <- list()
-labvswild[["alphadiv"]] <- list()
-for (i in alphaList) {
-    lmCompare <- lm(MF.nereoonly[,i] ~ MF.nereoonly$Site*MF.nereoonly$SubstrateType)
-    anova.lm  <- anova(lmCompare)
-    labvswild[["alphadiv"]][[paste0(i)]] <-anova.lm
-    capture.output(anova.lm, file = paste0("ALPHAPLOTS/labvswild_",i,".txt"))
-}
 
-dm.BC.temp <- dm.BC[rownames(MF.nereoonly), rownames(MF.nereoonly)]
-labvswild[["betadiv"]] <- list()
-for (b in betaList) {
-    dm.temp <- get(paste0("dm.",b))[rownames(MF.nereoonly), rownames(MF.nereoonly)]
-    adonisbeta <- adonis(dm.temp ~ Site*SubstrateType, data=MF.nereoonly)
-    labvswild[["betadiv"]][[paste0(b)]] <- adonisbeta
-    capture.output(adonisbeta, file = paste0("BETAPLOTS/labvswild_",b,".txt"))
-}
+
 
 ############ ****COMBINE ALL P-VALUES**** #############
 # CHOSEN COMBO:
@@ -1554,6 +1591,7 @@ for (b in betaList) {
   
   
 }
+
 
 
 ###### MERGE ##########

@@ -1,0 +1,12 @@
+
+	Welch Two Sample t-test
+
+data:  get(paste0("MF.ExNWater.", group1, "Water"))[, paste0(i)] and get(paste0("MF.ExNWater.", group2, "Water"))[, paste0(i)]
+t = -8.2951, df = 7.3784, p-value = 5.37e-05
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -147.3953  -82.5283
+sample estimates:
+mean of x mean of y 
+ 258.8162  373.7780 
+

@@ -23,8 +23,8 @@ alphaNames <- unlist(strsplit(alphaNamesTMP, split = ","))
 # MFPWD <- "/Users/parfreylab/Desktop/personal_files/melissa/ForBotanyCluster/zz_NEREOINCUBE_16may2017/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 # alphaNames <- c("chao1","PD_whole_tree","observed_otus")
 
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis")
-MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis")
+MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 alphaNames <-  'chao1_even_1000_alpha,PD_whole_tree_even_1000_alpha,observed_otus_even_1000_alpha'
 alphaList <- unlist(strsplit(alphaNames, ","))
 
@@ -334,10 +334,10 @@ for (i in alphaList) {
   MF.LoneIncube.Alpha <- data.frame(MF.LoneIncube.Alpha
                                   , row.names = 1
   )
-  MF.LoneIncube.Alpha <- MF.LoneIncube.Alpha[sapply(c("Nereo"
-                                                  ,"Mast"
-                                                  ,"Nereo-Water"
-                                                  ,"Mast-Water"), function(x) {
+  MF.LoneIncube.Alpha <- MF.LoneIncube.Alpha[sapply(c("NereoNereo"
+                                                  ,"MastMast"
+                                                  ,"Nereowater"
+                                                  ,"Mastwater"), function(x) {
                                                     grep(x, rownames(MF.LoneIncube.Alpha))
                                                   }),]
   

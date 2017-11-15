@@ -1,0 +1,12 @@
+
+	Welch Two Sample t-test
+
+data:  MF.ExNWater.ExNWater[, paste0(i)] and c(MF.ExNWater.NereoWater[, paste0(i)], MF.ExNWater.MastWater[, MF.ExNWater.ExNWater[, paste0(i)] and     paste0(i)], MF.ExNWater.NereoMastWater[, paste0(i)])
+t = -5.525, df = 27.295, p-value = 7.196e-06
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -112.20962  -51.45889
+sample estimates:
+mean of x mean of y 
+ 258.8162  340.6505 
+

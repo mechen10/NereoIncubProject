@@ -1,0 +1,12 @@
+
+	Welch Two Sample t-test
+
+data:  get(paste0("MF.ExN.", group1, "ExN"))[, paste0(i)] and get(paste0("MF.ExN.", group2, "ExN"))[, paste0(i)]
+t = -0.76062, df = 10.86, p-value = 0.4631
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -97.70160  47.57576
+sample estimates:
+mean of x mean of y 
+ 244.0295  269.0924 
+

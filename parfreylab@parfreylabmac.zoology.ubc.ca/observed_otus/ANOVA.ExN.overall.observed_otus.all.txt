@@ -1,0 +1,9 @@
+Anova Table (Type III tests)
+
+Response: MF.ExN[, paste0(i)]
+              Sum Sq Df F value    Pr(>F)    
+(Intercept)    75031  1 66.7098 1.075e-06 ***
+MF.ExN$ColRep   3342  3  0.9905    0.4257    
+Residuals      15746 14                      
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

@@ -1,0 +1,12 @@
+
+	Welch Two Sample t-test
+
+data:  MF.ExN.ExNExN[, paste0(i)] and c(MF.ExN.NereoExN[, paste0(i)], MF.ExN.MastExN[, paste0(i)], MF.ExN.ExNExN[, paste0(i)] and     MF.ExN.NereoMastExN[, paste0(i)])
+t = -0.32006, df = 37.925, p-value = 0.7507
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ -23.97182  17.42702
+sample estimates:
+mean of x mean of y 
+ 141.3889  144.6613 
+
