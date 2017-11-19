@@ -48,11 +48,9 @@ depth = opt$depth
 ### For OTU level, just used OTU table in text format
 # biom convert -i OTUTable --to-tsv --header-key taxonomy -o OTU_Table_text.txt
 
-# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTULEVEL")
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL")
 
 OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m1000_sorted_L6.txt"
-# OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTU_MP_filt/OTU_Table_text.txt'
 MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 minthreshold <- 10
 category <- "ColRep"

@@ -10,14 +10,14 @@
 # /Users/melissachen/Documents/Masters/UNIVERSALCODE_git/Core_Analysis/OTUTraitsBetweenGroups.py -i /Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNWatervsNereotestNereoWater.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNWatervsNereotestMastWater.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNWatervsNereotestNereoMastWater.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNExNvsNereotestNereoExN.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNExNvsNereotestMastExN.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNExNvsNereotestNereoMastExN.txt -c log2FoldChange -o /Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/
 # /Users/melissachen/Documents/Masters/UNIVERSALCODE_git/Core_Analysis/OTUTraitsBetweenGroups.py -i /Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNWatervsNereotestNereoWater.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNWatervsNereotestMastWater.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNWatervsNereotestNereoMastWater.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNExNvsNereotestNereoExN.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNExNvsNereotestMastExN.txt,/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/RAW/NereotestExNExNvsNereotestNereoMastExN.txt -c pvalue -o /Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/
 
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/")
-logChangePWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/log2FoldChange.txt"
-pValPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/DESEQ/pvalue.txt"
+# setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/DESEQ/")
+# logChangePWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/DESEQ/log2FoldChange.txt"
+# pValPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/DESEQ/pvalue.txt"
 
 
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/GENUSLEVEL/")
-logChangePWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/GENUSLEVEL/log2FoldChange.txt"
-pValPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/1_analysis/GENUSLEVEL/pvalue.txt"
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL/")
+logChangePWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL/Comparison_across_treatments/log2FoldChange.txt"
+pValPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL/Comparison_across_treatments/pvalue.txt"
 
 #################### Load data #####################
 

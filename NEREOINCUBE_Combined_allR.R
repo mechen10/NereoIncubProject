@@ -1100,6 +1100,7 @@ for (b in betaList) {
     capture.output(adonisbeta, file = paste0("BETAPLOTS/labvswild_",b,".txt"))
 }
 
+
 ############ ****COMBINE ALL P-VALUES**** #############
 # CHOSEN COMBO:
 choseA <- "chao1"
