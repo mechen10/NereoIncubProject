@@ -515,7 +515,8 @@ legend("top"
       , col = rev(colorsToPlot.Loneincube)[1:10]
       , cex = 0.5
       , pt.cex = 1.2
-      , y.intersp = 1.5)
+      , y.intersp = 1.5
+      , bty = "n")
 
 dev.off()
 
@@ -609,7 +610,8 @@ legend("top"
        , pt.bg = rev(colorsToPlot.Water)[1:10]
        , col = rev(colorsToPlot.Water)[1:10]
        , cex = 0.5
-       , pt.cex = 1.2)
+       , pt.cex = 1.2
+       , bty = "n")
 dev.off()
 
 
@@ -702,7 +704,8 @@ legend("top"
        , pt.bg = rev(colorsToPlot.ExN)[1:10]
        , col = rev(colorsToPlot.ExN)[1:10]
        , cex = 0.5
-       , pt.cex = 1.2)
+       , pt.cex = 1.2
+       , bty = "n")
 
 dev.off()
 
@@ -798,7 +801,8 @@ legend("top"
        , pt.bg = rev(colorsToPlot.Environ)[1:10]
        , col = rev(colorsToPlot.Environ)[1:10]
        , cex = 0.5
-       , pt.cex = 1.2)
+       , pt.cex = 1.2
+       , bty = "n")
 dev.off()
 
 ############ Star #############
@@ -892,7 +896,8 @@ legend("top"
        , pt.bg = rev(colorsToPlot.Star)[1:10]
        , col = rev(colorsToPlot.Star)[1:10]
        , cex = 0.5
-       , pt.cex = 1.2)
+       , pt.cex = 1.2
+       , bty = "n")
 dev.off()
 
 ################ ALL PLOTS TOGETHER #################
