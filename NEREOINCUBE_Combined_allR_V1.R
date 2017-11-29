@@ -55,6 +55,7 @@ library("xtable")
 library("MASS")
 library("vegan")
 library("stats")
+library("nlme")
 # library("multcomp")
 set.seed(3)
 # Alpha div script
@@ -351,7 +352,8 @@ for (b in betaList) {
          , pch = 19
          , legend = c("NMF Alone","with Nereo","with Mast","with Nereo + Mast")#levels(MF.ExN$ColRep)
          , col = ExNColours
-         , cex = 1)
+         , cex = 1
+         , bty = "n")
   dev.off()
 
 }
@@ -611,7 +613,8 @@ for (b in betaList) {
          , pch = 19
          , legend = c("Water Only","NMF Alone","with Nereo","with Mast","with Nereo + Mast")#levels(MF.ExNWater$ColRep)
          , col = ExNWaterColours
-         , cex = 1)
+         , cex = 1
+         , bty = "n")
   dev.off()
   
 }
@@ -836,6 +839,8 @@ for (b in betaList) {
 ######### **** ALL ALGAE **** ###########
 # MF.algae <- MF[-grep("Starfish", MF$ColRep),]
 MF.algae <- MF
+## CUSTOM: Change starfish to single bar ##
+MF.algae[,"newAlphaColRep"] <- MF.algae[,"ColRep"]
 
 sortedGroups <- c("NereotestExNExN"
                   , "NereotestNereoExN"
@@ -881,11 +886,11 @@ newFactor <- c("Nereo"
 )
 orderList <- c()
 for (group in sortedGroups) {
-  orderList <- c(orderList, grep(paste0(group), MF.algae$ColRep))
+  orderList <- c(orderList, grep(paste0(group), MF.algae$newAlphaColRep))
 }
 MF.algae <- MF.algae[orderList,]
-MF.algae$ColRep <- factor(MF.algae$ColRep, levels = sortedGroups)
-MF.algae$newFactor <- newFactor[factor(MF.algae$ColRep)]
+MF.algae$newAlphaColRep <- factor(MF.algae$newAlphaColRep, levels = sortedGroups)
+MF.algae$newFactor <- newFactor[factor(MF.algae$newAlphaColRep)]
 MF.algae$newFactor <- factor(MF.algae$newFactor, levels = c("Nereo","Mast","Water"))
 capture.output(table(MF.algae$newFactor), file = "ALPHAPLOTS/algaecompare.reps.txt")
 
@@ -893,7 +898,7 @@ capture.output(table(MF.algae$newFactor), file = "ALPHAPLOTS/algaecompare.reps.t
 alphaListFiles.All <- list()
 for (i in alphaList) {
   tempI <- gsub("_even_1000_alpha", "", i)
-  MF.algae.filt <- MF.algae[,c(i, "ColRep", "newFactor")]
+  MF.algae.filt <- MF.algae[,c(i, "newAlphaColRep", "newFactor")]
   alphaListFiles.All[[paste0(tempI)]] <- c()
   
   ########### STATS ###########
@@ -946,20 +951,23 @@ for (i in alphaList) {
   algae.lm.anova <- anova(algae.lm)
   capture.output(algae.lm.anova, file=paste0("ALPHAPLOTS/",tempI,"/ANOVA_allcombined.txt"))
   
+  temp <- (MF.algae.filt[,"newAlphaColRep"])
+  newFactorList <- sortedGroups[-length(sortedGroups)]
+  temp <- factor(gsub("EnvironmentalStarfishOuterWater", "EnvironmentalStarfishInnerWater", temp), levels = newFactorList)
 
   ########### PLOT ############
   pdf(paste0("ALPHAPLOTS/",tempI,"/Alpha_algaecompare",tempI, ".pdf"), pointsize = 14)
   par(mar = c(8,5,4,4))
-  plot(MF.algae.filt[,paste0(i)]~ factor(MF.algae.filt[,"ColRep"])
+  plot(MF.algae.filt[,paste0(i)]~ factor(temp)
        , ylab = paste0("Alpha Diversity (",tempI,")")
        , xlab = NA
-       , col = c(rep("green", 4),"yellowgreen","darkgreen","darkolivegreen4","darkseagreen1","darkseagreen","purple","magenta","lightblue",rep("blue",4), rep("dodgerblue",2), rep("darkblue",4))
+       , col = c(rep("green", 4),"yellowgreen","darkgreen","darkolivegreen4","darkseagreen1","darkseagreen","purple","magenta","lightblue",rep("blue",4), rep("dodgerblue",2), rep("darkblue",1))
        , las = 2 
        , xaxt = "n"
-       , at = c(1,2,3,4,5,6,7,8,9,13,14,18,19,20,21,22,23,24,25,26))
+       , at = c(1,2,3,4,5,6,7,8,9,13,14,18,19,20,21,22,23,24,25))
   axis(side = 1
        , labels = c(expression("Nereo"),expression("Mast"), "Water")
-       , at = c(4,11,19)
+       , at = c(4,13,22)
        , las = 1
        , tick = FALSE
   )
@@ -1111,19 +1119,27 @@ MF.sitexsub <- MF[grep("Lab|Brockton",MF$Site),]
 MF.sitexsub <- MF.sitexsub[-grep("Water",MF.sitexsub$SubstrateType),]
 MF.sitexsub[,"TissueType"] <- gsub("ExN","Nereo", MF.sitexsub$SubstrateType)
 for (i in alphaList) {
-    lmCompare <- lm(MF.sitexsub[,i] ~ MF.sitexsub$Site*MF.sitexsub$TissueType)
+    lmCompare <- lm(MF.sitexsub[,paste(i)] ~ MF.sitexsub$TissueType*MF.sitexsub$Site)
     anova.lm  <- anova(lmCompare)
-    labvswild[["alphadiv"]][[paste0(i)]] <-anova.lm
+    # labvswild[["alphadiv"]][[paste0(i)]] <-anova.lm
     capture.output(anova.lm, file = paste0("ALPHAPLOTS/labvswild_sitexsub",i,".txt"))
 }
 
 dm.BC.temp <- dm.BC[rownames(MF.sitexsub), rownames(MF.sitexsub)]
-labvswild[["betadiv"]] <- list()
+# labvswild[["betadiv"]] <- list()
 for (b in betaList) {
     dm.temp <- get(paste0("dm.",b))[rownames(MF.sitexsub), rownames(MF.sitexsub)]
     adonisbeta <- adonis(dm.temp ~ Site*TissueType, data=MF.sitexsub)
     capture.output(adonisbeta, file = paste0("BETAPLOTS/labvswild_sitexsub",b,".txt"))
 }
+
+## Using mixed effects ONLY
+anova.alpha.lme <- anova(lme(chao1_even_1000_alpha ~ TissueType, random = ~1|Site, data = MF.sitexsub))
+capture.output(anova.alpha.lme, file = paste0("ALPHAPLOTS/labvswild_sitexsub_MixedEffects_chao1.txt"))
+
+dm.temp <- get(paste0("dm.BC"))[rownames(MF.sitexsub), rownames(MF.sitexsub)]
+adonismixedeffects <- adonis(dm.temp ~ TissueType, strata = MF.sitexsub$Site, data=MF.sitexsub)
+capture.output(adonismixedeffects, file = paste0("BETAPLOTS/labvswild_sitexsub_MixedEffects_BC.txt"))
 
 ######### ****** all nereo vs all mast ****** ##########
 MF.nm <- MF[grep("Lab|Brockton|Starfish",MF$Site),]

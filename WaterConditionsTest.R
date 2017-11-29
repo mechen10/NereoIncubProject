@@ -124,3 +124,39 @@ for (r in allResults) {
 }
 
 
+### Custom growth plot ###
+pdf("NMF_scatter_growth.pdf")
+plot(metadata$AreAfter ~metadata$AreaBefore
+     , xlab = "Area before"
+     , ylab = "Area after"
+)
+dev.off()
+
+pdf("NMF_growth_length.pdf")
+plot(metadata$LengthAfter ~metadata$LengthBefore
+     , xlab = "Length before"
+     , ylab = "Length after"
+)
+dev.off()
+
+pdf("NMF_growth_width.pdf")
+plot(metadata$WidthAfter ~metadata$WidthBefore
+     , xlab = "Width before"
+     , ylab = "Width after"
+)
+dev.off()
+# 
+# beforeall <- metadata[,c("WidthBefore","LengthBefore")]
+# afterall <- metadata[,c("WidthAfter","LengthAfter")]
+# 
+# 
+# 
+# quartz()
+# plot(NULL,NULL
+#      , xlim=c(min(beforeall, na.rm = TRUE),max(beforeall, na.rm=TRUE))
+#      , ylim=c(min(afterall, na.rm=TRUE),max(afterall,na.rm=TRUE))
+#      )
+# points(metadata$LengthAfter ~metadata$LengthBefore, col="orange")
+# points(metadata$WidthAfter ~ metadata$WidthBefore, col="blue")
+# 
+
