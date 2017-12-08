@@ -17,7 +17,7 @@
 
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL/")
 logChangePWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL/Comparison_across_treatments/log2FoldChange.txt"
-pValPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL/Comparison_across_treatments/pvalue.txt"
+pValPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL/Comparison_across_treatments/padj.txt"
 
 #################### Load data #####################
 

@@ -49,6 +49,8 @@ depth = opt$depth
 # biom convert -i OTUTable --to-tsv --header-key taxonomy -o OTU_Table_text.txt
 
 # OTU
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/")
+system("mkdir OTULEVEL")
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTULEVEL")
 OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTU_MP_filt/OTU_Table_text.txt'
 MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
@@ -64,6 +66,8 @@ groups <- unlist(strsplit(groups, split = ",", fixed = TRUE))
 delimiter <- "..__" # For OTU
 
 # GENUS
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/")
+system("mkdir GENUSLEVEL")
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL")
 OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m1000_sorted_L6.txt"
 MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
@@ -420,7 +424,7 @@ for (i in c(0.25,0.5,0.75,1)) {
 colAll <- unique(colAll)
 
 
-randomColors <- c(sample(c(colAll),nrow(deseq.fc)-1),"black")
+randomColors <- c(sample(c(colAll),nrow(deseq.fc)))
 
 colorLegend <- cbind(rownames(deseq.fc), c(randomColors))
 

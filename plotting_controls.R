@@ -2,9 +2,9 @@
 
 # This script plots the controls against all other samples
 library("MASS")
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/CONTROL_PLOTTING/")
-filepath <- c("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/CONTROL_PLOTTING/jackknife_beta")
-MFFP <- c("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/CONTROL_PLOTTING/Edited_MF.txt")
+setwd("~/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/CONTROL_PLOTTING/")
+filepath <- c("~/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/CONTROL_PLOTTING/jackknife_beta")
+MFFP <- c("~/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/CONTROL_PLOTTING/Edited_MF.txt")
 
 
 MF <- read.delim(paste0(MFFP), header=TRUE, stringsAsFactors=FALSE, row.names=1)
@@ -33,7 +33,13 @@ for ( m in c("bray_curtis","unweighted_unifrac","weighted_unifrac")) {
         , pch=c(22,21,21,22,22,21,21)[factor(MF$ConPlot)]
         , cex=c(2,1,1,2,2,1,1)[factor(MF$ConPlot)]
     )
+    
+    legend("topright", legend =c("Extraction Con","PCR Con 1", "PCR Con 2","","Nereo Meristem","Nereo Blade","Mastocarpus","Water")
+           , pch=c(22,22,22,NA,21,21,21,21)
+           , pt.bg=c("yellow","pink","purple",NA,NA,NA,NA,NA,NA)
+           , col=c("black","black","black",NA,"green","darkgreen","darkred","blue")
+           , bty="n"
+           )
     dev.off()
     
 }
-
