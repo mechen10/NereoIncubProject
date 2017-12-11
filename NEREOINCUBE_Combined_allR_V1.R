@@ -57,7 +57,7 @@ library("vegan")
 library("stats")
 library("nlme")
 # library("multcomp")
-set.seed(3)
+set.seed(101)
 # Alpha div script
 
 system("mkdir ALPHAPLOTS")
@@ -1076,7 +1076,7 @@ for (b in betaList) {
   plot(get(paste0("NMDS.",metric,".points"))
        , main = paste0("NMDS plot of all samples (",metric,")")
        , sub = paste0("Stress: ",round(get(paste0("NMDS.",metric))$stress/100,2))
-       , bg = colorsPlot[factor(MF.algae$ColRep)]
+       , bg = colorsPlot[factor(MF.algae$newAlphaColRep)]
        , col = "black"
        , pch = 21
        # , pch = pchPlot[factor(MF.all$ColRep)]
@@ -1129,7 +1129,7 @@ dm.BC.temp <- dm.BC[rownames(MF.sitexsub), rownames(MF.sitexsub)]
 # labvswild[["betadiv"]] <- list()
 for (b in betaList) {
     dm.temp <- get(paste0("dm.",b))[rownames(MF.sitexsub), rownames(MF.sitexsub)]
-    adonisbeta <- adonis(dm.temp ~ Site*TissueType, data=MF.sitexsub)
+    adonisbeta <- adonis(dm.temp ~ TissueType*Site, data=MF.sitexsub)
     capture.output(adonisbeta, file = paste0("BETAPLOTS/labvswild_sitexsub",b,".txt"))
 }
 

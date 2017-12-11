@@ -124,28 +124,32 @@ for (r in allResults) {
   capture.output(get(r), file = paste0("WATERCOND/",r,".txt"))
 }
 
+metadata.NMF <- metadata.Nereotest[metadata.Nereotest[,"Treatment"] != "H2O",]
 
 ### Custom growth plot ###
-pdf("NMF_scatter_growth.pdf")
-plot(metadata$AreAfter ~metadata$AreaBefore
-     , xlab = "Area before"
-     , ylab = "Area after"
+# Two-panel growth figure
+pdf("NMFgrowth_bygroup.pdf")
+par( mar = c(6.1,5.1,4.1,2.1))
+plot(metadata.NMF[,"Growth_in_cm"] ~ factor(metadata.NMF[,"Treatment"])
+     , las = 2
+     , ylab = ""
+     , xlab = ""
+     , pch = 21
 )
+title(ylab = expression("Growth in area (cm"^2*")") )
+title(xlab = "Treatment", line = 5)
 dev.off()
 
-pdf("NMF_growth_length.pdf")
-plot(metadata$LengthAfter ~metadata$LengthBefore
-     , xlab = "Length before"
-     , ylab = "Length after"
+pdf("NMFgrowth_linear.pdf")
+par( mar = c(6.1,5.1,4.1,2.1))
+plot(metadata.NMF$AreAfter ~metadata.NMF$AreaBefore
+     , xlab = ""
+     , ylab = ""
 )
+title(ylab = expression("Area After (cm"^2*")") )
+title(xlab = expression("Area Before (cm"^2*")"), line = 5)
 dev.off()
 
-pdf("NMF_growth_width.pdf")
-plot(metadata$WidthAfter ~metadata$WidthBefore
-     , xlab = "Width before"
-     , ylab = "Width after"
-)
-dev.off()
 # 
 # beforeall <- metadata[,c("WidthBefore","LengthBefore")]
 # afterall <- metadata[,c("WidthAfter","LengthAfter")]

@@ -325,6 +325,11 @@ write.table(deseq.sig, row.names = TRUE, col.names = NA, sep = "\t", file = "DES
 MF <- MF[(rownames(MF) %in% colnames(taxasum)),]
 taxasum <- taxasum[,(colnames(taxasum) %in% rownames(MF))]
 
+# Reorder taxasum 
+# Sort taxasum by alphabetical order
+taxasum <- taxasum[order(rownames(taxasum)),]
+rownames(taxasum)
+
 # Reorder
 MF <- MF[order(match(rownames(MF),colnames(taxasum))),]
 
@@ -355,7 +360,7 @@ MF.Star <- MF[rownames(MF) %in% colnames(taxasum.Star),]
 MF.Star <- MF.Star[order(match(rownames(MF.Star),colnames(taxasum.Star)))]
 ########## COLOURS ##########
 
-# Filter deseq based on whether it is abundant at 5% or more
+# Filter deseq based on whether it is abundant at 3% or more
 toDelete <- c()
 for (r in 1:nrow(deseq.fc)) {
   rowAbund <- taxasum[match(rownames(deseq.fc)[r], rownames(taxasum)),]
@@ -367,6 +372,18 @@ if (length(toDelete) > 0) {
   deseq.fc <- deseq.fc[-toDelete,]
   deseq.sig <- deseq.sig[-toDelete,]
   deseq.stat <- deseq.stat[-toDelete,]
+}
+
+# Filter taxasum based on whether it is 3% abundant or more
+toDelete <- c()
+for (r in 1:nrow(taxasum)) {
+    rowAbund <- taxasum[r,]
+    if (max(rowAbund) < 0.03) {
+        toDelete <- c(toDelete,r)
+    }
+}
+if (length(toDelete) > 0) {
+    toPlotNames <- rownames(taxasum)[-toDelete]
 }
 
 
@@ -424,9 +441,9 @@ for (i in c(0.25,0.5,0.75,1)) {
 colAll <- unique(colAll)
 
 
-randomColors <- c(sample(c(colAll),nrow(deseq.fc)))
+randomColors <- c(sample(c(colAll),length(toPlotNames)))
 
-colorLegend <- cbind(rownames(deseq.fc), c(randomColors))
+colorLegend <- cbind(toPlotNames, c(randomColors))
 
 
 
@@ -472,19 +489,54 @@ if (length(toDelete) > 0){
   rownames(colorLegend.Loneincube.LEGEND) <- rownames(colorLegend.Loneincube)[-toDelete]
 }
 
+### Get most abundant things
+toShowNames <- rownames(taxasum.Loneincube[tail(order(rowSums(taxasum.Loneincube)),10),])
+toShow.Loneincube <- sort(match(toShowNames, rownames(colorLegend.Loneincube.LEGEND)))
+
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.Loneincube.LEGEND)) {
   newName <- rownames(colorLegend.Loneincube.LEGEND)[r]
+  if (length(grep(";Other", newName)) > 0) {
+      newName <- gsub(";Other",";__Other",newName)
+  }
   if (length(grep("Unassigned",newName)) > 0) {
     newName <- "Unidentified"
   } else {
     newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
+    phyl <- newName[[1]][3]
+    gen <- newName[[1]][5]
+    spec <- newName[[1]][6]
+    if (is.na(spec)) {
+        spec <- "Unidentified"
+    }
+    if (is.na(gen)) {
+        gen <- "Unidentified"
+    }
+    if (is.na(phyl)) {
+        phyl <- "Other"
+    }
+    if (gen != spec) {
+        combo_name <- paste0(gen,"_",spec)
+    } else {
+        combo_name <- gen
+    }
+    if (phyl == "Other") {
+        phyl <- newName[[1]][2]
+        if (is.na(phyl)){
+            phyl <- "Other"
+        }
+        if (phyl == "Other") {
+            phyl <- newName[[1]][1]
+        }
+    }
+    newName <- paste0(phyl,": ",combo_name)
   }
   listNamesTemp <- c(listNamesTemp, newName)
 }
-rownames(colorLegend.Loneincube.LEGEND) <- make.names(listNamesTemp , unique = TRUE)
+rownames(colorLegend.Loneincube.LEGEND) <- gsub("..",": ",make.names(listNamesTemp , unique = TRUE), fixed = TRUE)
 colorsToPlot.Loneincube <- as.vector(colorLegend.Loneincube.LEGEND[,1])
+
+
 
 pdf( "./TAXASUMMARIES/LoneIncube.pdf", pointsize = 14)
 par(fig = c(0,0.65,0,1), mar = c(4,4,4,4))
@@ -513,10 +565,10 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.Loneincube.LEGEND))[1:10]
+       , legend = rev(rownames(colorLegend.Loneincube.LEGEND)[toShow.Loneincube])
       , pch = 22
-      , pt.bg = rev(colorsToPlot.Loneincube)[1:10]
-      , col = rev(colorsToPlot.Loneincube)[1:10]
+      , pt.bg = rev(colorsToPlot.Loneincube[toShow.Loneincube])
+      , col = rev(colorsToPlot.Loneincube[toShow.Loneincube])
       , cex = 0.5
       , pt.cex = 1.2
       , y.intersp = 1.5
@@ -567,18 +619,53 @@ if (length(toDelete) > 0){
   rownames(colorLegend.Water.LEGEND) <- rownames(colorLegend.Water)[-toDelete]
 }
 
+### Get most abundant things
+toShowNames <- rownames(taxasum.Water[tail(order(rowSums(taxasum.Water)),10),])
+toShow.Water <- sort(match(toShowNames, rownames(colorLegend.Water.LEGEND)))
+
+
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.Water.LEGEND)) {
   newName <- rownames(colorLegend.Water.LEGEND)[r]
+  if (length(grep(";Other", newName)) > 0) {
+      newName <- gsub(";Other",";__Other",newName)
+  }
+  
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
+      newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
+     phyl <- newName[[1]][3]
+      gen <- newName[[1]][5]
+     spec <- newName[[1]][6]
+     if (is.na(spec)) {
+         spec <- "Unidentified"
+     }
+     if (is.na(gen)) {
+         gen <- "Unidentified"
+     }
+     if (is.na(phyl)) {
+         phyl <- "Other"
+     }
+  if (gen != spec) {
+      combo_name <- paste0(gen,"_",spec)
+  } else {
+      combo_name <- gen
+  }
+     if (phyl == "Other") {
+         phyl <- newName[[1]][2]
+         if (is.na(phyl)){
+             phyl <- "Other"
+         }
+         if (phyl == "Other") {
+             phyl <- newName[[1]][1]
+         }
+     }   
+  newName <- paste0(phyl,": ",combo_name)
   }
   listNamesTemp <- c(listNamesTemp, newName)
 }
-rownames(colorLegend.Water.LEGEND)<- make.names(listNamesTemp, unique = TRUE)
+rownames(colorLegend.Water.LEGEND)<- gsub("..",": ",make.names(listNamesTemp, unique = TRUE), fixed = TRUE)
 
 colorsToPlot.Water <- as.vector(colorLegend.Water.LEGEND[,1])
 
@@ -609,10 +696,10 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.Water.LEGEND))[1:10]
+       , legend = rev(rownames(colorLegend.Water.LEGEND)[toShow.Water])
        , pch = 22
-       , pt.bg = rev(colorsToPlot.Water)[1:10]
-       , col = rev(colorsToPlot.Water)[1:10]
+       , pt.bg = rev(colorsToPlot.Water[toShow.Water])
+       , col = rev(colorsToPlot.Water[toShow.Water])
        , cex = 0.5
        , pt.cex = 1.2
        , bty = "n")
@@ -661,18 +748,54 @@ if (length(toDelete) > 0){
   rownames(colorLegend.ExN.LEGEND) <- rownames(colorLegend.ExN)[-toDelete]
 }
 
+### Get most abundant things
+toShowNames <- rownames(taxasum.ExN[tail(order(rowSums(taxasum.ExN)),10),])
+toShow.ExN <- sort(match(toShowNames, rownames(colorLegend.ExN.LEGEND)))
+
+
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.ExN.LEGEND)) {
   newName <- rownames(colorLegend.ExN.LEGEND)[r]
+  if (length(grep(";Other", newName)) > 0) {
+      newName <- gsub(";Other",";__Other",newName)
+  }
+  
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
+      newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
+      phyl <- newName[[1]][3]
+      gen <- newName[[1]][5]
+      spec <- newName[[1]][6]
+      if (is.na(spec)) {
+          spec <- "Unidentified"
+      }
+      if (is.na(gen)) {
+          gen <- "Unidentified"
+      }
+      if (is.na(phyl)) {
+          phyl <- "Other"
+      }
+      if (gen != spec) {
+          combo_name <- paste0(gen,"_",spec)
+      } else {
+          combo_name <- gen
+      }
+      if (phyl == "Other") {
+          phyl <- newName[[1]][2]
+          if (is.na(phyl)){
+              phyl <- "Other"
+          }
+          if (phyl == "Other") {
+              phyl <- newName[[1]][1]
+          }
+      }
+      newName <- paste0(phyl,": ",combo_name)
+      
   }
   listNamesTemp <- c(listNamesTemp, newName)
 }
-rownames(colorLegend.ExN.LEGEND) <- make.names(listNamesTemp, unique = TRUE)
+rownames(colorLegend.ExN.LEGEND) <- gsub("..",": ",make.names(listNamesTemp, unique = TRUE), fixed = TRUE)
 
 colorsToPlot.ExN <- as.vector(colorLegend.ExN.LEGEND[,1])
 
@@ -703,10 +826,10 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.ExN.LEGEND))[1:10]
+       , legend = rev(rownames(colorLegend.ExN.LEGEND)[toShow.ExN])
        , pch = 22
-       , pt.bg = rev(colorsToPlot.ExN)[1:10]
-       , col = rev(colorsToPlot.ExN)[1:10]
+       , pt.bg = rev(colorsToPlot.ExN[toShow.ExN])
+       , col = rev(colorsToPlot.ExN[toShow.ExN])
        , cex = 0.5
        , pt.cex = 1.2
        , bty = "n")
@@ -757,18 +880,54 @@ if (length(toDelete) > 0){
   rownames(colorLegend.Environ.LEGEND) <- rownames(colorLegend.Environ)[-toDelete]
 }
 
+### Get most abundant things
+toShowNames <- rownames(taxasum.Environ[tail(order(rowSums(taxasum.Environ)),10),])
+toShow.Environ <- sort(match(toShowNames, rownames(colorLegend.Environ.LEGEND)))
+
+
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.Environ.LEGEND)) {
   newName <- rownames(colorLegend.Environ.LEGEND)[r]
+  if (length(grep(";Other", newName)) > 0) {
+      newName <- gsub(";Other",";__Other",newName)
+  }
+  
   if (length(grep("Unassigned", newName)) > 0) {
     newName <- "Unidentified"
   } else {
-    newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
-    newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
+      newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
+      phyl <- newName[[1]][3]
+      gen <- newName[[1]][5]
+      spec <- newName[[1]][6]
+      if (is.na(spec)) {
+          spec <- "Unidentified"
+      }
+      if (is.na(gen)) {
+          gen <- "Unidentified"
+      }
+      if (is.na(phyl)) {
+          phyl <- "Other"
+      }
+      if (gen != spec) {
+          combo_name <- paste0(gen,"_",spec)
+      } else {
+          combo_name <- gen
+      }
+      if (phyl == "Other") {
+          phyl <- newName[[1]][2]
+          if (is.na(phyl)){
+              phyl <- "Other"
+          }
+          if (phyl == "Other") {
+              phyl <- newName[[1]][1]
+          }
+      }
+      newName <- paste0(phyl,": ",combo_name)
+      
   }
   listNamesTemp <- c(listNamesTemp, newName)
 }
-rownames(colorLegend.Environ.LEGEND) <- make.names(listNamesTemp, unique = TRUE)
+rownames(colorLegend.Environ.LEGEND) <- gsub("..",": ",make.names(listNamesTemp, unique = TRUE), fixed=TRUE)
 
 colorsToPlot.Environ <- as.vector(colorLegend.Environ.LEGEND[,1])
 
@@ -800,10 +959,10 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.Environ.LEGEND))[1:10]
+       , legend = rev(rownames(colorLegend.Environ.LEGEND)[toShow.Environ])
        , pch = 22
-       , pt.bg = rev(colorsToPlot.Environ)[1:10]
-       , col = rev(colorsToPlot.Environ)[1:10]
+       , pt.bg = rev(colorsToPlot.Environ[toShow.Environ])
+       , col = rev(colorsToPlot.Environ[toShow.Environ])
        , cex = 0.5
        , pt.cex = 1.2
        , bty = "n")
@@ -853,18 +1012,53 @@ if (length(toDelete) > 0){
     rownames(colorLegend.Star.LEGEND) <- rownames(colorLegend.Star)[-toDelete]
 }
 
+### Get most abundant things
+toShowNames <- rownames(taxasum.Star[tail(order(rowSums(taxasum.Star)),10),])
+toShow.Star <- sort(match(toShowNames, rownames(colorLegend.Star.LEGEND)))
+
 listNamesTemp <- c()
 for (r in 1:nrow(colorLegend.Star.LEGEND)) {
     newName <- rownames(colorLegend.Star.LEGEND)[r]
+    if (length(grep(";Other", newName)) > 0) {
+        newName <- gsub(";Other",";__Other",newName)
+    }
+    
     if (length(grep("Unassigned", newName)) > 0) {
         newName <- "Unidentified"
     } else {
         newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
-        newName <- paste0(newName[[1]][3],": ",newName[[1]][5],"_",newName[[1]][6])
+        phyl <- newName[[1]][3]
+        gen <- newName[[1]][5]
+        spec <- newName[[1]][6]
+        if (is.na(spec)) {
+            spec <- "Unidentified"
+        }
+        if (is.na(gen)) {
+            gen <- "Unidentified"
+        }
+        if (is.na(phyl)) {
+            phyl <- "Other"
+        }
+        if (gen != spec) {
+            combo_name <- paste0(gen,"_",spec)
+        } else {
+            combo_name <- gen
+        }
+        if (phyl == "Other") {
+            phyl <- newName[[1]][2]
+            if (is.na(phyl)){
+                phyl <- "Other"
+            }
+            if (phyl == "Other") {
+                phyl <- newName[[1]][1]
+            }
+        }
+        newName <- paste0(phyl,": ",combo_name)
+        
     }
     listNamesTemp <- c(listNamesTemp, newName)
 }
-rownames(colorLegend.Star.LEGEND) <- make.names(listNamesTemp, unique = TRUE)
+rownames(colorLegend.Star.LEGEND) <- gsub("..",": ",make.names(listNamesTemp, unique = TRUE), fixed=TRUE)
 
 colorsToPlot.Star <- as.vector(colorLegend.Star.LEGEND[,1])
 
@@ -880,7 +1074,7 @@ barplot(as.matrix(taxasum.Star)
 )
 axis(side = 1
      , las = 2
-     , at = c(2.5,8.5,14)
+     , at = c(2.5,6.5,11,14)
      , labels = c("Inner Nereocystis","Outer Nereocystis", "Inner Water", "Outer Water")
      , tick = FALSE
      , line = -1
@@ -895,10 +1089,10 @@ plot(0,0
      , ylab = ""
      , bty = "n")
 legend("top"
-       , legend = rev(rownames(colorLegend.Star.LEGEND))[1:10]
+       , legend = rev(rownames(colorLegend.Star.LEGEND)[toShow.Star])
        , pch = 22
-       , pt.bg = rev(colorsToPlot.Star)[1:10]
-       , col = rev(colorsToPlot.Star)[1:10]
+       , pt.bg = rev(colorsToPlot.Star[toShow.Star])
+       , col = rev(colorsToPlot.Star[toShow.Star])
        , cex = 0.5
        , pt.cex = 1.2
        , bty = "n")
@@ -907,11 +1101,12 @@ dev.off()
 ################ ALL PLOTS TOGETHER #################
 # Want to put NMF-incubation experiment together and seaweed surfaces together
 # Make new legend that combines everything
-colorLegend.ExN.new <- cbind(rev(rownames(colorLegend.ExN.LEGEND))[1:20], rev(as.character(colorLegend.ExN.LEGEND[,1]))[1:20])
-colorLegend.Water.new <- cbind(rev(rownames(colorLegend.Water.LEGEND))[1:20], rev(as.character(colorLegend.Water.LEGEND[,1]))[1:20])
+colorLegend.ExN.new <- cbind(rev(rownames(colorLegend.ExN.LEGEND)[toShow.ExN]), rev(as.character(colorLegend.ExN.LEGEND[,1])[toShow.ExN]))
+colorLegend.Water.new <- cbind(rev(rownames(colorLegend.Water.LEGEND)[toShow.Water]), rev(as.character(colorLegend.Water.LEGEND[,1])[toShow.Water]))
 
 duplicatedRows1 <- which(colorLegend.ExN.new[,1] %in% colorLegend.Water.new[,1])
 comboLegend <- rbind(colorLegend.Water.new, colorLegend.ExN.new[-duplicatedRows1,])
+comboLegend <- comboLegend[rev(order(comboLegend[,1])),]
 
 pdf("TAXASUMMARIES/TaxaSummaries_combo.pdf", pointsize = 14, width = 10, height = 7)
 par(oma = c(0,0,0,0))
@@ -996,13 +1191,14 @@ taxasum.ExN.Nereoonly <- taxasum.ExN[,grep("Nereotest.ExN",colnames(taxasum.ExN)
 taxasum.Loneincube.Nereoonly <- taxasum.Loneincube[,grep("Nereo.Loneincube.Nereo", colnames(taxasum.Loneincube))]
 taxasum.Star.Nereoonly <- taxasum.Star[,grep("Nereocystis",colnames(taxasum.Star))]
 
-colorLegend.ExN.new <- cbind(rev(rownames(colorLegend.ExN.LEGEND))[1:20], rev(as.character(colorLegend.ExN.LEGEND[,1]))[1:20])
-colorLegend.Loneincube.new <- cbind(rev(rownames(colorLegend.Loneincube.LEGEND))[1:20], rev(as.character(colorLegend.Loneincube.LEGEND[,1]))[1:20])
-colorLegend.Star.new <- cbind(rev(rownames(colorLegend.Star.LEGEND))[1:20], rev(as.character(colorLegend.Star.LEGEND[,1]))[1:20])
-colorLegend.Environ.new <- cbind(rev(rownames(colorLegend.Environ.LEGEND))[1:20], rev(as.character(colorLegend.Environ.LEGEND[,1]))[1:20])
+colorLegend.ExN.new <- cbind(rev(rownames(colorLegend.ExN.LEGEND)[toShow.ExN]), rev(as.character(colorLegend.ExN.LEGEND[,1])[toShow.ExN]))
+colorLegend.Loneincube.new <- cbind(rev(rownames(colorLegend.Loneincube.LEGEND)[toShow.Loneincube]), rev(as.character(colorLegend.Loneincube.LEGEND[,1])[toShow.Loneincube]))
+colorLegend.Star.new <- cbind(rev(rownames(colorLegend.Star.LEGEND)[toShow.Star]), rev(as.character(colorLegend.Star.LEGEND[,1])[toShow.Star]))
+colorLegend.Environ.new <- cbind(rev(rownames(colorLegend.Environ.LEGEND)[toShow.Environ]), rev(as.character(colorLegend.Environ.LEGEND[,1])[toShow.Environ]))
 comboLegend.Nereo <- rbind(colorLegend.ExN.new,colorLegend.Loneincube.new,colorLegend.Star.new,colorLegend.Environ.new)
 duplicatedRows.nereo <- which(duplicated(comboLegend.Nereo[,1]))
 comboLegend.Nereo <- comboLegend.Nereo[-duplicatedRows.nereo,]
+comboLegend.Nereo <- comboLegend.Nereo[rev(order(comboLegend.Nereo[,1])),]
 
 pdf("TAXASUMMARIES/Nereo_combo.pdf", pointsize = 14, width = 10, height = 7)
 par(oma = c(0,0,0,0))
@@ -1058,8 +1254,8 @@ legend(x = -1.1, y = 0
        , pch = 22
        , pt.bg = (comboLegend.Nereo[,2])
        , col = (comboLegend.Nereo[,2])
-       , cex = 0.65
-       , pt.cex = 1.2
+       , cex = 0.5
+       , pt.cex = 1
        , bty = "n"
        , xjust = 0
        , yjust = 0.5
@@ -1108,17 +1304,49 @@ deseq.sig.names <- deseq.sig
 deseq.stat.names <- deseq.stat
 listNamesTemp <- c()
 for (r in 1:nrow(deseq.fc.names)) {
-  tempName <- rownames(deseq.fc.names)[r]
-  tempName <- strsplit(tempName, split = paste0(delimiter), fixed = TRUE)
-  newName <- paste0(tempName[[1]][3], ": ", tempName[[1]][5],"_",tempName[[1]][6])
-  if (newName == "NA: NA_NA"){
-    newName <- "Unidentified"
+  newName <- rownames(deseq.fc.names)[r]
+  if (length(grep(";Other", newName)) > 0) {
+      newName <- gsub(";Other",";__Other",newName)
+  }
+  
+  if (length(grep("Unassigned", newName)) > 0) {
+      newName <- "Unidentified"
+  } else {
+      newName <- strsplit(newName, split = paste0(delimiter), fixed = TRUE)
+      phyl <- newName[[1]][3]
+      gen <- newName[[1]][5]
+      spec <- newName[[1]][6]
+      if (is.na(spec)) {
+          spec <- "Unidentified"
+      }
+      if (is.na(gen)) {
+          gen <- "Unidentified"
+      }
+      if (is.na(phyl)) {
+          phyl <- "Other"
+      }
+      if (gen != spec) {
+          combo_name <- paste0(gen,"_",spec)
+      } else {
+          combo_name <- gen
+      }
+      if (phyl == "Other") {
+          phyl <- newName[[1]][2]
+          if (is.na(phyl)){
+              phyl <- "Other"
+          }
+          if (phyl == "Other") {
+              phyl <- newName[[1]][1]
+          }
+      }
+      newName <- paste0(phyl,": ",combo_name)
+      
   }
   listNamesTemp <- c(listNamesTemp, newName)
 }
-rownames(deseq.fc.names) <- make.names(listNamesTemp, unique = TRUE)
-rownames(deseq.sig.names) <- make.names(listNamesTemp, unique = TRUE)
-rownames(deseq.stat.names) <- make.names(listNamesTemp, unique = TRUE)
+rownames(deseq.fc.names) <- gsub("..",": ",make.names(listNamesTemp, unique = TRUE), fixed=TRUE)
+rownames(deseq.sig.names) <- gsub("..",": ",make.names(listNamesTemp, unique = TRUE), fixed=TRUE)
+rownames(deseq.stat.names) <- gsub("..",": ",make.names(listNamesTemp, unique = TRUE), fixed=TRUE)
 
 # rownames(deseq.fc.names)
 
@@ -1246,7 +1474,7 @@ for (r in 1:nrow(deseq.sig.ALL.star)) {
 }
 
 ######### PLOT ############
-pdf("./DESEQ/Heatmap_enrichedOTUs.pdf", pointsize = 14)
+pdf("./DESEQ/Heatmap_enrichedOTUs.pdf", pointsize = 10)
 heatmap.2(as.matrix(deseq.fc.ALL.NAs)
         , Rowv = NA
         , Colv = NA
