@@ -1,9 +1,0 @@
-Anova Table (Type III tests)
-
-Response: MF.ExNWater[, paste0(i)]
-                   Sum Sq Df F value    Pr(>F)    
-(Intercept)        121742  1 538.463 2.103e-15 ***
-MF.ExNWater$ColRep  30620  4  33.858 2.114e-08 ***
-Residuals            4296 19                      
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
