@@ -38,7 +38,7 @@ WUFPWD = opt$WUFPWD
 # 
 setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/")
 MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
-alphaNames <-  'chao1_even_1000_alpha,PD_whole_tree_even_1000_alpha,observed_otus_even_1000_alpha'
+alphaNames <-  'chao1_even_800_alpha,PD_whole_tree_even_800_alpha,observed_otus_even_800_alpha'
 alphaList <- unlist(strsplit(alphaNames, ","))
 betaNames <- 'BC,WUF,UWUF'
 betaList <- unlist(strsplit(betaNames,","))
@@ -102,7 +102,7 @@ MF.LoneIncube <- MF.filtered[grep("Loneincube", rownames(MF.filtered)),]
 ######## *ALPHA* ##########
 alphaListFiles.ExN <- list()
 for (i in alphaList) {
-  tempI <- gsub("_even_1000_alpha","", i)
+  tempI <- gsub("_even_800_alpha","", i)
   alphaListFiles.ExN[[paste0(tempI)]] <- c()
   ######## STATS ########
 
@@ -364,7 +364,7 @@ for (b in betaList) {
 # For MF.ExNWater
 alphaListFiles.ExNWater <- list()
 for (i in alphaList) {
-  tempI <- gsub("_even_1000_alpha", "", i)
+  tempI <- gsub("_even_800_alpha", "", i)
   alphaListFiles.ExNWater[[paste0(tempI)]] <- c()
   
   ######## STATS ########
@@ -625,7 +625,7 @@ for (b in betaList) {
 # For MF.LoneIncube
 alphaListFiles.LoneIncube <- list()
 for (i in alphaList) {
-  tempI <- gsub("_even_1000_alpha", "",i)
+  tempI <- gsub("_even_800_alpha", "",i)
   alphaListFiles.LoneIncube[[paste0(tempI)]] <- c()
   
   ######## STATS ########
@@ -897,7 +897,7 @@ capture.output(table(MF.algae$newFactor), file = "ALPHAPLOTS/algaecompare.reps.t
 #### *ALPHA* ####
 alphaListFiles.All <- list()
 for (i in alphaList) {
-  tempI <- gsub("_even_1000_alpha", "", i)
+  tempI <- gsub("_even_800_alpha", "", i)
   MF.algae.filt <- MF.algae[,c(i, "newAlphaColRep", "newFactor")]
   alphaListFiles.All[[paste0(tempI)]] <- c()
   
@@ -1134,7 +1134,7 @@ for (b in betaList) {
 }
 
 ## Using mixed effects ONLY
-anova.alpha.lme <- anova(lme(chao1_even_1000_alpha ~ TissueType, random = ~1|Site, data = MF.sitexsub))
+anova.alpha.lme <- anova(lme(chao1_even_800_alpha ~ TissueType, random = ~1|Site, data = MF.sitexsub))
 capture.output(anova.alpha.lme, file = paste0("ALPHAPLOTS/labvswild_sitexsub_MixedEffects_chao1.txt"))
 
 dm.temp <- get(paste0("dm.BC"))[rownames(MF.sitexsub), rownames(MF.sitexsub)]
@@ -1146,7 +1146,7 @@ MF.nm <- MF[grep("Lab|Brockton|Starfish",MF$Site),]
 MF.nm <- MF.nm[-grep("Water",MF.nm$SubstrateType),]
 MF.nm[,"TissueType"] <- gsub("ExN","Nereo", MF.nm$SubstrateType)
 for (i in alphaList) {
-    tempI <- gsub("_even_1000_alpha","",i)
+    tempI <- gsub("_even_800_alpha","",i)
     nereotemp <- MF.nm[grep("Nereo", MF.nm$TissueType),i]
     mastotemp <- MF.nm[grep("Mast", MF.nm$TissueType),i]
     ttest_nereovsmast <- t.test(nereotemp, mastotemp)
@@ -1168,7 +1168,7 @@ MF.star <- MF[grep("Starfish", MF$Site),]
 MF.star.nereo <- MF.star[grep("Nereo", MF.star$SubstrateType),]
 
 for (i in alphaList) {
-    tempI <- gsub("_even_1000_alpha","",i)
+    tempI <- gsub("_even_800_alpha","",i)
     inner <- MF.star.nereo[MF.star.nereo$ColRep=="EnvironmentalStarfishInnerNereocystis",i]
     outer <- MF.star.nereo[MF.star.nereo$ColRep=="EnvironmentalStarfishOuterNereocystis",i]
     ttest.star <- t.test(inner,outer)
@@ -1196,7 +1196,7 @@ choseB <- "BC"
 #### For ExN ####
 ## Alpha ##
 for (a in alphaList) {
-  tempI <- gsub("_even_1000_alpha","", a)
+  tempI <- gsub("_even_800_alpha","", a)
   
   # Get labels
   factorsCompareExN <- cbind(c(" ","NMF Alone","  ","Nereo","Nereo","Mast")
@@ -1316,7 +1316,7 @@ for (b in betaList){
 #### For ExNWater ####
 ## Alpha##
 for (a in alphaList) {
-  tempI <- gsub("_even_1000_alpha", "",a)
+  tempI <- gsub("_even_800_alpha", "",a)
   
   # Get labels
   factorsCompareExNWater <- cbind(c("Water Only", "","NMF Alone","  ","Nereo","Nereo","Mast")
@@ -1443,7 +1443,7 @@ for (b in betaList) {
 
 ## Alpha##
 for (a in alphaList) {
-  tempI <- gsub("_even_1000_alpha", "",a)
+  tempI <- gsub("_even_800_alpha", "",a)
   
   # Get labels
   factorsCompareAlgae <- cbind(c("Nereo", "Nereo","Mast")
@@ -1543,7 +1543,7 @@ for (b in betaList) {
 #### For LoneIncube ####
 ## Alpha##
 for (a in alphaList) {
-  tempI <- gsub("_even_1000_alpha", "",a)
+  tempI <- gsub("_even_800_alpha", "",a)
   
   # Get labels
   factorsCompareLoneIncube <- cbind(c("Nereo", "Nereo-Water")
@@ -1871,7 +1871,7 @@ MastorNotMast <- matrix(nrow = 3, ncol = 1)
 colnames(MastorNotMast) <- c("Welch's t-Test: Mast or no Mast")
 rownames(MastorNotMast) <- c("1","2","3")
 for (i in 1:length(alphaList)) {
-  tempI <- gsub("_even_1000_alpha","",alphaList[i])
+  tempI <- gsub("_even_800_alpha","",alphaList[i])
   tempttest <- t.test(Mast.only[,alphaList[i]], notMast[,alphaList[i]])
   ptemp <- signif(tempttest$p.value,3)
   ttemp <- round(tempttest$statistic,3)

@@ -75,10 +75,13 @@ for (met in listMeta) {
     for (tV in 1:length(tVar)) {
       nameT <- tVar[tV]
       if ( !all(is.na(get(met)[,paste0(nameR)])) ) {
+          temp.met <- get(met)
           temp.lm <- lm(get(nameR) ~ get(nameT), data = get(met))
           assign(paste0("anova.",nameM,".",nameR), anova(temp.lm))
+          temp.anova <- aov(temp.met[,nameR] ~ temp.met[,nameT])
+          assign(paste0("tukey.",nameR,".",nameM), TukeyHSD(x = temp.anova))
           assign(paste0("pairwise.",nameR,".",nameM), pairwise.t.test(metadata.Nereotest[,nameR], metadata.Nereotest[,nameT], p.adjust.method = "fdr"))
-          allResults <- c(allResults, paste0("anova.",nameM,".",nameR), paste0("pairwise.",nameR,".",nameM))
+          allResults <- c(allResults, paste0("anova.",nameM,".",nameR), paste0("pairwise.",nameR,".",nameM), paste0("tukey.temp.",nameR,".",nameM))
       }
     }
   }
