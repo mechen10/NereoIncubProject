@@ -36,8 +36,8 @@ WUFPWD = opt$WUFPWD
 # MFPWD <- "./ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 # alphaNames <- c("chao1","PD_whole_tree","observed_otus")
 # 
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/")
-MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/")
+MFPWD <-"/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 alphaNames <-  'chao1_even_800_alpha,PD_whole_tree_even_800_alpha,observed_otus_even_800_alpha'
 alphaList <- unlist(strsplit(alphaNames, ","))
 betaNames <- 'BC,WUF,UWUF'
@@ -46,7 +46,7 @@ betaList <- unlist(strsplit(betaNames,","))
 BCPWD<- "./ANALYSIS_ALPHABETATAXA/beta_div/bray_curtis_dm.txt"
 WUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/unweighted_unifrac_dm.txt"
 UWUFPWD <- "./ANALYSIS_ALPHABETATAXA/beta_div/weighted_unifrac_dm.txt"
-MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+MFPWD <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 
 
 ############## LOAD DATA ########
@@ -1087,17 +1087,17 @@ for (b in betaList) {
   par(fig = c(0.6,1,0,1), mar = c(0,0,0,0), new = TRUE)
   legend("left"
          , legend = c("Nereo Meristem (M-W-NMF)"
-                      , "Nereo Meristem (wild)"
+                      , "Nereo Meristem (field: Brockton)"
                       , "Nereo blade (M-W)"
-                      , "Nereo blade (wild)"
-                      , "Nereo blade (remote,inner)"
-                      , "Nereo blade (remote,outer)"
+                      , "Nereo blade (field: Brockton)"
+                      , "Nereo blade (field: Hakai,inner)"
+                      , "Nereo blade (field: Hakai,outer)"
                       , "Mast blade (M-W)"
-                      , "Mast blade (wild)"
+                      , "Mast blade (field: Brockton)"
                       , "Water alone (M-W-NMF)"
                       , "Water (M-W-NMF)"
                       , "Water (M-W)"
-                      , "Water (remote)"
+                      , "Water (field: Hakai)"
          )
          , pch = 21
          #, pch = c(19,18,17,18,19,18,8,11,11)
