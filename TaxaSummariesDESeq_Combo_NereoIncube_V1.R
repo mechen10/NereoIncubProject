@@ -49,11 +49,11 @@ depth = opt$depth
 # biom convert -i OTUTable --to-tsv --header-key taxonomy -o OTU_Table_text.txt
 
 # OTU
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/")
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/")
 system("mkdir OTULEVEL")
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTULEVEL")
-OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/OTU_MP_filt/OTU_Table_text.txt'
-MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/OTULEVEL")
+OTUTableFP <- '/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/OTU_MP_filt/OTU_Table_text.txt'
+MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 minthreshold <- 10
 category <- "ColRep"
 annotations <- TRUE
@@ -67,11 +67,11 @@ delimiter <- "..__" # For OTU
 thresh <- 0.03
 
 # GENUS
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/")
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/")
 system("mkdir GENUSLEVEL")
-setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/GENUSLEVEL")
-OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m800_sorted_L6.txt"
-MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/2_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
+setwd("/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/GENUSLEVEL")
+OTUTableFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/ANALYSIS_ALPHABETATAXA/summarize_taxa/OTU_Table_nochlpmito_m800_sorted_L6.txt"
+MFFP <- "/Users/melissachen/Documents/Masters/Project_Masters/Project_MacroalgaeSource/3_analysis/ANALYSIS_ALPHABETATAXA/OTU_Tables_and_MP/MF_withalpha.txt"
 minthreshold <- 10
 category <- "ColRep"
 annotations <- FALSE
@@ -1308,8 +1308,6 @@ axis(side = 1
      , cex.axis = 0.6
 )
 dev.off()
-
-
 
 
 ############## *********PLOT DESEQ********* ################

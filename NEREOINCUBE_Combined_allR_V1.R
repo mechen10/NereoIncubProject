@@ -1113,6 +1113,77 @@ for (b in betaList) {
   
 }
 
+############ ****NMDS FOR WATERS: just experiments **** #############
+MF.wateronly <- MF.filtered[grep("(w|W)ater",rownames(MF.filtered)),]
+MF.expwateronly <- MF.wateronly[grep("Nereotest|Loneincube", rownames(MF.wateronly)),]
+MF.expwateronly$ColRep <- factor(MF.expwateronly$ColRep, levels = c("NereotestH2OWater","NereotestExNWater","NereotestNereoWater","NereotestMastWater","NereotestNereoMastWater","LoneincubeNereowater","LoneincubeMastwater"))
+water.colours <- c("blue","darkgrey","green","purple","brown","lightseagreen","pink" )
+
+NMDS.watersFiles <- list()
+for ( b in betaList ) {
+    metric <- b
+    NMDS.watersFiles[[metric]] <- list()
+    dm.metrictemp <- get(paste0("dm.",metric,".all"))
+    dm.temp <- dm.metrictemp[match(rownames(MF.expwateronly), rownames(dm.metrictemp)),match(rownames(MF.expwateronly), colnames(dm.metrictemp))]
+    NMDS.watersFiles[[metric]][["dm"]] <- dm.temp
+    
+    NMDS.temp <- isoMDS(dist(dm.temp), k = 2)
+    NMDS.watersFiles[[metric]][["nmds"]] <- NMDS.temp
+   
+     # Make chulls
+    listChulls <- c("Nereotest.H2O","Nereotest.ExN","Nereotest.Nereo.","Nereotest.Mast","Nereotest.NereoMast","Loneincube.Nereo","Loneincube.Mast")
+    plot.listChulls <- list()
+    for ( LCH in listChulls) {
+        tempLCH <- NMDS.temp$points[grep(paste0(LCH), rownames(NMDS.temp$points), fixed = TRUE),]
+        tempLCH.chull <- chull(tempLCH)
+        tempLCH.chull <- c(tempLCH.chull, tempLCH.chull[1])
+        
+        plot.listChulls[[LCH]]<- list(NMDS = tempLCH
+                                      , chulls = tempLCH.chull)
+    }
+    
+    
+    pdf(paste0("./BETAPLOTS/",metric,"/NMDS_",metric,"_watersExpOnly.pdf"), width = 10, height = 7, pointsize = 14)
+    par(fig = c(0,0.7,0,1))
+    plot(NMDS.temp$points
+         , main = "NMDS of Water from M-W and M-W-NMF Exp"
+         , pch = 19
+         , col = water.colours[factor(MF.expwateronly$ColRep)]
+         , sub = paste0("Stress: ",round(NMDS.temp$stress/100,2))
+         , xlab = "NMDS 1"
+         , ylab = "NMDS 2"
+         , cex = 2
+    )
+    for (ch in 1:length(plot.listChulls)) {
+        tempCH <- names(plot.listChulls)[ch]
+        lines(plot.listChulls[[tempCH]]$NMDS[plot.listChulls[[tempCH]]$chulls,]
+              , col = water.colours[ch])
+    }
+    
+    par(fig = c(0.6,1,0,1), new = TRUE)
+    plot(0,0
+         , pch = ""
+         , xaxt = "n"
+         , yaxt = "n"
+         , xlab = ""
+         , ylab = ""
+         , bty = "n")
+    legend("top"
+           , pch = 19
+           , legend = c("M-W-NMF: Water only","M-W-NMF: NMF", "M-W-NMF: Nereo","M-W-NMF: Mast","M-W-NMF: Nereo + Mast", "M-W: Nereo", "M-W: Mast")#levels(MF.ExN$ColRep)
+           , col = water.colours
+           , cex = 1
+           , bty = "n")
+    dev.off()
+    
+    
+    
+}
+
+
+
+
+
 ############ ****Lab vs wild**** #############
 #For Nereo vs Mast vs ExN
 MF.sitexsub <- MF[grep("Lab|Brockton",MF$Site),]
