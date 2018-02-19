@@ -1409,7 +1409,7 @@ for (a in alphaList) {
                                   , rep(" ", 3)
                                   , ExNWater.insertA.toPaste
                                   , rep(" ", 3)
-                                  , get(paste0("allPvalues.ExNWater.",tempI))[4:6,] )
+                                  , get(paste0("allPvalues.ExNWater.",tempI))[5:7,] )
   
   CombinedTable.ExNWater <- cbind(factorsCompareExNWater, CombinedTable.ExNWater)
   CombinedTable.ExNWater <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.ExNWater)
@@ -1473,7 +1473,7 @@ for (b in betaList) {
                                   , rep(" ", 3)
                                   , ExNWater.insertB.toPaste
                                   , rep(" ", 3)
-                                  , get(paste0("allPValues.ExNWater.",metric))[4:6,])
+                                  , get(paste0("allPValues.ExNWater.",metric))[5:7,])
   
   CombinedTable.ExNWater <- cbind(factorsCompareExNWater, CombinedTable.ExNWater)
   CombinedTable.ExNWater <- rbind(colnamesTop, colnamessubTop, colnamesSecond, CombinedTable.ExNWater)
