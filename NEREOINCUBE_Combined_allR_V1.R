@@ -193,7 +193,7 @@ for (i in alphaList) {
           , las = 2
           , col = c("gray","green","purple","brown")
           , ylab = paste0("Alpha Diversity (", tempI,")")
-          , main = "Alpha diversity across meristem swabs"
+          , main = "B. Richness of NMF Surfaces"
   )
   title(xlab = "Treatment", line = 8)
   dev.off()
@@ -326,7 +326,7 @@ for (b in betaList) {
   pdf(paste0("./BETAPLOTS/",metric,"/NMDS_",metric,"_ExN.pdf"), width = 10, height = 7, pointsize = 14)
   par(fig = c(0,0.7,0,1))
   plot(get(paste0("NMDS.",metric,".ExN"))$points
-       , main = "NMDS of Nereo Meristem Swabs"
+       , main = "A. NMDS of NMF Surfaces"
        , pch = 19
        , col = ExNColours[factor(MF.ExN$ColRep)]
        , sub = paste0("Stress: ",round(get(paste0("NMDS.",metric,".ExN"))$stress/100,2))
@@ -340,7 +340,7 @@ for (b in betaList) {
           , col = ExNColours[ch])
   }
   
-  par(fig = c(0.6,1,0,1), new = TRUE)
+  par(fig = c(0.7,1,0,1), mar = c(0,0,0,0), new = TRUE)
   plot(0,0
        , pch = ""
        , xaxt = "n"
@@ -348,7 +348,7 @@ for (b in betaList) {
        , xlab = ""
        , ylab = ""
        , bty = "n")
-  legend("top"
+  legend("left"
          , pch = 19
          , legend = c("NMF Alone","with Nereo","with Mast","with Nereo + Mast")#levels(MF.ExN$ColRep)
          , col = ExNColours
@@ -455,7 +455,7 @@ for (i in alphaList) {
           , las = 2
           , col = c("blue","gray","green","purple","brown")
           , ylab = paste0("Alpha Diversity (", tempI,")")
-          , main = "Alpha diversity across water samples"
+          , main = "B. Richness of Water Samples"
   )
   title(xlab = "Treatment", line = 8)
   dev.off()
@@ -587,7 +587,7 @@ for (b in betaList) {
   pdf(paste0("./BETAPLOTS/",metric,"/NMDS_",metric,"_ExNWater.pdf"), width = 10, height = 7, pointsize = 14)
   par(fig = c(0,0.7,0,1))
   plot(get(paste0("NMDS.",metric,".ExNWater"))$points
-       , main = "NMDS of Water Samples"
+       , main = "A. NMDS of Water Samples"
        , pch = 19
        , col = ExNWaterColours[factor(MF.ExNWater$ColRep)]
        , sub = paste0("Stress: ",round(get(paste0("NMDS.",metric,".ExNWater"))$stress/100,2))
@@ -601,7 +601,7 @@ for (b in betaList) {
           , col = ExNWaterColours[ch])
   }
   
-  par(fig = c(0.6,1,0,1), new = TRUE)
+  par(fig = c(0.7,1,0,1),mar=c(0,0,0,0), new = TRUE)
   plot(0,0
        , pch = ""
        , xaxt = "n"
@@ -609,7 +609,7 @@ for (b in betaList) {
        , xlab = ""
        , ylab = ""
        , bty = "n")
-  legend("top"
+  legend("left"
          , pch = 19
          , legend = c("Water Only","NMF Alone","with Nereo","with Mast","with Nereo + Mast")#levels(MF.ExNWater$ColRep)
          , col = ExNWaterColours
@@ -707,8 +707,8 @@ for (i in alphaList) {
   boxplot(t(MF.LoneIncube.Alpha)
           , las = 2
           , col = c("green","purple","lightseagreen","lightslateblue")
-          , ylab = paste0("Alpha Diversity (", i,")")
-          , main = "Alpha diversity"
+          , ylab = paste0("Alpha Diversity (", tempI,")")
+          , main = "B. Richness"
   )
   title(xlab = "Treatment", line = 8)
   dev.off()
@@ -805,7 +805,7 @@ for (b in betaList) {
   pdf(paste0("./BETAPLOTS/",metric,"/NMDS_",metric,"_Loneincube.pdf"), width = 10, height = 7, pointsize = 14)
   par(fig = c(0,0.7,0,1))
   plot(get(paste0("NMDS.",metric,".LoneIncube"))$points
-       , main = "NMDS of M-W Experiment"
+       , main = "A. NMDS"
        , pch = 19
        , col = LoneIncubeColours[factor(MF.LoneIncube$ColRep)]
        , sub = paste0("Stress: ",round(get(paste0("NMDS.",metric,".LoneIncube"))$stress/100,2))
@@ -819,7 +819,7 @@ for (b in betaList) {
           , col = LoneIncubeColours[ch])
   }
   
-  par(fig = c(0.6,1,0,1), new = TRUE)
+  par(fig = c(0.7,1,0,1), mar=c(0,0,0,0),new = TRUE)
   plot(0,0
        , pch = ""
        , xaxt = "n"
@@ -827,11 +827,12 @@ for (b in betaList) {
        , xlab = ""
        , ylab = ""
        , bty = "n")
-  legend("top"
+  legend("left"
          , pch = 19
          , legend = c("Water-Nereo","Nereo","Water-Mast","Mast")#levels(MF.LoneIncube$ColRep)
          , col = LoneIncubeColours
-         , cex = 1)
+         , cex = 1
+         , bty = "n")
   dev.off()
   
 }
@@ -957,10 +958,11 @@ for (i in alphaList) {
 
   ########### PLOT ############
   pdf(paste0("ALPHAPLOTS/",tempI,"/Alpha_algaecompare",tempI, ".pdf"), pointsize = 14)
-  par(mar = c(8,5,4,4))
+  par()#mar = c(3,5,6,4))
   plot(MF.algae.filt[,paste0(i)]~ factor(temp)
        , ylab = paste0("Alpha Diversity (",tempI,")")
        , xlab = NA
+       , main = "B. Richness of all samples"
        , col = c(rep("green", 4),"yellowgreen","darkgreen","darkolivegreen4","darkseagreen1","darkseagreen","purple","magenta","lightblue",rep("blue",4), rep("dodgerblue",2), rep("darkblue",1))
        , las = 2 
        , xaxt = "n"
@@ -971,8 +973,7 @@ for (i in alphaList) {
        , las = 1
        , tick = FALSE
   )
-  title(xlab = "Sample Type"
-        , line = 6)
+
   dev.off()
 }
 
@@ -1073,13 +1074,12 @@ for (b in betaList) {
   ###### PLOT ###########
   pdf(file = paste0("./BETAPLOTS/",metric,"/NMDS_all_",metric,".pdf"), pointsize = 14, width = 10, height = 7)
   par(fig = c(0,0.7,0,1))
-  plot(get(paste0("NMDS.",metric,".points"))
-       , main = paste0("NMDS plot of all samples (",metric,")")
+  plot((-1)*get(paste0("NMDS.",metric,".points"))[,1],(get(paste0("NMDS.",metric,".points"))[,2])
+       , main = paste0("A. NMDS plot of all samples (",metric,")")
        , sub = paste0("Stress: ",round(get(paste0("NMDS.",metric))$stress/100,2))
        , bg = colorsPlot[factor(MF.algae$newAlphaColRep)]
        , col = "black"
        , pch = 21
-       # , pch = pchPlot[factor(MF.all$ColRep)]
        , cex = 2
        , xlab = "NMDS 1"
        , ylab = "NMDS 2"
@@ -1168,7 +1168,7 @@ for ( b in betaList ) {
          , xlab = ""
          , ylab = ""
          , bty = "n")
-    legend("top"
+    legend("left"
            , pch = 19
            , legend = c("M-W-NMF: Water only","M-W-NMF: NMF", "M-W-NMF: Nereo","M-W-NMF: Mast","M-W-NMF: Nereo + Mast", "M-W: Nereo", "M-W: Mast")#levels(MF.ExN$ColRep)
            , col = water.colours
